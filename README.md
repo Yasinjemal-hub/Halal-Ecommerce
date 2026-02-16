@@ -96,8 +96,8 @@ This platform introduces **trust, transparency, and digital accessibility** into
 
 ```bash
 # Clone repository
-git clone https://github.com/suadabrar/digital-halal-network.git
-cd digital-halal-network
+git clone https://github.com/Yasinjemal-hub/Halal_E-Commerce_web.git
+cd Halal_E-Commerce_web
 ```
 
 ### Backend Setup
@@ -105,7 +105,6 @@ cd digital-halal-network
 ```bash
 cd backend
 npm install
-cp .env.example .env
 npm run dev
 ```
 
@@ -114,7 +113,6 @@ npm run dev
 ```bash
 cd frontend
 npm install
-cp .env.example .env
 npm start
 ```
 
@@ -184,7 +182,7 @@ digital-halal-network/
 │   │   ├── sendEmail.js
 │   │   └── generateToken.js
 │   │
-│   ├── .env.example
+│   ├── .env
 │   ├── package.json
 │   └── server.js
 │
@@ -233,7 +231,7 @@ digital-halal-network/
 │   │   ├── App.js
 │   │   └── index.js
 │   │
-│   ├── .env.example
+│   ├── .env
 │   └── package.json
 │
 ├── .gitignore
