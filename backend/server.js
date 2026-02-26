@@ -19,6 +19,7 @@ import cartRoutes from './routes/cartRoutes.js';
 const app = express();
 
 // ── Connect to Database ─────────────────────────────────
+dotenv.config();
 connectDB();
 
 // ── Global Middleware ───────────────────────────────────
