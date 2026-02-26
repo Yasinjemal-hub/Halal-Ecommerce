@@ -1,0 +1,224 @@
+/* Cart Page Styles */
+.cart-page {
+    padding: var(--space-8) 0 var(--space-16);
+    min-height: 80vh;
+}
+
+.cart-header {
+    margin-bottom: var(--space-8);
+}
+
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-8);
+    align-items: start;
+}
+
+.cart-empty-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.cart-empty-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.cart-empty-illustration {
+    font-size: 5rem;
+    margin-bottom: var(--space-4);
+}
+
+.cart-empty-content h2 {
+    font-size: 1.5rem;
+}
+
+.cart-empty-content p {
+    color: var(--text-tertiary);
+    max-width: 300px;
+}
+
+.cart-page-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-5);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+    margin-bottom: var(--space-4);
+    transition: all var(--transition-fast);
+}
+
+.cart-page-item:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.cart-page-item-image {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.cart-page-item-info {
+    flex: 1;
+}
+
+.cart-page-item-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+}
+
+.cart-page-item-merchant {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    margin-top: var(--space-1);
+}
+
+.cart-page-item-qty {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.cart-page-item-qty .qty-btn {
+    width: 36px;
+    height: 36px;
+}
+
+.cart-page-item-qty .qty-value {
+    min-width: 36px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.cart-page-item-price {
+    text-align: right;
+    min-width: 120px;
+}
+
+.cart-page-item-price .price-current {
+    display: block;
+    font-weight: 700;
+    color: var(--primary-600);
+    font-size: 1rem;
+}
+
+.price-unit {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.cart-page-item-remove {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.cart-page-item-remove:hover {
+    color: var(--error);
+    background: var(--red-50);
+}
+
+.cart-page-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-4);
+}
+
+.cart-summary {
+    position: sticky;
+    top: 120px;
+}
+
+.cart-summary-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.cart-summary-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: var(--space-5);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+    font-size: 0.9375rem;
+}
+
+.summary-row span:first-child {
+    color: var(--text-secondary);
+}
+
+.summary-divider {
+    height: 1px;
+    background: var(--gray-200);
+    margin: var(--space-4) 0;
+}
+
+.summary-total span {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.free-shipping {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.summary-note {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    margin-top: var(--space-2);
+}
+
+@media (max-width: 1024px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 640px) {
+    .cart-page-item {
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+
+    .cart-page-item-image {
+        width: 70px;
+        height: 70px;
+    }
+
+    .cart-page-item-price {
+        min-width: auto;
+    }
+}
