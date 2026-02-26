@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FiSearch, FiShoppingCart, FiUser, FiMenu, FiX, FiSun, FiMoon, FiChevronDown, FiLogOut, FiGrid, FiHeart } from 'react-icons/fi';
-import { selectCartCount, toggleCart } from '../../redux/slices/cartSlice';
-import { logout } from '../../redux/slices/authSlice';
+import { selectCartCount, toggleCart } from '../../slices/cartSlice';
+import { logout } from '../../slices/authSlice';
 import './Navbar.css';
 
 const Navbar = () => {
