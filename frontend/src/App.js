@@ -15,6 +15,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import About from './pages/About';
 import MerchantDashboard from './pages/Dashboard/MerchantDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 
@@ -68,6 +69,7 @@ function App() {
         <Route path="/product/:id" element={<MainLayout><ProductDetails /></MainLayout>} />
         <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
         <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
+        <Route path="/about" element={<MainLayout><About /></MainLayout>} />
 
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<MainLayout><MerchantDashboard /></MainLayout>} />
