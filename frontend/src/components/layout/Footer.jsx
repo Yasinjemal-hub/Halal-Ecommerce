@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiMail, FiPhone, FiMapPin, FiArrowRight } from 'react-icons/fi';
 import { FaTelegram, FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
+import { useLanguage } from '../../i18n/LanguageContext';
 import './Footer.css';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
+    const { t } = useLanguage();
 
     return (
         <footer className="footer" id="footer">
@@ -14,20 +16,13 @@ const Footer = () => {
                 <div className="container">
                     <div className="newsletter-content">
                         <div className="newsletter-text">
-                            <h3 className="newsletter-title">Stay Connected with Halal Market</h3>
-                            <p className="newsletter-subtitle">
-                                Get the latest halal products, deals, and verified merchant updates delivered to your inbox.
-                            </p>
+                            <h3 className="newsletter-title">{t('footer_newsletter_title')}</h3>
+                            <p className="newsletter-subtitle">{t('footer_newsletter_desc')}</p>
                         </div>
                         <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-                            <input
-                                type="email"
-                                placeholder="Enter your email address"
-                                className="newsletter-input"
-                                id="newsletter-email-input"
-                            />
+                            <input type="email" placeholder={t('footer_newsletter_placeholder')} className="newsletter-input" id="newsletter-email-input" />
                             <button type="submit" className="btn btn-accent" id="newsletter-submit">
-                                Subscribe <FiArrowRight />
+                                {t('footer_newsletter_btn')} <FiArrowRight />
                             </button>
                         </form>
                     </div>
@@ -59,10 +54,7 @@ const Footer = () => {
                                     <span className="footer-logo-tagline">Ethiopia</span>
                                 </div>
                             </div>
-                            <p className="footer-description">
-                                Ethiopia's trusted digital marketplace for halal-certified products.
-                                Verified by Majlis — Ethiopian Islamic Affairs Supreme Council.
-                            </p>
+                            <p className="footer-description">{t('trust_halal_desc')}. {t('hero_badge')}.</p>
                             <div className="footer-social">
                                 <a href="#" className="social-link" aria-label="Telegram"><FaTelegram /></a>
                                 <a href="#" className="social-link" aria-label="Facebook"><FaFacebook /></a>
@@ -73,47 +65,38 @@ const Footer = () => {
 
                         {/* Quick Links */}
                         <div className="footer-col">
-                            <h4 className="footer-col-title">Quick Links</h4>
+                            <h4 className="footer-col-title">{t('footer_quick_links')}</h4>
                             <ul className="footer-links">
-                                <li><Link to="/shop">Shop All Products</Link></li>
-                                <li><Link to="/merchants">Verified Merchants</Link></li>
-                                <li><Link to="/shop?category=meat">Halal Meat</Link></li>
-                                <li><Link to="/shop?category=spices">Ethiopian Spices</Link></li>
-                                <li><Link to="/shop?isFeatured=true">Featured Products</Link></li>
+                                <li><Link to="/shop">{t('footer_shop_all')}</Link></li>
+                                <li><Link to="/merchants">{t('footer_verified_merchants')}</Link></li>
+                                <li><Link to="/shop?category=meat">{t('footer_halal_meat')}</Link></li>
+                                <li><Link to="/shop?category=spices">{t('footer_ethiopian_spices')}</Link></li>
+                                <li><Link to="/shop?isFeatured=true">{t('footer_featured')}</Link></li>
                             </ul>
                         </div>
 
                         {/* For Merchants */}
                         <div className="footer-col">
-                            <h4 className="footer-col-title">For Merchants</h4>
+                            <h4 className="footer-col-title">{t('footer_for_merchants')}</h4>
                             <ul className="footer-links">
-                                <li><Link to="/register">Register as Merchant</Link></li>
-                                <li><Link to="/merchant/dashboard">Merchant Dashboard</Link></li>
-                                <li><Link to="/certification">Halal Certification</Link></li>
-                                <li><Link to="/merchant/guide">Seller Guide</Link></li>
-                                <li><Link to="/pricing">Pricing Plans</Link></li>
+                                <li><Link to="/register">{t('footer_register_merchant')}</Link></li>
+                                <li><Link to="/merchant/dashboard">{t('footer_merchant_dashboard')}</Link></li>
+                                <li><Link to="/certification">{t('footer_halal_certification')}</Link></li>
+                                <li><Link to="/merchant/guide">{t('footer_seller_guide')}</Link></li>
+                                <li><Link to="/pricing">{t('footer_pricing')}</Link></li>
                             </ul>
                         </div>
 
                         {/* Contact */}
                         <div className="footer-col">
-                            <h4 className="footer-col-title">Contact Us</h4>
+                            <h4 className="footer-col-title">{t('footer_contact')}</h4>
                             <ul className="footer-contact">
-                                <li>
-                                    <FiMapPin className="contact-icon" />
-                                    <span>Bole Sub City, Addis Ababa, Ethiopia</span>
-                                </li>
-                                <li>
-                                    <FiPhone className="contact-icon" />
-                                    <span>+251 911 123 456</span>
-                                </li>
-                                <li>
-                                    <FiMail className="contact-icon" />
-                                    <span>info@halalmarket.et</span>
-                                </li>
+                                <li><FiMapPin className="contact-icon" /><span>Bole Sub City, Addis Ababa, Ethiopia</span></li>
+                                <li><FiPhone className="contact-icon" /><span>+251 911 123 456</span></li>
+                                <li><FiMail className="contact-icon" /><span>info@halalmarket.et</span></li>
                             </ul>
                             <div className="footer-payment-methods">
-                                <p className="payment-title">We Accept</p>
+                                <p className="payment-title">{t('footer_we_accept')}</p>
                                 <div className="payment-badges">
                                     <span className="payment-badge">TeleBirr</span>
                                     <span className="payment-badge">CBE Birr</span>
@@ -129,13 +112,11 @@ const Footer = () => {
             {/* Bottom Bar */}
             <div className="footer-bottom">
                 <div className="container footer-bottom-inner">
-                    <p className="footer-copyright">
-                        © {currentYear} Halal Market Ethiopia. All rights reserved. ❤️ Built for Ethiopia's Halal Community
-                    </p>
+                    <p className="footer-copyright">{t('footer_copyright', { year: currentYear })}</p>
                     <div className="footer-bottom-links">
-                        <Link to="/privacy">Privacy Policy</Link>
-                        <Link to="/terms">Terms of Service</Link>
-                        <Link to="/faq">FAQ</Link>
+                        <Link to="/privacy">{t('footer_privacy')}</Link>
+                        <Link to="/terms">{t('footer_terms')}</Link>
+                        <Link to="/faq">{t('footer_faq')}</Link>
                     </div>
                 </div>
             </div>

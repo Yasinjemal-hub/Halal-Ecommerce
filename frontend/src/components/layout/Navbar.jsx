@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { FiSearch, FiShoppingCart, FiUser, FiMenu, FiX, FiSun, FiMoon, FiChevronDown, FiLogOut, FiGrid, FiHeart } from 'react-icons/fi';
+import { FiSearch, FiShoppingCart, FiMenu, FiX, FiSun, FiMoon, FiChevronDown, FiLogOut, FiGrid, FiHeart } from 'react-icons/fi';
 import { selectCartCount, toggleCart } from '../../redux/slices/cartSlice';
 import { logout } from '../../redux/slices/authSlice';
+import { useLanguage } from '../../i18n/LanguageContext';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -18,6 +20,7 @@ const Navbar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { t } = useLanguage();
 
     const cartCount = useSelector(selectCartCount);
     const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -64,21 +67,21 @@ const Navbar = () => {
     };
 
     const navLinks = [
-        { path: '/', label: 'Home' },
-        { path: '/shop', label: 'Shop' },
-        { path: '/merchants', label: 'Merchants' },
-        { path: '/about', label: 'About' },
+        { path: '/', label: t('nav_home') },
+        { path: '/shop', label: t('nav_shop') },
+        { path: '/merchants', label: t('nav_merchants') },
+        { path: '/about', label: t('nav_about') },
     ];
 
     const categories = [
-        { slug: 'meat', label: '🥩 Meat & Poultry', icon: '🥩' },
-        { slug: 'dairy', label: '🥛 Dairy', icon: '🥛' },
-        { slug: 'spices', label: '🌶️ Spices', icon: '🌶️' },
-        { slug: 'bakery', label: '🍞 Bakery', icon: '🍞' },
-        { slug: 'honey', label: '🍯 Honey', icon: '🍯' },
-        { slug: 'clothing', label: '👗 Clothing', icon: '👗' },
-        { slug: 'cosmetics', label: '✨ Cosmetics', icon: '✨' },
-        { slug: 'books', label: '📚 Books', icon: '📚' },
+        { slug: 'meat', label: `🥩 ${t('cat_meat')}`, icon: '🥩' },
+        { slug: 'dairy', label: `🥛 ${t('cat_dairy')}`, icon: '🥛' },
+        { slug: 'spices', label: `🌶️ ${t('cat_spices')}`, icon: '🌶️' },
+        { slug: 'bakery', label: `🍞 ${t('cat_bakery')}`, icon: '🍞' },
+        { slug: 'honey', label: `🍯 ${t('cat_honey')}`, icon: '🍯' },
+        { slug: 'clothing', label: `👗 ${t('cat_clothing')}`, icon: '👗' },
+        { slug: 'cosmetics', label: `✨ ${t('cat_cosmetics')}`, icon: '✨' },
+        { slug: 'books', label: `📚 ${t('cat_books')}`, icon: '📚' },
     ];
 
     return (
@@ -87,10 +90,10 @@ const Navbar = () => {
             <div className="top-bar">
                 <div className="container top-bar-inner">
                     <div className="top-bar-left">
-                        <span className="top-bar-text">🕌 Trusted Halal Marketplace — Verified by Majlis</span>
+                        <span className="top-bar-text">{t('top_bar_text')}</span>
                     </div>
                     <div className="top-bar-right">
-                        <span className="top-bar-text text-ethiopic">እንኳን ደህና መጡ</span>
+                        <LanguageSwitcher />
                         <span className="top-bar-divider">|</span>
                         <button className="top-bar-btn" onClick={toggleTheme} aria-label="Toggle theme">
                             {isDark ? <FiSun size={14} /> : <FiMoon size={14} />}
@@ -128,13 +131,13 @@ const Navbar = () => {
                         <FiSearch className="search-icon" />
                         <input
                             type="text"
-                            placeholder="Search halal products, merchants..."
+                            placeholder={t('nav_search_placeholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="search-input"
                             id="search-input"
                         />
-                        <button type="submit" className="search-submit" id="search-submit">Search</button>
+                        <button type="submit" className="search-submit" id="search-submit">{t('nav_search')}</button>
                     </form>
 
                     {/* Desktop Nav Links */}
@@ -191,25 +194,25 @@ const Navbar = () => {
                                         </div>
                                         <div className="user-dropdown-divider" />
                                         <Link to="/dashboard" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                                            <FiGrid size={16} /> Dashboard
+                                            <FiGrid size={16} /> {t('nav_dashboard')}
                                         </Link>
                                         <Link to="/orders" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                                            <FiShoppingCart size={16} /> My Orders
+                                            <FiShoppingCart size={16} /> {t('nav_my_orders')}
                                         </Link>
                                         <Link to="/wishlist" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                                            <FiHeart size={16} /> Wishlist
+                                            <FiHeart size={16} /> {t('nav_wishlist')}
                                         </Link>
                                         <div className="user-dropdown-divider" />
                                         <button className="user-dropdown-item user-dropdown-logout" onClick={handleLogout}>
-                                            <FiLogOut size={16} /> Logout
+                                            <FiLogOut size={16} /> {t('nav_logout')}
                                         </button>
                                     </div>
                                 )}
                             </div>
                         ) : (
                             <div className="auth-buttons">
-                                <Link to="/login" className="btn btn-ghost btn-sm" id="login-btn">Login</Link>
-                                <Link to="/register" className="btn btn-primary btn-sm" id="register-btn">Register</Link>
+                                <Link to="/login" className="btn btn-ghost btn-sm" id="login-btn">{t('nav_login')}</Link>
+                                <Link to="/register" className="btn btn-primary btn-sm" id="register-btn">{t('nav_register')}</Link>
                             </div>
                         )}
 
@@ -243,7 +246,7 @@ const Navbar = () => {
                         <input
                             ref={searchRef}
                             type="text"
-                            placeholder="Search halal products..."
+                            placeholder={t('nav_search_placeholder')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             autoFocus
@@ -268,7 +271,7 @@ const Navbar = () => {
                         </Link>
                     ))}
                     <div className="mobile-menu-divider" />
-                    <p className="mobile-menu-subtitle">Categories</p>
+                    <p className="mobile-menu-subtitle">{t('nav_categories')}</p>
                     <div className="mobile-categories">
                         {categories.map((cat) => (
                             <Link key={cat.slug} to={`/shop?category=${cat.slug}`} className="mobile-category-link">
@@ -280,8 +283,8 @@ const Navbar = () => {
                         <>
                             <div className="mobile-menu-divider" />
                             <div className="mobile-auth-buttons">
-                                <Link to="/login" className="btn btn-outline" style={{ flex: 1 }}>Login</Link>
-                                <Link to="/register" className="btn btn-primary" style={{ flex: 1 }}>Register</Link>
+                                <Link to="/login" className="btn btn-outline" style={{ flex: 1 }}>{t('nav_login')}</Link>
+                                <Link to="/register" className="btn btn-primary" style={{ flex: 1 }}>{t('nav_register')}</Link>
                             </div>
                         </>
                     )}
