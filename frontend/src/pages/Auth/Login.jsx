@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
-import { login, clearError } from '../../slices/authSlice';
+import { login, clearError } from '../../redux/slices/authSlice';
 import toast from 'react-hot-toast';
 import './Auth.css';
 
