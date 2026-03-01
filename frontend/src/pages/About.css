@@ -2,7 +2,9 @@
    ABOUT PAGE
    ═══════════════════════════════════════════════════ */
 
-.about-page { }
+.about-page {
+    text-align: center;
+}
 
 /* ── Hero ─────────────────────────────────────── */
 .about-hero {
@@ -29,7 +31,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px 20px;
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: 50px;
     color: white;
@@ -56,7 +58,9 @@
 }
 
 @media (max-width: 768px) {
-    .about-grid { grid-template-columns: 1fr; }
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .about-card {
@@ -109,11 +113,15 @@
 }
 
 @media (max-width: 1024px) {
-    .about-values-grid { grid-template-columns: repeat(2, 1fr); }
+    .about-values-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 640px) {
-    .about-values-grid { grid-template-columns: 1fr; }
+    .about-values-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .about-value-card {
@@ -163,7 +171,9 @@
 }
 
 @media (max-width: 768px) {
-    .about-team-content { grid-template-columns: 1fr; }
+    .about-team-content {
+        grid-template-columns: 1fr;
+    }
 }
 
 .about-team-visual {
@@ -187,7 +197,7 @@
 }
 
 .about-team-stat {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
