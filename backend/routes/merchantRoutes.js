@@ -10,11 +10,15 @@ import {
     getMerchantProducts,
     applyForCertification,
     getMyMerchantProfile,
+    getAllMerchants,
+    getFeaturedMerchants,
 } from '../controllers/merchantController.js';
 
 const router = Router();
 
 // ── Public Routes ───────────────────────────────────────
+router.get('/featured', getFeaturedMerchants);
+router.get('/', getAllMerchants);
 router.get('/:id/products', getMerchantProducts);
 router.get('/:id', getMerchant);
 

@@ -227,3 +227,78 @@ export const getMyMerchantProfile = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * @desc    Get all merchants (public listing with filters)
+ * @route   GET /api/merchants
+ * @access  Public
+ */
+export const getAllMerchants = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        const filter = { isActive: true };
+
+        if (req.query.verified === 'true') filter.verificationStatus = 'approved';
+        if (req.query.businessType) filter.businessType = req.query.businessType;
+        if (req.query.city) filter['businessAddress.city'] = req.query.city;
+        if (req.query.region) filter['businessAddress.region'] = req.query.region;
+        if (req.query.featured === 'true') filter.isFeatured = true;
+
+        let sort = { createdAt: -1 };
+        if (req.query.sort === 'rating') sort = { ratingsAverage: -1 };
+        if (req.query.sort === 'name') sort = { businessName: 1 };
+        if (req.query.sort === 'orders') sort = { totalOrders: -1 };
+
+        const [merchants, total] = await Promise.all([
+            Merchant.find(filter)
+                .populate('user', 'firstName lastName avatar')
+                .populate('halalCertification')
+                .skip(skip)
+                .limit(limit)
+                .sort(sort),
+            Merchant.countDocuments(filter),
+        ]);
+
+        res.status(200).json({
+            success: true,
+            count: merchants.length,
+            total,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            merchants,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * @desc    Get featured merchants (for homepage)
+ * @route   GET /api/merchants/featured
+ * @access  Public
+ */
+export const getFeaturedMerchants = async (req, res, next) => {
+    try {
+        const limit = parseInt(req.query.limit) || 6;
+
+        const merchants = await Merchant.find({
+            isActive: true,
+            verificationStatus: 'approved',
+            isFeatured: true,
+        })
+            .populate('user', 'firstName lastName avatar')
+            .sort({ ratingsAverage: -1 })
+            .limit(limit);
+
+        res.status(200).json({
+            success: true,
+            count: merchants.length,
+            merchants,
+        });
+    } catch (error) {
+        next(error);
+    }
+};

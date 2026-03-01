@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiShoppingCart, FiHeart, FiShare2, FiStar, FiShield, FiTruck, FiMinus, FiPlus, FiChevronRight } from 'react-icons/fi';
-import { fetchProductById, clearCurrentProduct } from '../../redux/slices/productSlice';
-import { addToCart, openCart } from '../../redux/slices/cartSlice';
-import Loader from '../../components/common/Loader';
+import { fetchProductById, clearCurrentProduct } from '../redux/slices/productSlice';
+import { addToCart, openCart } from '../redux/slices/cartSlice';
+import Loader from '../components/common/Loader';
 import toast from 'react-hot-toast';
 import './ProductDetails.css';
 

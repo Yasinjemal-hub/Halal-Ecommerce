@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiFilter, FiX, FiGrid, FiList, FiSearch, FiChevronDown } from 'react-icons/fi';
-import { fetchProducts, setFilters, clearFilters } from '../../redux/slices/productSlice';
-import ProductCard from '../../components/common/ProductCard';
-import Pagination from '../../components/common/Pagination';
-import Loader from '../../components/common/Loader';
+import { fetchProducts, setFilters, clearFilters } from '../redux/slices/productSlice';
+import ProductCard from '../components/common/ProductCard';
+import Pagination from '../components/common/Pagination';
+import Loader from '../components/common/Loader';
 import './Shop.css';
 
 const CATEGORIES = [

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { FiMapPin, FiCreditCard, FiCheck } from 'react-icons/fi';
-import { selectCartItems, selectCartTotal } from '../../redux/slices/cartSlice';
+import { selectCartItems, selectCartTotal } from '../redux/slices/cartSlice';
 import toast from 'react-hot-toast';
 import './Checkout.css';
 

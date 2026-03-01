@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FiTrash2, FiMinus, FiPlus, FiArrowLeft, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
-import { removeFromCart, updateQuantity, clearCart, selectCartItems, selectCartTotal } from '../../redux/slices/cartSlice';
+import { removeFromCart, updateQuantity, clearCart, selectCartItems, selectCartTotal } from '../redux/slices/cartSlice';
 import './Cart.css';
 
 const Cart = () => {

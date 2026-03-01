@@ -50,7 +50,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 
 // ── 404 Handler ─────────────────────────────────────────
-app.all('*path', (req, res) => {
+app.use((req, res) => {
     res.status(404).json({
         success: false,
         message: `Route not found: ${req.method} ${req.originalUrl}`,
