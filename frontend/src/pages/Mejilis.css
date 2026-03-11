@@ -1,0 +1,1210 @@
+/* ═══════════════════════════════════════════════════════════
+   🕌 Mejilis (Council) Control System — Styles
+   Premium Islamic-inspired design with modern aesthetics
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Hero Section ──────────────────────────────────────────── */
+.mejilis-page {
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+.mejilis-hero {
+    position: relative;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.mejilis-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.mejilis-hero-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.35);
+}
+
+.mejilis-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+            rgba(3, 58, 26, 0.85) 0%,
+            rgba(13, 124, 61, 0.7) 40%,
+            rgba(212, 160, 23, 0.4) 100%);
+    z-index: 1;
+}
+
+.mejilis-hero-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(212, 160, 23, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: 2;
+}
+
+.mejilis-hero-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 80px 24px 60px;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.mejilis-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(212, 160, 23, 0.2);
+    border: 1px solid rgba(212, 160, 23, 0.4);
+    color: #ffd54f;
+    padding: 8px 20px;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    animation: fadeInDown 0.6s ease-out;
+}
+
+.mejilis-hero-badge svg {
+    flex-shrink: 0;
+}
+
+.mejilis-hero h1 {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+.mejilis-hero h1 .text-gradient-gold {
+    background: linear-gradient(135deg, #ffd54f, #ffca28, #D4A017);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mejilis-hero-desc {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    max-width: 640px;
+    margin: 0 auto 36px;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.mejilis-hero-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.mejilis-hero-actions .btn {
+    padding: 14px 32px;
+    font-size: 1rem;
+    border-radius: 12px;
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, #D4A017, #c49000);
+    color: #1a1a1a;
+    box-shadow: 0 4px 20px rgba(212, 160, 23, 0.4);
+    font-weight: 700;
+}
+
+.btn-gold:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(212, 160, 23, 0.5);
+}
+
+.btn-white-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-white-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    transform: translateY(-3px);
+}
+
+/* ── Stats Bar ─────────────────────────────────────────────── */
+.mejilis-stats-bar {
+    position: relative;
+    z-index: 4;
+    margin-top: -48px;
+    padding: 0 24px;
+}
+
+.mejilis-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.mejilis-stat-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.mejilis-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+    border-radius: 16px 16px 0 0;
+}
+
+.mejilis-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+}
+
+.mejilis-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 1.25rem;
+}
+
+.mejilis-stat-icon.green {
+    background: linear-gradient(135deg, rgba(13, 124, 61, 0.12), rgba(13, 124, 61, 0.06));
+    color: var(--primary-500);
+}
+
+.mejilis-stat-icon.gold {
+    background: linear-gradient(135deg, rgba(212, 160, 23, 0.12), rgba(212, 160, 23, 0.06));
+    color: var(--accent-500);
+}
+
+.mejilis-stat-icon.blue {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.06));
+    color: var(--info);
+}
+
+.mejilis-stat-icon.red {
+    background: linear-gradient(135deg, rgba(196, 56, 42, 0.12), rgba(196, 56, 42, 0.06));
+    color: var(--red-500);
+}
+
+.mejilis-stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: var(--font-primary);
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.mejilis-stat-label {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+/* ── Tab Navigation ────────────────────────────────────────── */
+.mejilis-tabs-section {
+    padding: 48px 24px 0;
+}
+
+.mejilis-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 14px;
+    padding: 4px;
+    max-width: 800px;
+    margin: 0 auto 40px;
+    overflow-x: auto;
+}
+
+.mejilis-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    transition: all var(--transition-base);
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.mejilis-tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.mejilis-tab.active {
+    background: var(--bg-secondary);
+    color: var(--primary-600);
+    box-shadow: var(--shadow-sm);
+}
+
+.mejilis-tab-badge {
+    background: var(--primary-500);
+    color: white;
+    font-size: 0.6875rem;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+}
+
+.mejilis-tab-badge.warning {
+    background: var(--warning);
+}
+
+.mejilis-tab-badge.danger {
+    background: var(--error);
+}
+
+/* ── Content Panels ────────────────────────────────────────── */
+.mejilis-content {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 24px 80px;
+}
+
+.mejilis-panel {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.mejilis-panel.active {
+    display: block;
+}
+
+/* ── Registration Panel ────────────────────────────────────── */
+.mejilis-register-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+}
+
+.mejilis-register-info {
+    padding: 20px 0;
+}
+
+.mejilis-register-info h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.mejilis-register-info>p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 32px;
+    font-size: 1.0625rem;
+}
+
+.mejilis-register-image {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    margin-bottom: 36px;
+    position: relative;
+}
+
+.mejilis-register-image img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.mejilis-register-image:hover img {
+    transform: scale(1.05);
+}
+
+.mejilis-register-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mejilis-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.mejilis-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    color: white;
+    box-shadow: 0 4px 12px rgba(13, 124, 61, 0.3);
+}
+
+.mejilis-step-content h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.mejilis-step-content p {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+}
+
+/* ── Registration Form ─────────────────────────────────────── */
+.mejilis-register-form-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--surface-glass-border);
+}
+
+.mejilis-register-form-card h3 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.mejilis-register-form-card>p {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    margin-bottom: 28px;
+}
+
+.mejilis-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mejilis-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.mejilis-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mejilis-form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.mejilis-form-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mejilis-form-label .required {
+    color: var(--error);
+}
+
+.mejilis-form-input,
+.mejilis-form-select,
+.mejilis-form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-tertiary);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+    font-family: inherit;
+}
+
+.mejilis-form-input:focus,
+.mejilis-form-select:focus,
+.mejilis-form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 0 4px rgba(13, 124, 61, 0.1);
+}
+
+.mejilis-form-input::placeholder,
+.mejilis-form-textarea::placeholder {
+    color: var(--text-tertiary);
+}
+
+.mejilis-form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.mejilis-form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+}
+
+.mejilis-form-submit {
+    margin-top: 8px;
+    width: 100%;
+    padding: 16px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+    color: white;
+    box-shadow: 0 6px 20px rgba(13, 124, 61, 0.35);
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.mejilis-form-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(13, 124, 61, 0.45);
+}
+
+.mejilis-form-submit:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.mejilis-form-submit .spinner {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+    border-top-color: white;
+}
+
+/* ── Registration Status Card ──────────────────────────────── */
+.mejilis-status-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.mejilis-status-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2rem;
+}
+
+.mejilis-status-icon.pending {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), rgba(217, 119, 6, 0.05));
+    color: var(--warning);
+}
+
+.mejilis-status-icon.approved {
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.15), rgba(5, 150, 105, 0.05));
+    color: var(--success);
+}
+
+.mejilis-status-icon.rejected {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.05));
+    color: var(--error);
+}
+
+.mejilis-status-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.mejilis-status-card p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.status-badge.pending {
+    background: rgba(217, 119, 6, 0.12);
+    color: var(--warning);
+    border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.status-badge.approved {
+    background: rgba(5, 150, 105, 0.12);
+    color: var(--success);
+    border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+.status-badge.rejected {
+    background: rgba(220, 38, 38, 0.12);
+    color: var(--error);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.status-badge.under_review {
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--info);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.status-badge.suspended {
+    background: rgba(107, 114, 128, 0.12);
+    color: var(--gray-500);
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+/* ── Merchants Table ───────────────────────────────────────── */
+.mejilis-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.mejilis-section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.mejilis-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.mejilis-filter-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.mejilis-filter-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+.mejilis-filter-btn.active {
+    background: var(--primary-500);
+    color: white;
+    box-shadow: 0 4px 12px rgba(13, 124, 61, 0.3);
+}
+
+.mejilis-table-container {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.mejilis-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mejilis-table thead {
+    background: var(--bg-tertiary);
+}
+
+.mejilis-table th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mejilis-table td {
+    padding: 16px 20px;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+}
+
+.mejilis-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.mejilis-table tbody tr:hover {
+    background: var(--bg-tertiary);
+}
+
+.mejilis-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.mejilis-merchant-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mejilis-merchant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.mejilis-merchant-name {
+    font-weight: 600;
+}
+
+.mejilis-merchant-email {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+}
+
+.mejilis-action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.mejilis-action-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.mejilis-action-btn.approve {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+.mejilis-action-btn.approve:hover {
+    background: var(--success);
+    color: white;
+}
+
+.mejilis-action-btn.reject {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--error);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.mejilis-action-btn.reject:hover {
+    background: var(--error);
+    color: white;
+}
+
+.mejilis-action-btn.review {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--info);
+    border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.mejilis-action-btn.review:hover {
+    background: var(--info);
+    color: white;
+}
+
+/* ── Complaints Section ────────────────────────────────────── */
+.mejilis-complaint-form-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 32px;
+}
+
+.mejilis-complaint-form-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mejilis-complaints-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.mejilis-complaint-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--primary-500);
+    transition: all var(--transition-base);
+}
+
+.mejilis-complaint-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+}
+
+.mejilis-complaint-card.critical {
+    border-left-color: var(--error);
+}
+
+.mejilis-complaint-card.high {
+    border-left-color: var(--warning);
+}
+
+.mejilis-complaint-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mejilis-complaint-ref {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    font-family: monospace;
+}
+
+.mejilis-complaint-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.mejilis-complaint-card h4 {
+    font-size: 1.0625rem;
+    margin-bottom: 8px;
+}
+
+.mejilis-complaint-card>p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.mejilis-complaint-meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.mejilis-complaint-meta span {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ── Features Grid ─────────────────────────────────────────── */
+.mejilis-features {
+    padding: 80px 24px;
+    background: var(--bg-tertiary);
+}
+
+.mejilis-features-header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.mejilis-features-header h2 {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.mejilis-features-header p {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.mejilis-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: var(--container-max);
+    margin: 0 auto;
+}
+
+.mejilis-feature-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.mejilis-feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-500), var(--accent-500));
+    transform: scaleX(0);
+    transition: transform var(--transition-base);
+}
+
+.mejilis-feature-card:hover::before {
+    transform: scaleX(1);
+}
+
+.mejilis-feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+}
+
+.mejilis-feature-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.75rem;
+    background: linear-gradient(135deg, rgba(13, 124, 61, 0.1), rgba(212, 160, 23, 0.05));
+    color: var(--primary-500);
+}
+
+.mejilis-feature-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.mejilis-feature-card p {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+}
+
+/* ── CTA Section ───────────────────────────────────────────── */
+.mejilis-cta {
+    padding: 80px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.mejilis-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+            rgba(13, 124, 61, 0.05),
+            rgba(212, 160, 23, 0.03));
+}
+
+.mejilis-cta-content {
+    position: relative;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.mejilis-cta h2 {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.mejilis-cta p {
+    color: var(--text-secondary);
+    font-size: 1.0625rem;
+    margin-bottom: 32px;
+    line-height: 1.7;
+}
+
+.mejilis-cta-images {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 36px;
+}
+
+.mejilis-cta-img {
+    width: 200px;
+    height: 140px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--transition-base);
+}
+
+.mejilis-cta-img:hover {
+    transform: scale(1.05);
+}
+
+.mejilis-cta-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ── Loading State ─────────────────────────────────────────── */
+.mejilis-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 80px 24px;
+}
+
+.mejilis-loading p {
+    color: var(--text-tertiary);
+    font-size: 0.9375rem;
+}
+
+/* ── Empty State ───────────────────────────────────────────── */
+.mejilis-empty {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-tertiary);
+}
+
+.mejilis-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.mejilis-empty h3 {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+/* ── Success Message ───────────────────────────────────────── */
+.mejilis-success-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(5, 150, 105, 0.1);
+    border: 1px solid rgba(5, 150, 105, 0.3);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    animation: fadeInDown 0.4s ease-out;
+}
+
+.mejilis-success-message svg {
+    color: var(--success);
+    flex-shrink: 0;
+}
+
+.mejilis-success-message p {
+    font-size: 0.9375rem;
+    color: var(--success);
+    font-weight: 500;
+}
+
+/* ── Error Message ─────────────────────────────────────────── */
+.mejilis-error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    animation: fadeInDown 0.4s ease-out;
+}
+
+.mejilis-error-message svg {
+    color: var(--error);
+    flex-shrink: 0;
+}
+
+.mejilis-error-message p {
+    font-size: 0.9375rem;
+    color: var(--error);
+    font-weight: 500;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .mejilis-register-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .mejilis-features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mejilis-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .mejilis-hero {
+        min-height: 420px;
+    }
+
+    .mejilis-hero-content {
+        padding: 60px 16px 48px;
+    }
+
+    .mejilis-hero-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mejilis-hero-actions .btn {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .mejilis-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .mejilis-stat-card {
+        padding: 20px 16px;
+    }
+
+    .mejilis-stat-value {
+        font-size: 1.5rem;
+    }
+
+    .mejilis-tabs {
+        border-radius: 10px;
+    }
+
+    .mejilis-tab {
+        padding: 10px 14px;
+        font-size: 0.8125rem;
+    }
+
+    .mejilis-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .mejilis-table-container {
+        overflow-x: auto;
+    }
+
+    .mejilis-table {
+        min-width: 700px;
+    }
+
+    .mejilis-features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mejilis-cta-images {
+        flex-wrap: wrap;
+    }
+
+    .mejilis-cta-img {
+        width: 150px;
+        height: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    .mejilis-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mejilis-register-form-card {
+        padding: 24px 20px;
+    }
+
+    .mejilis-complaint-card {
+        padding: 20px 16px;
+    }
+}

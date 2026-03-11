@@ -70,6 +70,7 @@ const Navbar = () => {
         { path: '/', label: t('nav_home') },
         { path: '/shop', label: t('nav_shop') },
         { path: '/merchants', label: t('nav_merchants') },
+        { path: '/mejilis', label: '🕌 Mejilis' },
         { path: '/about', label: t('nav_about') },
     ];
 

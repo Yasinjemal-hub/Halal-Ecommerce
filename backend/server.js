@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -14,6 +15,7 @@ import productRoutes from './routes/productRoutes.js';
 import merchantRoutes from './routes/merchantRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
+import mejilisRoutes from './routes/mejilisRoutes.js';
 
 // ── Initialize Express ─────────────────────────────────
 const app = express();
@@ -48,6 +50,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/merchants', merchantRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/mejilis', mejilisRoutes);
 
 // ── 404 Handler ─────────────────────────────────────────
 app.use((req, res) => {
@@ -63,10 +66,12 @@ app.use(errorHandler);
 // ── Start Server ────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
+
 app.listen(PORT, () => {
     console.log(`\n🚀 Server running on port ${PORT}`);
     console.log(`📍 API Base: http://localhost:${PORT}/api`);
     console.log(`🏥 Health:    http://localhost:${PORT}/api/health\n`);
 });
 
+console.log("ENV URI:", process.env.MONGO_URI);
 export default app;

@@ -10,6 +10,7 @@ import CartDrawer from './components/common/CartDrawer';
 // Pages
 import Home from './pages/Home';
 import Shop from './pages/Shop';
+import Merchants from './pages/Merchants';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
@@ -18,6 +19,7 @@ import Register from './pages/Auth/Register';
 import About from './pages/About';
 import MerchantDashboard from './pages/Dashboard/MerchantDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
+import Mejilis from './pages/Mejilis';
 
 // Layout Component — wraps pages with Navbar + Footer
 const MainLayout = ({ children }) => (
@@ -66,10 +68,12 @@ function App() {
         {/* Main Routes */}
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/shop" element={<MainLayout><Shop /></MainLayout>} />
+        <Route path="/merchants" element={<MainLayout><Merchants /></MainLayout>} />
         <Route path="/product/:id" element={<MainLayout><ProductDetails /></MainLayout>} />
         <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
         <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+        <Route path="/mejilis" element={<MainLayout><Mejilis /></MainLayout>} />
 
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<MainLayout><MerchantDashboard /></MainLayout>} />
