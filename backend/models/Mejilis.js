@@ -241,13 +241,12 @@ complaintSchema.index({ referenceNumber: 1 });
 sessionSchema.index({ sessionDate: -1 });
 
 // ── Auto-generate complaint reference number ────────────
-complaintSchema.pre('save', function (next) {
+complaintSchema.pre('save', function () {
     if (!this.referenceNumber) {
         const year = new Date().getFullYear();
         const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
         this.referenceNumber = `MJC-${year}-${randomPart}`;
     }
-    next();
 });
 
 const Mejilis = mongoose.model('Mejilis', mejilisSchema);

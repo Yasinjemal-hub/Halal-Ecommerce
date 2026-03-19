@@ -162,7 +162,7 @@ certificationSchema.virtual('daysUntilExpiry').get(function () {
 });
 
 // ── Auto-generate certificate number on approval ────────
-certificationSchema.pre('save', function (next) {
+certificationSchema.pre('save', function () {
     if (this.isModified('status') && this.status === 'approved' && !this.certificateNumber) {
         const year = new Date().getFullYear();
         const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -174,8 +174,6 @@ certificationSchema.pre('save', function (next) {
     if (this.expiryDate && new Date() > this.expiryDate && this.status === 'approved') {
         this.status = 'expired';
     }
-
-    next();
 });
 
 const Certification = mongoose.model('Certification', certificationSchema);

@@ -64,11 +64,10 @@ cartSchema.virtual('totalItems').get(function () {
 });
 
 // ── Update expiresAt on modification ────────────────────
-cartSchema.pre('save', function (next) {
+cartSchema.pre('save', function () {
     if (this.isModified('items')) {
         this.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     }
-    next();
 });
 
 const Cart = mongoose.model('Cart', cartSchema);
