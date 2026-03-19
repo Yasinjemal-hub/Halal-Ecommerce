@@ -21,6 +21,15 @@ const seedData = async () => {
 
         const categories = ['meat', 'poultry', 'spices', 'grains', 'honey', 'clothing', 'bakery', 'grocery'];
         const cities = ['Addis Ababa', 'Harar', 'Dire Dawa', 'Mekelle', 'Bahir Dar', 'Hawassa', 'Jimma'];
+        const cityToRegion = {
+            'Addis Ababa': 'Addis Ababa',
+            'Harar': 'Harari',
+            'Dire Dawa': 'Dire Dawa',
+            'Mekelle': 'Tigray',
+            'Bahir Dar': 'Amhara',
+            'Hawassa': 'Sidama',
+            'Jimma': 'Oromia',
+        };
         const types = ['butcher', 'spice_shop', 'grocery', 'clothing', 'bakery', 'restaurant'];
 
         // Images collections from Unsplash mapping to categories
@@ -67,7 +76,7 @@ const seedData = async () => {
                 businessType: type,
                 businessPhone: `+251911${String(i).padStart(6, '0')}`,
                 businessEmail: `contact@merchant${i}.com`,
-                businessAddress: { street: `Main Ave ${i}`, city: city, region: city },
+                businessAddress: { street: `Main Ave ${i}`, city: city, region: cityToRegion[city] || 'Addis Ababa' },
                 verificationStatus: 'approved',
                 verifiedAt: new Date(),
                 ratingsAverage: (Math.random() * (5 - 4) + 4).toFixed(1), // 4.0 to 5.0
