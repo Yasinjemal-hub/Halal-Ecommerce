@@ -89,7 +89,11 @@ const ProductCard = ({ product }) => {
 
                 {/* Merchant */}
                 {merchant?.businessName && (
-                    <p className="product-card-merchant">
+                    <p className="product-card-merchant"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/merchant/${merchant._id || 'dm1'}`; }}
+                        style={{ cursor: 'pointer' }}
+                        title={`Visit ${merchant.businessName}'s shop`}
+                    >
                         {merchant.verificationStatus === 'approved' && '✓ '}
                         {merchant.businessName}
                     </p>

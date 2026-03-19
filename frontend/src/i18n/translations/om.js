@@ -276,6 +276,21 @@ const om = {
     delete_confirm: "Mirkaneeffadhaa?",
     success: "Milkaa'e!",
     from: 'Irraa',
+
+    // ─── Merchant Shop Page ──────────────────────
+    merchant_shop_products: 'Oomishaalee',
+    merchant_shop_orders: "Ajaja Xumuraman",
+    merchant_shop_halal_status: "Halaal Mirkanaa'e",
+    merchant_shop_all_products: 'Oomishaalee Hunda',
+    merchant_shop_contact: "Odeeffannoo Quunnamtii",
+    merchant_shop_call: 'Amma Bilbili',
+    merchant_shop_hours: "Sa'aatii Hojii",
+    merchant_shop_weekdays: "Wiixata - Jimata",
+    merchant_shop_saturday: "Sanbata Xiqqaa",
+    merchant_shop_sunday: "Dilbata",
+    merchant_shop_halal_cert: "Ragaa Halaal",
+    merchant_shop_halal_cert_desc: "Daldalaan kun Mana Maree Olaanaa Dhimma Islamaa Itoophiyaatiin mirkanaa'eera. Oomishaaleen hundi ulaagaa halaal ciimaa guutu.",
+    merchant_shop_back: "Gara Daldaltootaatti Deebi'i",
 };
 
 export default om;

@@ -276,6 +276,20 @@ const en = {
     delete_confirm: 'Are you sure?',
     success: 'Success!',
     from: 'From',
-};
 
+    // ─── Merchant Shop Page ──────────────────────
+    merchant_shop_products: 'Products',
+    merchant_shop_orders: 'Orders Completed',
+    merchant_shop_halal_status: 'Halal Verified',
+    merchant_shop_all_products: 'All Products',
+    merchant_shop_contact: 'Contact Information',
+    merchant_shop_call: 'Call Now',
+    merchant_shop_hours: 'Operating Hours',
+    merchant_shop_weekdays: 'Mon - Fri',
+    merchant_shop_saturday: 'Saturday',
+    merchant_shop_sunday: 'Sunday',
+    merchant_shop_halal_cert: 'Halal Certification',
+    merchant_shop_halal_cert_desc: 'This merchant has been verified by the Ethiopian Islamic Affairs Supreme Council (Majlis). All products meet strict halal compliance standards.',
+    merchant_shop_back: 'Back to Merchants',
+};
 export default en;

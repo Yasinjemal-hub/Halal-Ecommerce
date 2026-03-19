@@ -276,6 +276,21 @@ const ar = {
     delete_confirm: 'هل أنت متأكد؟',
     success: 'نجاح!',
     from: 'من',
+
+    // ─── Merchant Shop Page ──────────────────────
+    merchant_shop_products: 'المنتجات',
+    merchant_shop_orders: 'الطلبات المكتملة',
+    merchant_shop_halal_status: 'حلال معتمد',
+    merchant_shop_all_products: 'جميع المنتجات',
+    merchant_shop_contact: 'معلومات الاتصال',
+    merchant_shop_call: 'اتصل الآن',
+    merchant_shop_hours: 'ساعات العمل',
+    merchant_shop_weekdays: 'الاثنين - الجمعة',
+    merchant_shop_saturday: 'السبت',
+    merchant_shop_sunday: 'الأحد',
+    merchant_shop_halal_cert: 'شهادة الحلال',
+    merchant_shop_halal_cert_desc: 'تم التحقق من هذا التاجر من قبل المجلس الأعلى للشؤون الإسلامية الإثيوبية. جميع المنتجات تلبي معايير الحلال الصارمة.',
+    merchant_shop_back: 'العودة إلى التجار',
 };
 
 export default ar;

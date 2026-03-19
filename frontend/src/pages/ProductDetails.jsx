@@ -117,10 +117,11 @@ const ProductDetails = () => {
 
                         {/* Merchant */}
                         {displayProduct.merchant && (
-                            <div className="product-merchant-badge">
+                            <Link to={`/merchant/${displayProduct.merchant._id || 'dm1'}`} className="product-merchant-badge" style={{ textDecoration: 'none' }}>
                                 {displayProduct.merchant.verificationStatus === 'approved' && <FiShield className="verified-icon" />}
                                 <span>{displayProduct.merchant.businessName}</span>
-                            </div>
+                                <FiChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
+                            </Link>
                         )}
 
                         {/* Rating */}

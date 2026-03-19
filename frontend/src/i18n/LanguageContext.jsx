@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import en from './translations/en';
 import am from './translations/am';
-// import ar from './translations/ar';
-// import om from './translations/om';
-// import so from './translations/so';
+import ar from './translations/ar';
+import om from './translations/om';
+import so from './translations/so';
 
-const translations = {   en, am };
+const translations = { en, am };
 
 const LANGUAGES = [
     { code: 'en', name: 'English', flag: '🇬🇧', nativeName: 'English' },
     { code: 'am', name: 'Amharic', flag: '🇪🇹', nativeName: 'አማርኛ' },
-    { code: 'om', name: 'Afan Oromo', flag: '🇪🇹', nativeName: 'Afaan Oromoo' },
-    { code: 'so', name: 'Somali', flag: '🇸🇴', nativeName: 'Af-Soomaali' },
-    { code: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية' },
+    // { code: 'om', name: 'Afan Oromo', flag: '🇪🇹', nativeName: 'Afaan Oromoo' },
+    // { code: 'so', name: 'Somali', flag: '🇸🇴', nativeName: 'Af-Soomaali' },
+    // { code: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية' },
 ];
 
 const LanguageContext = createContext();

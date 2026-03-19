@@ -279,7 +279,7 @@ const Merchants = () => {
 
                                 {/* Card Footer */}
                                 <div className="merchant-card-footer">
-                                    <Link to={`/shop?merchant=${merchant._id}`} className="btn btn-primary btn-sm merchant-view-btn" id={`view-shop-${merchant._id}`}>
+                                    <Link to={`/merchant/${merchant._id}`} className="btn btn-primary btn-sm merchant-view-btn" id={`view-shop-${merchant._id}`}>
                                         {t('merchants_view_shop')} <FiArrowRight size={14} />
                                     </Link>
                                 </div>

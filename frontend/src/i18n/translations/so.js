@@ -276,6 +276,21 @@ const so = {
     delete_confirm: 'Ma hubtaa?',
     success: 'Guul!',
     from: 'Ka',
+
+    // ─── Merchant Shop Page ──────────────────────
+    merchant_shop_products: 'Badeecadaha',
+    merchant_shop_orders: 'Dalabyo La Dhammeeyay',
+    merchant_shop_halal_status: 'Xalaal La Xaqiijiyay',
+    merchant_shop_all_products: 'Dhammaan Badeecadaha',
+    merchant_shop_contact: 'Macluumaadka Xiriirka',
+    merchant_shop_call: 'Hadda Wac',
+    merchant_shop_hours: 'Saacadaha Shaqada',
+    merchant_shop_weekdays: 'Isniin - Jimce',
+    merchant_shop_saturday: 'Sabti',
+    merchant_shop_sunday: 'Axad',
+    merchant_shop_halal_cert: 'Shahaadada Xalaalka',
+    merchant_shop_halal_cert_desc: 'Ganacsigan waxa xaqiijiyay Golaha Sare ee Arrimaha Islaamka ee Itoobiya. Dhammaan badeecadaha waxay buuxiyaan heerarka xalaalka adag.',
+    merchant_shop_back: 'Ku Noqo Ganacsatada',
 };
 
 export default so;

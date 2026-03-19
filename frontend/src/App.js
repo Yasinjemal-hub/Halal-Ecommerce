@@ -20,6 +20,7 @@ import About from './pages/About';
 import MerchantDashboard from './pages/Dashboard/MerchantDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
 import Mejilis from './pages/Mejilis';
+import MerchantShop from './pages/MerchantShop';
 
 // Layout Component — wraps pages with Navbar + Footer
 const MainLayout = ({ children }) => (
@@ -70,6 +71,7 @@ function App() {
         <Route path="/shop" element={<MainLayout><Shop /></MainLayout>} />
         <Route path="/merchants" element={<MainLayout><Merchants /></MainLayout>} />
         <Route path="/product/:id" element={<MainLayout><ProductDetails /></MainLayout>} />
+        <Route path="/merchant/:id" element={<MainLayout><MerchantShop /></MainLayout>} />
         <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
         <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />

@@ -276,6 +276,21 @@ const am = {
     delete_confirm: 'እርግጠኛ ነዎት?',
     success: 'ተሳክቷል!',
     from: 'ከ',
+
+    // ─── Merchant Shop Page ──────────────────────
+    merchant_shop_products: 'ምርቶች',
+    merchant_shop_orders: 'የተጠናቀቁ ትዕዛዞች',
+    merchant_shop_halal_status: 'ሐላል የተረጋገጠ',
+    merchant_shop_all_products: 'ሁሉም ምርቶች',
+    merchant_shop_contact: 'የእውቂያ መረጃ',
+    merchant_shop_call: 'አሁን ይደውሉ',
+    merchant_shop_hours: 'የስራ ሰዓታት',
+    merchant_shop_weekdays: 'ሰኞ - ዓርብ',
+    merchant_shop_saturday: 'ቅዳሜ',
+    merchant_shop_sunday: 'እሑድ',
+    merchant_shop_halal_cert: 'የሐላል ሰርተፊኬት',
+    merchant_shop_halal_cert_desc: 'ይህ ነጋዴ በኢትዮጵያ ኢስላማዊ ጉዳዮች ጠቅላይ ምክር ቤት (መጅሊስ) ተረጋግጧል። ሁሉም ምርቶች ጥብቅ የሐላል ደረጃዎችን ያሟላሉ።',
+    merchant_shop_back: 'ወደ ነጋዴዎች ተመለስ',
 };
 
 export default am;
