@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { FiMapPin, FiCreditCard, FiCheck } from 'react-icons/fi';
-import { selectCartItems, selectCartTotal } from '../redux/slices/cartSlice';
+import { selectCartItems, selectCartTotal, clearCart } from '../redux/slices/cartSlice';
+import orderService from '../services/orderService';
 import toast from 'react-hot-toast';
 import './Checkout.css';
 
@@ -16,11 +17,13 @@ const PAYMENT_METHODS = [
 const REGIONS = ['Addis Ababa', 'Afar', 'Amhara', 'Benishangul-Gumuz', 'Dire Dawa', 'Gambella', 'Harari', 'Oromia', 'Sidama', 'Somali', 'South West Ethiopia', 'Southern Nations', 'Tigray'];
 
 const Checkout = () => {
+    const dispatch = useDispatch();
     const items = useSelector(selectCartItems);
     const total = useSelector(selectCartTotal);
     const deliveryFee = total > 5000 ? 0 : 150;
     const tax = Math.round(total * 0.15);
     const grandTotal = total + deliveryFee + tax;
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [step, setStep] = useState(1);
     const [shippingData, setShippingData] = useState({
@@ -41,13 +44,41 @@ const Checkout = () => {
         setStep(2);
     };
 
-    const handlePlaceOrder = () => {
+    const handlePlaceOrder = async () => {
         if (!selectedPayment) {
             toast.error('Please select a payment method');
             return;
         }
-        toast.success('Order placed successfully! 🎉', { duration: 4000 });
-        setStep(3);
+        setIsSubmitting(true);
+        try {
+            const orderData = {
+                shippingAddress: {
+                    fullName: shippingData.fullName,
+                    phone: shippingData.phone,
+                    street: shippingData.street,
+                    subcity: shippingData.subcity,
+                    woreda: shippingData.woreda,
+                    city: shippingData.city,
+                    region: shippingData.region,
+                    deliveryInstructions: shippingData.instructions,
+                },
+                paymentMethod: selectedPayment,
+                items: items.map(item => ({
+                    product: item._id,
+                    quantity: item.quantity,
+                    price: item.discountPrice || item.price,
+                })),
+            };
+            await orderService.create(orderData);
+            dispatch(clearCart());
+            toast.success('Order placed successfully! 🎉', { duration: 4000 });
+            setStep(3);
+        } catch (error) {
+            const msg = error.response?.data?.message || 'Failed to place order. Please try again.';
+            toast.error(msg);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -139,7 +170,9 @@ const Checkout = () => {
                                 </div>
                                 <div className="checkout-nav">
                                     <button className="btn btn-ghost" onClick={() => setStep(1)}>Back to Shipping</button>
-                                    <button className="btn btn-primary btn-lg" onClick={handlePlaceOrder}>Place Order — {grandTotal.toLocaleString()} ETB</button>
+                                    <button className="btn btn-primary btn-lg" onClick={handlePlaceOrder} disabled={isSubmitting}>
+                                        {isSubmitting ? <span className="spinner spinner-sm" /> : `Place Order — ${grandTotal.toLocaleString()} ETB`}
+                                    </button>
                                 </div>
                             </div>
                         )}
