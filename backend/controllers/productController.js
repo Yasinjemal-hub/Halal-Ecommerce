@@ -56,6 +56,15 @@ export const getAllProducts = async (req, res, next) => {
         if (req.query.category) filter.category = req.query.category;
         if (req.query.merchant) filter.merchant = req.query.merchant;
         if (req.query.halalCertified) filter.halalCertified = req.query.halalCertified === 'true';
+        if (req.query.isFeatured) filter.isFeatured = req.query.isFeatured === 'true';
+        if (req.query.search) {
+            filter.$or = [
+                { name: { $regex: req.query.search, $options: 'i' } },
+                { nameAmharic: { $regex: req.query.search, $options: 'i' } },
+                { description: { $regex: req.query.search, $options: 'i' } },
+                { category: { $regex: req.query.search, $options: 'i' } },
+            ];
+        }
         if (req.query.minPrice || req.query.maxPrice) {
             filter.price = {};
             if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
