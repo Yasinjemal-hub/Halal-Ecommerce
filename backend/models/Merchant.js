@@ -203,14 +203,13 @@ merchantSchema.index({ 'businessAddress.city': 1 });
 merchantSchema.index({ ratingsAverage: -1 });
 
 // ── Auto-generate slug from businessName ────────────────
-merchantSchema.pre('save', function (next) {
+merchantSchema.pre('save', function () {
     if (this.isModified('businessName') || this.isNew) {
         this.slug = this.businessName
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
     }
-    next();
 });
 
 // ── Virtual: products ───────────────────────────────────

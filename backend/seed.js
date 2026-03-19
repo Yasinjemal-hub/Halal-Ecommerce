@@ -79,7 +79,7 @@ const seedData = async () => {
                 businessAddress: { street: `Main Ave ${i}`, city: city, region: cityToRegion[city] || 'Addis Ababa' },
                 verificationStatus: 'approved',
                 verifiedAt: new Date(),
-                ratingsAverage: (Math.random() * (5 - 4) + 4).toFixed(1), // 4.0 to 5.0
+                ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)), // 4.0 to 5.0
                 ratingsCount: Math.floor(Math.random() * 500) + 10,
                 totalProducts: Math.floor(Math.random() * 20) + 5,
                 totalOrders: Math.floor(Math.random() * 5000) + 100,
@@ -112,7 +112,7 @@ const seedData = async () => {
                     isFeatured: Math.random() > 0.7,
                     isApproved: true,
                     images: [{ url: imageUrl, isDefault: true }],
-                    ratingsAverage: (Math.random() * (5 - 4) + 4).toFixed(1),
+                    ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)),
                     ratingsCount: Math.floor(Math.random() * 300) + 5
                 });
             }
@@ -122,6 +122,12 @@ const seedData = async () => {
         process.exit(0);
     } catch (error) {
         console.error('❌ Seed failed:', error.message);
+        if (error.errors) {
+            Object.keys(error.errors).forEach(key => {
+                console.error(`  Field "${key}": ${error.errors[key].message}`);
+            });
+        }
+        console.error(error.stack);
         process.exit(1);
     }
 };

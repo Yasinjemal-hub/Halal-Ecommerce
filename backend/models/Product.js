@@ -168,7 +168,7 @@ productSchema.index({ tags: 1 });
 productSchema.index({ isActive: 1, isApproved: 1 });
 
 // ── Auto-generate slug ─────────────────────────────────
-productSchema.pre('save', function (next) {
+productSchema.pre('save', function () {
     if (this.isModified('name') || this.isNew) {
         this.slug = this.name
             .toLowerCase()
@@ -178,8 +178,6 @@ productSchema.pre('save', function (next) {
 
     // Update isInStock based on stock
     this.isInStock = this.stock > 0;
-
-    next();
 });
 
 // ── Virtual: effective price (after discount) ───────────
