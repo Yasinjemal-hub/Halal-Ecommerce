@@ -128,6 +128,10 @@ const Home = () => {
     ];
 
     const products = featuredItems.length > 0 ? featuredItems : demoProducts;
+    const ethiopianEssentials = products.filter((p) => {
+        const name = (p.name || '').toLowerCase();
+        return ['berbere', 'mitmita', 'shiro', 'niter kibbeh', 'teff', 'buna', 'coffee'].some((k) => name.includes(k));
+    }).slice(0, 6);
 
     const whyFeatures = [
         { icon: <FiShield />, titleKey: 'why_majlis', descKey: 'why_majlis_desc' },
@@ -288,6 +292,28 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* ═════════════ Featured Ethiopian Essentials ═════════════ */}
+            {ethiopianEssentials.length > 0 && (
+                <section className="section ethiopian-section" id="ethiopian-essentials">
+                    <div className="container">
+                        <div className="section-header reveal" ref={addRef}>
+                            <span className="section-subtitle">Ethiopian Essentials</span>
+                            <h2 className="heading-section section-title">Traditional Favorites With Real Photos</h2>
+                            <p className="section-description">
+                                Berbere, Mitmita, Shiro, Niter Kibbeh, Teff, and Buna coffee picked from verified merchants.
+                            </p>
+                        </div>
+                        <div className="grid grid-products">
+                            {ethiopianEssentials.map((product, index) => (
+                                <div key={product._id} className="reveal" ref={addRef} style={{ transitionDelay: `${index * 90}ms` }}>
+                                    <ProductCard product={product} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* ══════════════════ WHY CHOOSE US ══════════════════ */}
             <section className="section why-section" id="why-section">

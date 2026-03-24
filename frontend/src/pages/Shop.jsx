@@ -51,14 +51,23 @@ const Shop = () => {
 
     // Fetch products when filters change
     useEffect(() => {
+        // Map frontend sort values to backend sort values
+        const sortMap = {
+            '-createdAt': 'newest',
+            'price': 'price_asc',
+            '-price': 'price_desc',
+            '-ratingsAverage': 'rating',
+            'name': 'newest', // fallback
+        };
+
         const params = {
             page: pagination.page,
             limit: 12,
             ...(filters.category && { category: filters.category }),
             ...(filters.search && { search: filters.search }),
-            ...(filters.sort && { sort: filters.sort }),
-            ...(filters.minPrice && { 'price[gte]': filters.minPrice }),
-            ...(filters.maxPrice && { 'price[lte]': filters.maxPrice }),
+            ...(filters.sort && { sort: sortMap[filters.sort] || filters.sort }),
+            ...(filters.minPrice && { minPrice: filters.minPrice }),
+            ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
             ...(filters.halalCertified && { halalCertified: true }),
         };
         dispatch(fetchProducts(params));

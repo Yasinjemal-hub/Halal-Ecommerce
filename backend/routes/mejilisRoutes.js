@@ -41,6 +41,14 @@ router.post(
         body('businessPhone')
             .matches(/^(\+251|0)(9|7)\d{8}$/)
             .withMessage('Please provide a valid Ethiopian phone number'),
+        body('governmentLicense.url')
+            .optional()
+            .isString()
+            .withMessage('Government license image URL must be a string'),
+        body('nationalId.url')
+            .optional()
+            .isString()
+            .withMessage('National ID image URL must be a string'),
     ],
     validate,
     registerAsMerchant
@@ -69,6 +77,10 @@ router.post(
             .withMessage('Invalid complaint category'),
         body('subject').trim().notEmpty().withMessage('Subject is required'),
         body('description').trim().notEmpty().withMessage('Description is required'),
+        body('evidence')
+            .optional()
+            .isArray()
+            .withMessage('Evidence must be an array of images'),
     ],
     validate,
     fileComplaint

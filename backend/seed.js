@@ -43,6 +43,56 @@ const seedData = async () => {
             bakery: ['https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80', 'https://images.unsplash.com/photo-1509365465994-3e8c58852115?w=400&q=80'],
             grocery: ['https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80', 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&q=80']
         };
+        const featuredEthiopianProducts = [
+            {
+                name: 'Berbere Spice Mix',
+                nameAmharic: 'በርበሬ',
+                description: 'Traditional Ethiopian berbere blend made from premium chili, garlic, and aromatic spices. Perfect for wot, tibs, and marinades.',
+                imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80',
+                price: 320,
+                category: 'spices',
+            },
+            {
+                name: 'Mitmita Hot Spice',
+                nameAmharic: 'ሚጥሚጣ',
+                description: 'Authentic mitmita with intense heat and deep flavor, ideal for kitfo, tibs, and Ethiopian dishes.',
+                imageUrl: 'https://images.unsplash.com/photo-1559131397-d9611624c9e3?w=800&q=80',
+                price: 280,
+                category: 'spices',
+            },
+            {
+                name: 'Shiro Powder',
+                nameAmharic: 'ሽሮ',
+                description: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro wot.',
+                imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?w=800&q=80',
+                price: 260,
+                category: 'grains',
+            },
+            {
+                name: 'Niter Kibbeh',
+                nameAmharic: 'ንጥር ቅቤ',
+                description: 'Traditional Ethiopian spiced clarified butter with rich aroma for authentic cooking.',
+                imageUrl: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=800&q=80',
+                price: 450,
+                category: 'oils',
+            },
+            {
+                name: 'Teff Flour',
+                nameAmharic: 'ጤፍ ዱቄት',
+                description: 'Premium Ethiopian teff flour, ideal for injera and healthy gluten-free baking.',
+                imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
+                price: 380,
+                category: 'grains',
+            },
+            {
+                name: 'Buna Coffee Beans',
+                nameAmharic: 'ቡና',
+                description: 'Fresh Ethiopian coffee beans with bold aroma and balanced flavor, perfect for buna ceremony.',
+                imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
+                price: 520,
+                category: 'beverages',
+            },
+        ];
 
         const adjectives = ['Premium', 'Authentic', 'Fresh', 'Organic', 'Royal', 'Crown', 'Golden', 'Elite', 'Prime', 'Green', 'Pure', 'Sunrise', 'Pioneer', 'Highland', 'Savannah'];
         const nouns = ['Foods', 'Market', 'Bazaar', 'Spices', 'Harvest', 'Oasis', 'Farms', 'Traders', 'Boutique', 'Organics', 'Meats', 'Valley', 'Goods'];
@@ -114,6 +164,28 @@ const seedData = async () => {
                     images: [{ url: imageUrl, isDefault: true }],
                     ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)),
                     ratingsCount: Math.floor(Math.random() * 300) + 5
+                });
+            }
+        }
+
+        // Add a few recognizable Ethiopian spice products
+        if (createdMerchants.length > 0) {
+            const featuredMerchant = createdMerchants[0];
+            for (const item of featuredEthiopianProducts) {
+                await Product.create({
+                    merchant: featuredMerchant._id,
+                    name: item.name,
+                    nameAmharic: item.nameAmharic,
+                    description: item.description,
+                    price: item.price,
+                    category: item.category,
+                    stock: Math.floor(Math.random() * 150) + 30,
+                    halalCertified: true,
+                    isFeatured: true,
+                    isApproved: true,
+                    images: [{ url: item.imageUrl, isDefault: true }],
+                    ratingsAverage: parseFloat((Math.random() * (5 - 4.2) + 4.2).toFixed(1)),
+                    ratingsCount: Math.floor(Math.random() * 250) + 20,
                 });
             }
         }

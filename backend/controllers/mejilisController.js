@@ -318,7 +318,7 @@ export const getAllCertifications = async (req, res, next) => {
  */
 export const fileComplaint = async (req, res, next) => {
     try {
-        const { merchantId, category, subject, description } = req.body;
+        const { merchantId, category, subject, description, evidence = [] } = req.body;
 
         // Verify merchant exists
         const merchant = await Merchant.findById(merchantId);
@@ -343,6 +343,7 @@ export const fileComplaint = async (req, res, next) => {
             category,
             subject,
             description,
+            evidence,
             status: 'submitted',
             priority: category === 'halal_violation' ? 'critical' : 'medium',
         };
@@ -557,6 +558,8 @@ export const registerAsMerchant = async (req, res, next) => {
             businessPhone,
             businessEmail,
             businessAddress,
+            governmentLicense,
+            nationalId,
             paymentInfo,
             socialMedia,
             operatingHours,
@@ -571,6 +574,8 @@ export const registerAsMerchant = async (req, res, next) => {
             businessPhone,
             businessEmail,
             businessAddress,
+            governmentLicense,
+            nationalId,
             paymentInfo,
             socialMedia,
             operatingHours,

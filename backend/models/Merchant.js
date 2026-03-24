@@ -72,6 +72,14 @@ const merchantSchema = new mongoose.Schema(
             url: { type: String, default: '' },
             publicId: { type: String, default: '' },
         },
+        governmentLicense: {
+            url: { type: String, default: '' },
+            publicId: { type: String, default: '' },
+        },
+        nationalId: {
+            url: { type: String, default: '' },
+            publicId: { type: String, default: '' },
+        },
 
         // ── Business Address ────────────────────────────────
         businessAddress: {
@@ -195,8 +203,6 @@ const merchantSchema = new mongoose.Schema(
 );
 
 // ── Indexes ─────────────────────────────────────────────
-merchantSchema.index({ user: 1 });
-merchantSchema.index({ slug: 1 });
 merchantSchema.index({ verificationStatus: 1 });
 merchantSchema.index({ businessType: 1 });
 merchantSchema.index({ 'businessAddress.city': 1 });

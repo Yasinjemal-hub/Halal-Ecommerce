@@ -143,7 +143,6 @@ const certificationSchema = new mongoose.Schema(
 
 // ── Indexes ─────────────────────────────────────────────
 certificationSchema.index({ merchant: 1 });
-certificationSchema.index({ certificateNumber: 1 });
 certificationSchema.index({ status: 1 });
 certificationSchema.index({ expiryDate: 1 });
 certificationSchema.index({ certificateType: 1 });

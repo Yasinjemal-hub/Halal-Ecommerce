@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FiMapPin, FiCreditCard, FiCheck } from 'react-icons/fi';
 import { selectCartItems, selectCartTotal, clearCart } from '../redux/slices/cartSlice';
 import orderService from '../services/orderService';
+import cartService from '../services/cartService';
 import toast from 'react-hot-toast';
 import './Checkout.css';
 
@@ -51,6 +52,20 @@ const Checkout = () => {
         }
         setIsSubmitting(true);
         try {
+            // Step 1: Sync local cart items to server cart
+            // Clear server cart first to avoid duplicates
+            try {
+                await cartService.clearCart();
+            } catch (e) {
+                // Ignore if cart doesn't exist yet
+            }
+
+            // Add each local item to the server cart
+            for (const item of items) {
+                await cartService.addToCart(item._id, item.quantity);
+            }
+
+            // Step 2: Place order (backend reads from server cart)
             const orderData = {
                 shippingAddress: {
                     fullName: shippingData.fullName,
@@ -63,11 +78,7 @@ const Checkout = () => {
                     deliveryInstructions: shippingData.instructions,
                 },
                 paymentMethod: selectedPayment,
-                items: items.map(item => ({
-                    product: item._id,
-                    quantity: item.quantity,
-                    price: item.discountPrice || item.price,
-                })),
+                deliveryFee: deliveryFee,
             };
             await orderService.create(orderData);
             dispatch(clearCart());

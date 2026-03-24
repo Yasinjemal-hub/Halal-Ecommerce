@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     FiShield, FiUsers, FiCheckCircle, FiAlertTriangle,
     FiFileText, FiCalendar, FiStar, FiArrowRight,
-    FiClock, FiMapPin, FiPhone, FiMail,
+    FiClock,
     FiTrendingUp, FiAward, FiSearch, FiX,
     FiAlertCircle, FiUser
 } from 'react-icons/fi';
@@ -41,10 +41,18 @@ const COMPLAINT_CATEGORIES = [
     { value: 'customer_service', label: '📞 Customer Service' },
     { value: 'other', label: '📝 Other' },
 ];
+const MAX_IMAGE_SIZE_MB = 5;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+});
 
 const Mejilis = () => {
     const [activeTab, setActiveTab] = useState('register');
-    const [loading, setLoading] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const isLoggedIn = authService.isAuthenticated();
@@ -54,6 +62,10 @@ const Mejilis = () => {
     const [regStatus, setRegStatus] = useState(null);
     const [regLoading, setRegLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [licenseFile, setLicenseFile] = useState(null);
+    const [nationalIdFile, setNationalIdFile] = useState(null);
+    const [licenseDragOver, setLicenseDragOver] = useState(false);
+    const [nationalIdDragOver, setNationalIdDragOver] = useState(false);
     const [regForm, setRegForm] = useState({
         businessName: '',
         businessNameAmharic: '',
@@ -75,12 +87,50 @@ const Mejilis = () => {
         description: '',
     });
     const [complaintSubmitting, setComplaintSubmitting] = useState(false);
+    const [complaintEvidenceFile, setComplaintEvidenceFile] = useState(null);
+    const [complaintDragOver, setComplaintDragOver] = useState(false);
 
     // ── Dashboard State (Admin) ────────────────────────────
     const [dashboardStats, setDashboardStats] = useState(null);
     const [merchants, setMerchants] = useState([]);
     const [merchantFilter, setMerchantFilter] = useState('');
     const [dashLoading, setDashLoading] = useState(false);
+
+    const checkRegistrationStatus = useCallback(async () => {
+        try {
+            setRegLoading(true);
+            const data = await mejilisService.getRegistrationStatus();
+            setRegStatus(data);
+        } catch (err) {
+            // Not registered yet
+            setRegStatus({ isRegistered: false });
+        } finally {
+            setRegLoading(false);
+        }
+    }, []);
+
+    const loadDashboard = useCallback(async () => {
+        try {
+            setDashLoading(true);
+            const data = await mejilisService.getDashboard();
+            setDashboardStats(data);
+        } catch (err) {
+            console.error('Error loading dashboard:', err);
+        } finally {
+            setDashLoading(false);
+        }
+    }, []);
+
+    const loadMerchants = useCallback(async () => {
+        try {
+            const params = {};
+            if (merchantFilter) params.verificationStatus = merchantFilter;
+            const data = await mejilisService.getMerchants(params);
+            setMerchants(data.merchants || []);
+        } catch (err) {
+            console.error('Error loading merchants:', err);
+        }
+    }, [merchantFilter]);
 
     // ── Check registration status on mount ─────────────────
     useEffect(() => {
@@ -92,20 +142,7 @@ const Mejilis = () => {
         } else {
             setRegLoading(false);
         }
-    }, []);
-
-    const checkRegistrationStatus = async () => {
-        try {
-            setRegLoading(true);
-            const data = await mejilisService.getRegistrationStatus();
-            setRegStatus(data);
-        } catch (err) {
-            // Not registered yet
-            setRegStatus({ isRegistered: false });
-        } finally {
-            setRegLoading(false);
-        }
-    };
+    }, [checkRegistrationStatus, currentUser?.role, isLoggedIn]);
 
     // ── Load dashboard when tab changes ────────────────────
     useEffect(() => {
@@ -115,30 +152,7 @@ const Mejilis = () => {
         if (activeTab === 'merchants' && currentUser?.role === 'admin') {
             loadMerchants();
         }
-    }, [activeTab, merchantFilter]);
-
-    const loadDashboard = async () => {
-        try {
-            setDashLoading(true);
-            const data = await mejilisService.getDashboard();
-            setDashboardStats(data);
-        } catch (err) {
-            console.error('Error loading dashboard:', err);
-        } finally {
-            setDashLoading(false);
-        }
-    };
-
-    const loadMerchants = async () => {
-        try {
-            const params = {};
-            if (merchantFilter) params.verificationStatus = merchantFilter;
-            const data = await mejilisService.getMerchants(params);
-            setMerchants(data.merchants || []);
-        } catch (err) {
-            console.error('Error loading merchants:', err);
-        }
-    };
+    }, [activeTab, currentUser?.role, loadDashboard, loadMerchants]);
 
     // ── Register Merchant ──────────────────────────────────
     const handleRegister = async (e) => {
@@ -148,6 +162,11 @@ const Mejilis = () => {
         setErrorMsg('');
 
         try {
+            const [licenseUrl, nationalIdUrl] = await Promise.all([
+                licenseFile ? fileToBase64(licenseFile) : Promise.resolve(''),
+                nationalIdFile ? fileToBase64(nationalIdFile) : Promise.resolve(''),
+            ]);
+
             const merchantData = {
                 businessName: regForm.businessName,
                 businessNameAmharic: regForm.businessNameAmharic,
@@ -161,6 +180,8 @@ const Mejilis = () => {
                     subcity: regForm.subcity,
                     street: regForm.street,
                 },
+                governmentLicense: licenseUrl ? { url: licenseUrl } : undefined,
+                nationalId: nationalIdUrl ? { url: nationalIdUrl } : undefined,
             };
 
             const result = await mejilisService.registerMerchant(merchantData);
@@ -181,9 +202,14 @@ const Mejilis = () => {
         setErrorMsg('');
 
         try {
-            const result = await mejilisService.fileComplaint(complaintForm);
+            const evidenceUrl = complaintEvidenceFile ? await fileToBase64(complaintEvidenceFile) : '';
+            const result = await mejilisService.fileComplaint({
+                ...complaintForm,
+                evidence: evidenceUrl ? [{ url: evidenceUrl, name: complaintEvidenceFile.name }] : [],
+            });
             setSuccessMsg(result.message || 'Complaint filed successfully!');
             setComplaintForm({ merchantId: '', category: '', subject: '', description: '' });
+            setComplaintEvidenceFile(null);
         } catch (err) {
             setErrorMsg(err.response?.data?.message || 'Failed to file complaint.');
         } finally {
@@ -208,6 +234,46 @@ const Mejilis = () => {
 
     const updateRegForm = (field, value) => {
         setRegForm((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const validateImageFile = (file) => {
+        if (!file) return false;
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            setErrorMsg('Only JPG, PNG, or WEBP images are allowed.');
+            return false;
+        }
+        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+            setErrorMsg(`Image must be ${MAX_IMAGE_SIZE_MB}MB or smaller.`);
+            return false;
+        }
+        return true;
+    };
+
+    const selectLicenseFile = (file) => {
+        if (!file) {
+            setLicenseFile(null);
+            return;
+        }
+        if (!validateImageFile(file)) return;
+        setLicenseFile(file);
+    };
+
+    const selectNationalIdFile = (file) => {
+        if (!file) {
+            setNationalIdFile(null);
+            return;
+        }
+        if (!validateImageFile(file)) return;
+        setNationalIdFile(file);
+    };
+
+    const selectComplaintEvidence = (file) => {
+        if (!file) {
+            setComplaintEvidenceFile(null);
+            return;
+        }
+        if (!validateImageFile(file)) return;
+        setComplaintEvidenceFile(file);
     };
 
     // ── Clear messages after 5s ────────────────────────────
@@ -488,6 +554,77 @@ const Mejilis = () => {
                                         </div>
                                     </div>
 
+                                    <div className="mejilis-form-row">
+                                        <div className="mejilis-form-group">
+                                            <label className="mejilis-form-label">
+                                                Government License Image <span className="required">*</span>
+                                            </label>
+                                            <label
+                                                className={`mejilis-upload-input ${licenseDragOver ? 'dragover' : ''}`}
+                                                onDragOver={(e) => {
+                                                    e.preventDefault();
+                                                    setLicenseDragOver(true);
+                                                }}
+                                                onDragLeave={() => setLicenseDragOver(false)}
+                                                onDrop={(e) => {
+                                                    e.preventDefault();
+                                                    setLicenseDragOver(false);
+                                                    selectLicenseFile(e.dataTransfer.files?.[0] || null);
+                                                }}
+                                            >
+                                                <FiFileText size={16} />
+                                                <span>{licenseFile ? licenseFile.name : 'Drag & drop license image, or click to upload'}</span>
+                                                <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => selectLicenseFile(e.target.files?.[0] || null)}
+                                                    required
+                                                />
+                                            </label>
+                                            {licenseFile && (
+                                                <div className="mejilis-file-preview">
+                                                    <img src={URL.createObjectURL(licenseFile)} alt="Government license preview" />
+                                                    <button type="button" onClick={() => setLicenseFile(null)}>Remove</button>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="mejilis-form-group">
+                                            <label className="mejilis-form-label">
+                                                National ID Image <span className="required">*</span>
+                                            </label>
+                                            <label
+                                                className={`mejilis-upload-input ${nationalIdDragOver ? 'dragover' : ''}`}
+                                                onDragOver={(e) => {
+                                                    e.preventDefault();
+                                                    setNationalIdDragOver(true);
+                                                }}
+                                                onDragLeave={() => setNationalIdDragOver(false)}
+                                                onDrop={(e) => {
+                                                    e.preventDefault();
+                                                    setNationalIdDragOver(false);
+                                                    selectNationalIdFile(e.dataTransfer.files?.[0] || null);
+                                                }}
+                                            >
+                                                <FiUser size={16} />
+                                                <span>{nationalIdFile ? nationalIdFile.name : 'Drag & drop national ID image, or click to upload'}</span>
+                                                <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => selectNationalIdFile(e.target.files?.[0] || null)}
+                                                    required
+                                                />
+                                            </label>
+                                            {nationalIdFile && (
+                                                <div className="mejilis-file-preview">
+                                                    <img src={URL.createObjectURL(nationalIdFile)} alt="National ID preview" />
+                                                    <button type="button" onClick={() => setNationalIdFile(null)}>Remove</button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
                                     <div className="mejilis-form-group full-width">
                                         <label className="mejilis-form-label">
                                             Business Type <span className="required">*</span>
@@ -711,6 +848,38 @@ const Mejilis = () => {
                                             rows={5}
                                             id="complaint-description"
                                         />
+                                    </div>
+
+                                    <div className="mejilis-form-group full-width">
+                                        <label className="mejilis-form-label">Evidence Image (Optional)</label>
+                                        <label
+                                            className={`mejilis-upload-input ${complaintDragOver ? 'dragover' : ''}`}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                                setComplaintDragOver(true);
+                                            }}
+                                            onDragLeave={() => setComplaintDragOver(false)}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                setComplaintDragOver(false);
+                                                selectComplaintEvidence(e.dataTransfer.files?.[0] || null);
+                                            }}
+                                        >
+                                            <FiFileText size={16} />
+                                            <span>{complaintEvidenceFile ? complaintEvidenceFile.name : 'Drag & drop complaint image, or click to upload'}</span>
+                                            <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => selectComplaintEvidence(e.target.files?.[0] || null)}
+                                            />
+                                        </label>
+                                        {complaintEvidenceFile && (
+                                            <div className="mejilis-file-preview">
+                                                <img src={URL.createObjectURL(complaintEvidenceFile)} alt="Complaint evidence preview" />
+                                                <button type="button" onClick={() => setComplaintEvidenceFile(null)}>Remove</button>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <button

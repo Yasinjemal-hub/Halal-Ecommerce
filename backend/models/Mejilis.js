@@ -237,7 +237,6 @@ mejilisSchema.index({ region: 1 });
 complaintSchema.index({ status: 1 });
 complaintSchema.index({ merchant: 1 });
 complaintSchema.index({ complainant: 1 });
-complaintSchema.index({ referenceNumber: 1 });
 sessionSchema.index({ sessionDate: -1 });
 
 // ── Auto-generate complaint reference number ────────────

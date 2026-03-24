@@ -109,14 +109,13 @@ reviewSchema.index({ createdAt: -1 });
 reviewSchema.index({ moderationStatus: 1 });
 
 // ── Validation: must have either product or merchant ────
-reviewSchema.pre('validate', function (next) {
+reviewSchema.pre('validate', function () {
     if (this.reviewType === 'product' && !this.product) {
         this.invalidate('product', 'Product is required for product reviews');
     }
     if (this.reviewType === 'merchant' && !this.merchant) {
         this.invalidate('merchant', 'Merchant is required for merchant reviews');
     }
-    next();
 });
 
 // ── Static: calculate average rating ────────────────────

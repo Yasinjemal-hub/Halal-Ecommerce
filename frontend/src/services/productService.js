@@ -27,6 +27,13 @@ const productService = {
         return response.data;
     },
 
+    // Get products for logged in merchant
+    getMine: async (params = {}) => {
+        const queryString = new URLSearchParams(params).toString();
+        const response = await api.get(`/products?${queryString}`);
+        return response.data;
+    },
+
     // Update product (merchant)
     update: async (id, productData) => {
         const response = await api.put(`/products/${id}`, productData);

@@ -146,14 +146,13 @@ const orderSchema = new mongoose.Schema(
 
 // ── Indexes ─────────────────────────────────────────────
 orderSchema.index({ user: 1, createdAt: -1 });
-orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ 'items.merchant': 1 });
 orderSchema.index({ paymentStatus: 1 });
 orderSchema.index({ createdAt: -1 });
 
 // ── Auto-generate order number ──────────────────────────
-orderSchema.pre('save', async function (next) {
+orderSchema.pre('save', async function () {
     if (this.isNew && !this.orderNumber) {
         const datePart = new Date().toISOString().slice(2, 10).replace(/-/g, '');
         const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -168,8 +167,6 @@ orderSchema.pre('save', async function (next) {
             timestamp: new Date(),
         });
     }
-
-    next();
 });
 
 // ── Virtual: item count ─────────────────────────────────

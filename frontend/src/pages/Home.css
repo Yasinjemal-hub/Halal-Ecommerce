@@ -475,6 +475,15 @@
     background: var(--bg-primary);
 }
 
+.ethiopian-section {
+    background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .ethiopian-section {
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
 /* ═══════════════════ WHY CHOOSE US ═══════════════════ */
 .why-section {
     background: var(--bg-secondary);

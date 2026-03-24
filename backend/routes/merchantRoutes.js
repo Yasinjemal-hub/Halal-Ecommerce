@@ -19,11 +19,13 @@ const router = Router();
 // ── Public Routes ───────────────────────────────────────
 router.get('/featured', getFeaturedMerchants);
 router.get('/', getAllMerchants);
+
+// ── Protected Routes (must be before /:id wildcard) ─────
+router.get('/me/profile', protect, authorize('merchant'), getMyMerchantProfile);
+
+// ── Public Routes (wildcard) ────────────────────────────
 router.get('/:id/products', getMerchantProducts);
 router.get('/:id', getMerchant);
-
-// ── Protected Routes ────────────────────────────────────
-router.get('/me/profile', protect, authorize('merchant'), getMyMerchantProfile);
 
 router.post(
     '/',

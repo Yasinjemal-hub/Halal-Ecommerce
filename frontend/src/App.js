@@ -19,6 +19,7 @@ import Register from './pages/Auth/Register';
 import About from './pages/About';
 import MerchantDashboard from './pages/Dashboard/MerchantDashboard';
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
+import ProductManager from './pages/Dashboard/ProductManager';
 import Mejilis from './pages/Mejilis';
 import MerchantShop from './pages/MerchantShop';
 
@@ -79,6 +80,7 @@ function App() {
 
         {/* Dashboard Routes */}
         <Route path="/dashboard" element={<MainLayout><MerchantDashboard /></MainLayout>} />
+        <Route path="/dashboard/products" element={<MainLayout><ProductManager /></MainLayout>} />
         <Route path="/admin" element={<MainLayout><AdminDashboard /></MainLayout>} />
 
         {/* Catch-all 404 */}

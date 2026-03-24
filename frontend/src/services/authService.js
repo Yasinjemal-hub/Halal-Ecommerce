@@ -49,7 +49,7 @@ const authService = {
     },
 
     resetPassword: async (token, password) => {
-        const response = await api.post(`/auth/reset-password/${token}`, { password });
+        const response = await api.put(`/auth/reset-password/${token}`, { password });
         return response.data;
     },
 

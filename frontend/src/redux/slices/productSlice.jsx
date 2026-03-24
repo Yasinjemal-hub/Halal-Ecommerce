@@ -89,7 +89,7 @@ const productSlice = createSlice({
                 state.isLoading = false;
                 state.items = action.payload.products || action.payload.data || [];
                 state.pagination = {
-                    page: action.payload.page || 1,
+                    page: action.payload.currentPage || action.payload.page || 1,
                     totalPages: action.payload.totalPages || 1,
                     total: action.payload.total || 0,
                 };
