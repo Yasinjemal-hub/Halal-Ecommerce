@@ -32,109 +32,56 @@ const seedData = async () => {
         };
         const types = ['butcher', 'spice_shop', 'grocery', 'clothing', 'bakery', 'restaurant'];
 
-        // Images collections from Unsplash mapping to categories
-        const categoryImages = {
-            meat: ['https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=400&q=80', 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80', 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=400&q=80'],
-            poultry: ['https://images.unsplash.com/photo-1626200926732-4752ff9fbaf5?w=400&q=80', 'https://images.unsplash.com/photo-1598514982205-f36b96d1ea8d?w=400&q=80', 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80'],
-            spices: ['https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80', 'https://images.unsplash.com/photo-1559131397-d9611624c9e3?w=400&q=80', 'https://images.unsplash.com/photo-1621236378699-8597faf6a176?w=400&q=80'],
-            grains: ['https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=400&q=80', 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=400&q=80', 'https://images.unsplash.com/photo-1593414220166-085ba36203cf?w=400&q=80'],
-            honey: ['https://images.unsplash.com/photo-1587049352847-8d4c0b490f89?w=400&q=80', 'https://images.unsplash.com/photo-1587049352851-8d4c0b490f89?w=400&q=80'],
-            clothing: ['https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&q=80', 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=80', 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80'],
-            bakery: ['https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80', 'https://images.unsplash.com/photo-1509365465994-3e8c58852115?w=400&q=80'],
-            other: ['https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80', 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&q=80', 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&q=80', 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=400&q=80'],
-            perfume: ['https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&q=80', 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&q=80'],
-            snacks: ['https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=400&q=80', 'https://images.unsplash.com/photo-1628188172900-a54817a00f27?w=400&q=80']
+        const categoryProducts = {
+            meat: [
+                { name: 'Fresh Beef Tibs Meat', nameAmharic: 'የጥብስ ስጋ', desc: 'Premium quality fresh beef perfectly cut for Ethiopian tibs.', image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80', price: 800, category: 'meat' },
+                { name: 'Premium Goat Meat (Fiyel)', nameAmharic: 'የፍየል ስጋ', desc: 'Tender fresh goat meat, sourced locally and halal certified.', image: 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=800&q=80', price: 1200, category: 'meat' },
+                { name: 'Minced Beef for Kitfo', nameAmharic: 'የክትፎ ስጋ', desc: 'Lean, finely minced red beef essential for authentic kitfo.', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80', price: 950, category: 'meat' }
+            ],
+            poultry: [
+                { name: 'Fresh Doro (Local Chicken)', nameAmharic: 'የሀበሻ ዶሮ', desc: 'Farm raised local chicken, dressed and ready for doro wot.', image: 'https://images.unsplash.com/photo-1626200926732-4752ff9fbaf5?w=800&q=80', price: 650, category: 'poultry' },
+                { name: 'Farm Fresh Eggs', nameAmharic: 'ትኩስ እንቁላል', desc: 'Organic farm-fresh eggs, perfect for cooking and baking.', image: 'https://images.unsplash.com/photo-1598514982205-f36b96d1ea8d?w=800&q=80', price: 200, category: 'poultry' }
+            ],
+            spices: [
+                { name: 'Authentic Berbere Blend', nameAmharic: 'በርበሬ', desc: 'Traditional Ethiopian berbere blend made from premium chili, garlic, and aromatic spices.', image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80', price: 350, category: 'spices' },
+                { name: 'Mitmita Hot Spice', nameAmharic: 'ሚጥሚጣ', desc: 'Authentic mitmita with intense heat, ideal for kitfo and tibs.', image: 'https://images.unsplash.com/photo-1621236378699-8597faf6a176?w=800&q=80', price: 280, category: 'spices' },
+                { name: 'Shiro Powder', nameAmharic: 'የሽሮ ዱቄት', desc: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro.', image: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=800&q=80', price: 250, category: 'spices' }
+            ],
+            grains: [
+                { name: 'Premium White Teff', nameAmharic: 'ነጭ ጤፍ', desc: 'Top quality white teff flour for baking soft, perfect injera.', image: 'https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=800&q=80', price: 4500, category: 'grains' },
+                { name: 'Red Teff', nameAmharic: 'ቀይ ጤፍ', desc: 'Nutrient-rich red teff grain sourced tightly from local highlands.', image: 'https://images.unsplash.com/photo-1593414220166-085ba36203cf?w=800&q=80', price: 4000, category: 'grains' },
+                { name: 'Roasted Barley (Kolo)', nameAmharic: 'ቆሎ', desc: 'Freshly roasted barley snack mixed with peanuts and chickpeas.', image: 'https://images.unsplash.com/photo-1628188172900-a54817a00f27?w=800&q=80', price: 150, category: 'grains' }
+            ],
+            honey: [
+                { name: 'Pure Lalibela Honey', nameAmharic: 'የላሊበላ ማር', desc: '100% natural, raw organic honey harvested from the mountains of Lalibela.', image: 'https://images.unsplash.com/photo-1587049352847-8d4c0b490f89?w=800&q=80', price: 800, category: 'honey' },
+                { name: 'White Gojjam Honey', nameAmharic: 'የጎጃም ነጭ ማር', desc: 'Premium thick white honey perfectly suited for natural sweetening.', image: 'https://images.unsplash.com/photo-1587049352851-8d4c0b490f89?w=800&q=80', price: 950, category: 'honey' }
+            ],
+            clothing: [
+                { name: 'Traditional Habesha Kemis', nameAmharic: 'የሀበሻ ቀሚስ', desc: 'Beautiful handwoven Ethiopian traditional dress with intricate tilet patterns.', image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80', price: 3500, category: 'clothing' },
+                { name: 'Elegant Abaya', nameAmharic: 'አባያ', desc: 'High-quality modest elegant abaya with beautiful detailing.', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80', price: 1800, category: 'clothing' },
+                { name: 'Men\'s Netela/Gabi', nameAmharic: 'ጋቢ', desc: 'Warm and comforting traditional handwoven cotton blanket/wrap.', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80', price: 1200, category: 'clothing' }
+            ],
+            bakery: [
+                { name: 'Fresh Ambasha Bread', nameAmharic: 'አምባሻ', desc: 'Sweet, festive Ethiopian bread with rich flavors and soft texture.', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80', price: 100, category: 'bakery' },
+                { name: 'Defo Dabo', nameAmharic: 'ድፎ ዳቦ', desc: 'Traditional spiced bread baked wrapped in banana leaves.', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80', price: 350, category: 'bakery' },
+                { name: 'Fresh Injera (10 Rolls)', nameAmharic: 'እንጀራ', desc: 'Soft and spongy 100% teff authentic injera made fresh daily.', image: 'https://images.unsplash.com/photo-1509365465994-3e8c58852115?w=800&q=80', price: 200, category: 'bakery' }
+            ],
+            perfume: [
+                { name: 'Luxury Oud Fragrance', nameAmharic: 'የኡድ ሽቶ', desc: 'Long-lasting and captivating luxury Oud perfume fragrance without alcohol.', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80', price: 2500, category: 'perfume' },
+                { name: 'Bakhur Incense', nameAmharic: 'ዕጣን / ባኩር', desc: 'Premium aromatic incense blocks to refresh your home space.', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80', price: 450, category: 'perfume' }
+            ],
+            snacks: [
+                { name: 'Premium Khudri Dates (Temir)', nameAmharic: 'ተምር', desc: 'Fresh, sweet, and pure premium dates, perfect for fasting and daily snacking.', image: 'https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=800&q=80', price: 400, category: 'snacks' },
+                { name: 'Vegetable Sambusa', nameAmharic: 'የአትክልት ሳምቡሳ', desc: 'Crispy fried dough pastry packed with savory lentil and vegetable filling.', image: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&q=80', price: 50, category: 'snacks' },
+                { name: 'Beso (Toasted Barley Snack)', nameAmharic: 'በሶ', desc: 'Traditional moistened toasted barley, packed with energy and nutrition.', image: 'https://images.unsplash.com/photo-1628188172900-a54817a00f27?w=800&q=80', price: 150, category: 'snacks' }
+            ],
+            other: [
+                { name: 'Jebena (Traditional Coffee Pot)', nameAmharic: 'ጀበና', desc: 'Iconic black clay pot essential for the Ethiopian coffee ceremony.', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80', price: 300, category: 'other' },
+                { name: 'Rekbot Mini Table', nameAmharic: 'ረከቦት', desc: 'Beautifully crafted wooden table stand used for serving traditional coffee.', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80', price: 800, category: 'other' },
+                { name: 'Frankincense (Etan)', nameAmharic: 'ዕጣን', desc: 'Natural tree resin incensce sourced locally to produce calming aromas.', image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&q=80', price: 150, category: 'other' },
+                { name: 'Niter Kibbeh (Spiced Butter)', nameAmharic: 'ንጥር ቅቤ', desc: 'Authentic clarified butter simmered with herbs, perfect for enhancing wots.', image: 'https://images.unsplash.com/photo-1620189507195-68309c04c4d0?w=800&q=80', price: 450, category: 'other' }
+            ]
         };
-        const featuredEthiopianProducts = [
-            {
-                name: 'Berbere Spice Mix',
-                nameAmharic: 'በርበሬ',
-                description: 'Traditional Ethiopian berbere blend made from premium chili, garlic, and aromatic spices. Perfect for wot, tibs, and marinades.',
-                imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80',
-                price: 320,
-                category: 'spices',
-            },
-            {
-                name: 'Mitmita Hot Spice',
-                nameAmharic: 'ሚጥሚጣ',
-                description: 'Authentic mitmita with intense heat and deep flavor, ideal for kitfo, tibs, and Ethiopian dishes.',
-                imageUrl: 'https://images.unsplash.com/photo-1621236378699-8597faf6a176?w=800&q=80',
-                price: 280,
-                category: 'spices',
-            },
-            {
-                name: 'Shiro Powder',
-                nameAmharic: 'ሽሮ',
-                description: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro wot.',
-                imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=800&q=80',
-                price: 260,
-                category: 'grains',
-            },
-            {
-                name: 'Niter Kibbeh',
-                nameAmharic: 'ንጥር ቅቤ',
-                description: 'Traditional Ethiopian spiced clarified butter with rich aroma for authentic cooking.',
-                imageUrl: 'https://images.unsplash.com/photo-1620189507195-68309c04c4d0?w=800&q=80',
-                price: 450,
-                category: 'oils',
-            },
-            {
-                name: 'Teff Flour',
-                nameAmharic: 'ጤፍ ዱቄት',
-                description: 'Premium Ethiopian teff flour, ideal for injera and healthy gluten-free baking.',
-                imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
-                price: 380,
-                category: 'grains',
-            },
-            {
-                name: 'Buna Coffee Beans',
-                nameAmharic: 'ቡና',
-                description: 'Fresh Ethiopian coffee beans with bold aroma and balanced flavor, perfect for buna ceremony.',
-                imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
-                price: 520,
-                category: 'beverages',
-            },
-            {
-                name: 'Elegant Abaya',
-                nameAmharic: 'አባያ',
-                description: 'High-quality modest elegant abaya with beautiful detailing and premium comfortable fabric.',
-                imageUrl: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80',
-                price: 1800,
-                category: 'clothing',
-            },
-            {
-                name: 'Classic Men\'s Jelebiya',
-                nameAmharic: 'ጀለቢያ',
-                description: 'Traditional and comfortable men\'s jelebiya perfect for daily wear and special occasions.',
-                imageUrl: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80',
-                price: 1500,
-                category: 'clothing',
-            },
-            {
-                name: 'Premium Khudri Dates (Temir)',
-                nameAmharic: 'ተምር',
-                description: 'Fresh, sweet, and pure premium dates (Temir), perfect for fast breaking and daily snacking.',
-                imageUrl: 'https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=800&q=80',
-                price: 450,
-                category: 'snacks',
-            },
-            {
-                name: 'Oud Luxury Perfume',
-                nameAmharic: 'ሽቶ',
-                description: 'Long-lasting and captivating luxury Oud perfume fragrance without alcohol.',
-                imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80',
-                price: 2500,
-                category: 'perfume',
-            },
-            {
-                name: 'Classic Wrist Watch',
-                nameAmharic: 'የእጅ ሰአት',
-                description: 'Elegant and durable classic wrist watch, perfect for any occasion.',
-                imageUrl: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80',
-                price: 3500,
-                category: 'other',
-            },
-        ];
 
         const adjectives = ['Premium', 'Authentic', 'Fresh', 'Organic', 'Royal', 'Crown', 'Golden', 'Elite', 'Prime', 'Green', 'Pure', 'Sunrise', 'Pioneer', 'Highland', 'Savannah'];
         const nouns = ['Foods', 'Market', 'Bazaar', 'Spices', 'Harvest', 'Oasis', 'Farms', 'Traders', 'Boutique', 'Organics', 'Meats', 'Valley', 'Goods'];
@@ -186,46 +133,53 @@ const seedData = async () => {
             const numProducts = Math.floor(Math.random() * 4) + 3; // 3 to 6 products
             for (let p = 0; p < numProducts; p++) {
                 const category = categories[(i + p) % categories.length];
-                const bgImagePool = categoryImages[category] || categoryImages.other;
-                const imageUrl = bgImagePool[p % bgImagePool.length];
-
-                const basePrice = Math.floor(Math.random() * 1500) + 100;
+                const productsPool = categoryProducts[category] || categoryProducts.other;
+                const selectedProduct = productsPool[p % productsPool.length];
 
                 await Product.create({
                     merchant: merchant._id,
-                    name: `${adjectives[(i + p) % adjectives.length]} ${category.charAt(0).toUpperCase() + category.slice(1)} Item ${p + 1}`,
-                    nameAmharic: `ምርጥ የ${category} ቁሳቁስ`,
-                    description: `Experience the finest authentic ${category} sourced carefully for optimal quality and freshness. Fully compliant with halal standards and verified by the Majlis.`,
-                    price: basePrice,
-                    discountPrice: Math.random() > 0.5 ? Math.floor(basePrice * 0.8) : null,
+                    name: selectedProduct.name,
+                    nameAmharic: selectedProduct.nameAmharic,
+                    description: selectedProduct.desc,
+                    price: selectedProduct.price,
+                    discountPrice: Math.random() > 0.5 ? Math.floor(selectedProduct.price * 0.8) : null,
                     category: category,
                     stock: Math.floor(Math.random() * 200) + 10,
                     halalCertified: true,
                     isFeatured: Math.random() > 0.7,
                     isApproved: true,
-                    images: [{ url: imageUrl, isDefault: true }],
+                    images: [{ url: selectedProduct.image, isDefault: true }],
                     ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)),
                     ratingsCount: Math.floor(Math.random() * 300) + 5
                 });
             }
         }
 
-        // Add a few recognizable Ethiopian spice products
+        // Add a few recognizable featured products to the first merchant
         if (createdMerchants.length > 0) {
             const featuredMerchant = createdMerchants[0];
-            for (const item of featuredEthiopianProducts) {
+            const featuredItems = [
+                categoryProducts.spices[0], 
+                categoryProducts.spices[1],
+                categoryProducts.grains[0],
+                categoryProducts.clothing[0],
+                categoryProducts.perfume[0]
+            ];
+            
+            for (const item of featuredItems) {
+                if (!item) continue;
                 await Product.create({
                     merchant: featuredMerchant._id,
                     name: item.name,
                     nameAmharic: item.nameAmharic,
-                    description: item.description,
+                    description: item.desc,
                     price: item.price,
-                    category: item.category,
+                    category: item.category || 'other',
                     stock: Math.floor(Math.random() * 150) + 30,
                     halalCertified: true,
                     isFeatured: true,
                     isApproved: true,
-                    images: [{ url: item.imageUrl, isDefault: true }],
+                    images: [{ url: item.image, isDefault: true }],
                     ratingsAverage: parseFloat((Math.random() * (5 - 4.2) + 4.2).toFixed(1)),
                     ratingsCount: Math.floor(Math.random() * 250) + 20,
                 });
