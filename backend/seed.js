@@ -19,7 +19,7 @@ const seedData = async () => {
         await Product.deleteMany({});
         console.log('🌱 Products deleted');
 
-        const categories = ['meat', 'poultry', 'spices', 'grains', 'honey', 'clothing', 'bakery', 'grocery'];
+        const categories = ['meat', 'poultry', 'spices', 'grains', 'honey', 'clothing', 'bakery', 'other', 'perfume', 'snacks'];
         const cities = ['Addis Ababa', 'Harar', 'Dire Dawa', 'Mekelle', 'Bahir Dar', 'Hawassa', 'Jimma'];
         const cityToRegion = {
             'Addis Ababa': 'Addis Ababa',
@@ -41,7 +41,9 @@ const seedData = async () => {
             honey: ['https://images.unsplash.com/photo-1587049352847-8d4c0b490f89?w=400&q=80', 'https://images.unsplash.com/photo-1587049352851-8d4c0b490f89?w=400&q=80'],
             clothing: ['https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&q=80', 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=80', 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80'],
             bakery: ['https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80', 'https://images.unsplash.com/photo-1509365465994-3e8c58852115?w=400&q=80'],
-            grocery: ['https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80', 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&q=80']
+            other: ['https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80', 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=400&q=80', 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&q=80', 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=400&q=80'],
+            perfume: ['https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400&q=80', 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&q=80'],
+            snacks: ['https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=400&q=80', 'https://images.unsplash.com/photo-1628188172900-a54817a00f27?w=400&q=80']
         };
         const featuredEthiopianProducts = [
             {
@@ -56,7 +58,7 @@ const seedData = async () => {
                 name: 'Mitmita Hot Spice',
                 nameAmharic: 'ሚጥሚጣ',
                 description: 'Authentic mitmita with intense heat and deep flavor, ideal for kitfo, tibs, and Ethiopian dishes.',
-                imageUrl: 'https://images.unsplash.com/photo-1559131397-d9611624c9e3?w=800&q=80',
+                imageUrl: 'https://images.unsplash.com/photo-1621236378699-8597faf6a176?w=800&q=80',
                 price: 280,
                 category: 'spices',
             },
@@ -64,7 +66,7 @@ const seedData = async () => {
                 name: 'Shiro Powder',
                 nameAmharic: 'ሽሮ',
                 description: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro wot.',
-                imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e3?w=800&q=80',
+                imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=800&q=80',
                 price: 260,
                 category: 'grains',
             },
@@ -72,7 +74,7 @@ const seedData = async () => {
                 name: 'Niter Kibbeh',
                 nameAmharic: 'ንጥር ቅቤ',
                 description: 'Traditional Ethiopian spiced clarified butter with rich aroma for authentic cooking.',
-                imageUrl: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=800&q=80',
+                imageUrl: 'https://images.unsplash.com/photo-1620189507195-68309c04c4d0?w=800&q=80',
                 price: 450,
                 category: 'oils',
             },
@@ -91,6 +93,46 @@ const seedData = async () => {
                 imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80',
                 price: 520,
                 category: 'beverages',
+            },
+            {
+                name: 'Elegant Abaya',
+                nameAmharic: 'አባያ',
+                description: 'High-quality modest elegant abaya with beautiful detailing and premium comfortable fabric.',
+                imageUrl: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80',
+                price: 1800,
+                category: 'clothing',
+            },
+            {
+                name: 'Classic Men\'s Jelebiya',
+                nameAmharic: 'ጀለቢያ',
+                description: 'Traditional and comfortable men\'s jelebiya perfect for daily wear and special occasions.',
+                imageUrl: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80',
+                price: 1500,
+                category: 'clothing',
+            },
+            {
+                name: 'Premium Khudri Dates (Temir)',
+                nameAmharic: 'ተምር',
+                description: 'Fresh, sweet, and pure premium dates (Temir), perfect for fast breaking and daily snacking.',
+                imageUrl: 'https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=800&q=80',
+                price: 450,
+                category: 'snacks',
+            },
+            {
+                name: 'Oud Luxury Perfume',
+                nameAmharic: 'ሽቶ',
+                description: 'Long-lasting and captivating luxury Oud perfume fragrance without alcohol.',
+                imageUrl: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80',
+                price: 2500,
+                category: 'perfume',
+            },
+            {
+                name: 'Classic Wrist Watch',
+                nameAmharic: 'የእጅ ሰአት',
+                description: 'Elegant and durable classic wrist watch, perfect for any occasion.',
+                imageUrl: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80',
+                price: 3500,
+                category: 'other',
             },
         ];
 
@@ -144,7 +186,7 @@ const seedData = async () => {
             const numProducts = Math.floor(Math.random() * 4) + 3; // 3 to 6 products
             for (let p = 0; p < numProducts; p++) {
                 const category = categories[(i + p) % categories.length];
-                const bgImagePool = categoryImages[category] || categoryImages.grocery;
+                const bgImagePool = categoryImages[category] || categoryImages.other;
                 const imageUrl = bgImagePool[p % bgImagePool.length];
 
                 const basePrice = Math.floor(Math.random() * 1500) + 100;

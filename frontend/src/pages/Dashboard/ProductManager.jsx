@@ -64,6 +64,11 @@ const ProductManager = () => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
+    const numericPrice = Number(form.price) || 0;
+    const merchantFee = numericPrice * 0.03;
+    const mejilisFee = numericPrice * 0.03;
+    const merchantEarnings = numericPrice - merchantFee - mejilisFee;
+
     const validateImageFile = (file) => {
         if (!file) return false;
         if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -92,16 +97,33 @@ const ProductManager = () => {
         setSubmitting(true);
         setError('');
         setSuccess('');
-
         try {
-            const imageData = productImageFile ? await fileToBase64(productImageFile) : '';
+            let imageData = '';
+            if (productImageFile) {
+                imageData = await fileToBase64(productImageFile);
+            } else {
+                const catImages = {
+                    meat: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80',
+                    poultry: 'https://images.unsplash.com/photo-1626200926732-4752ff9fbaf5?w=800&q=80',
+                    spices: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80',
+                    grains: 'https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=800&q=80',
+                    honey: 'https://images.unsplash.com/photo-1587049352847-8d4c0b490f89?w=800&q=80',
+                    clothing: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80',
+                    bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
+                    perfume: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80',
+                    snacks: 'https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=800&q=80',
+                    other: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80'
+                };
+                imageData = catImages[form.category] || catImages.other;
+            }
+
             const payload = {
                 name: form.name.trim(),
                 description: form.description.trim(),
                 category: form.category,
                 price: Number(form.price),
                 stock: Number(form.stock),
-                images: imageData ? [{ url: imageData, alt: form.name.trim(), isDefault: true }] : [],
+                images: [{ url: imageData, alt: form.name.trim(), isDefault: true }],
             };
 
             await productService.create(payload);
@@ -165,6 +187,26 @@ const ProductManager = () => {
                         onChange={(e) => handleChange('price', e.target.value)}
                         required
                     />
+                    {numericPrice > 0 && (
+                        <div style={{ fontSize: '0.85rem', color: '#666', gridColumn: '1 / -1', marginTop: '-12px', marginBottom: '8px', padding: '10px', background: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <span>Item Price:</span>
+                                <span>{numericPrice.toFixed(2)} ETB</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#dc2626' }}>
+                                <span>Platform Fee (3%):</span>
+                                <span>-{merchantFee.toFixed(2)} ETB</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#dc2626' }}>
+                                <span>Mejilis Council Fee (3%):</span>
+                                <span>-{mejilisFee.toFixed(2)} ETB</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '8px', borderTop: '1px solid #e5e7eb', fontWeight: 'bold', color: 'var(--primary-700)' }}>
+                                <span>You Earn:</span>
+                                <span>{merchantEarnings.toFixed(2)} ETB</span>
+                            </div>
+                        </div>
+                    )}
                     <input
                         className="dashboard-input"
                         type="number"
@@ -213,7 +255,7 @@ const ProductManager = () => {
                             </button>
                         </div>
                     )}
-                    <button type="submit" className="btn btn-primary" disabled={submitting || !merchantId}>
+                    <button type="submit" className="btn btn-primary" disabled={submitting}>
                         {submitting ? 'Saving...' : 'Create Product'}
                     </button>
                 </form>

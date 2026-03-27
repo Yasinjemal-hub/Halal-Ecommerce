@@ -483,6 +483,56 @@ const Mejilis = () => {
                                     <strong>Notes:</strong> {regStatus.merchant.verificationNotes}
                                 </p>
                             )}
+
+                            {/* Halal Certificate Display */}
+                            {regStatus.merchant?.halalCertification && regStatus.merchant.verificationStatus === 'approved' && (
+                                <div style={{
+                                    marginTop: 24,
+                                    padding: '16px 20px',
+                                    borderRadius: '12px',
+                                    background: 'linear-gradient(135deg, rgba(212, 160, 23, 0.1), rgba(13, 124, 61, 0.05))',
+                                    border: '1px solid rgba(212, 160, 23, 0.3)',
+                                    textAlign: 'left'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                                        <div style={{
+                                            background: '#D4A017', color: 'white', padding: 8, borderRadius: 8, display: 'flex'
+                                        }}>
+                                            <FiAward size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#0D7C3D' }}>
+                                                Official Halal Certification
+                                            </h4>
+                                            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                                                Issued by Mejilis Council
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                                        <div style={{ flex: 1, minWidth: '120px' }}>
+                                            <strong style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', display: 'block' }}>Certificate No.</strong>
+                                            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem' }}>
+                                                {regStatus.merchant.halalCertification.certificateNumber || 'PENDING ASSIGNMENT'}
+                                            </span>
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: '120px' }}>
+                                            <strong style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', display: 'block' }}>Status</strong>
+                                            <span style={{ fontWeight: 600, color: 'var(--success)' }}>
+                                                {regStatus.merchant.halalCertification.status.toUpperCase()}
+                                            </span>
+                                        </div>
+                                        {regStatus.merchant.halalCertification.expiryDate && (
+                                            <div style={{ flex: 1, minWidth: '120px' }}>
+                                                <strong style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', display: 'block' }}>Valid Until</strong>
+                                                <span style={{ fontWeight: 600 }}>
+                                                    {new Date(regStatus.merchant.halalCertification.expiryDate).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="mejilis-register-layout">
@@ -523,221 +573,234 @@ const Mejilis = () => {
 
                             {/* Right - Registration Form */}
                             <div className="mejilis-register-form-card">
-                                <h3>📋 Register Your Business</h3>
-                                <p>All fields marked with * are required.</p>
+                                <h3>📋 Merchant Application Form</h3>
+                                <p>Please fill out all required fields carefully to submit your business for official verification.</p>
                                 <form className="mejilis-form" onSubmit={handleRegister}>
-                                    <div className="mejilis-form-row">
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">
-                                                Business Name <span className="required">*</span>
-                                            </label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="text"
-                                                placeholder="e.g. Addis Halal Meats"
-                                                value={regForm.businessName}
-                                                onChange={(e) => updateRegForm('businessName', e.target.value)}
-                                                required
-                                                id="reg-business-name"
-                                            />
-                                        </div>
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">Business Name (Amharic)</label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="text"
-                                                placeholder="e.g. አዲስ ሐላል ስጋ"
-                                                value={regForm.businessNameAmharic}
-                                                onChange={(e) => updateRegForm('businessNameAmharic', e.target.value)}
-                                                id="reg-business-name-am"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="mejilis-form-row">
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">
-                                                Government License Image <span className="required">*</span>
-                                            </label>
-                                            <label
-                                                className={`mejilis-upload-input ${licenseDragOver ? 'dragover' : ''}`}
-                                                onDragOver={(e) => {
-                                                    e.preventDefault();
-                                                    setLicenseDragOver(true);
-                                                }}
-                                                onDragLeave={() => setLicenseDragOver(false)}
-                                                onDrop={(e) => {
-                                                    e.preventDefault();
-                                                    setLicenseDragOver(false);
-                                                    selectLicenseFile(e.dataTransfer.files?.[0] || null);
-                                                }}
-                                            >
-                                                <FiFileText size={16} />
-                                                <span>{licenseFile ? licenseFile.name : 'Drag & drop license image, or click to upload'}</span>
-                                                <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                    
+                                    {/* ── SECTION 1: BUSINESS IDENTITY ── */}
+                                    <div className="mejilis-form-section">
+                                        <h4 className="mejilis-form-section-title"><FiStar /> Business Identity</h4>
+                                        <div className="mejilis-form-row">
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">
+                                                    Business Name <span className="required">*</span>
+                                                </label>
                                                 <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => selectLicenseFile(e.target.files?.[0] || null)}
+                                                    className="mejilis-form-input"
+                                                    type="text"
+                                                    placeholder="e.g. Addis Halal Meats"
+                                                    value={regForm.businessName}
+                                                    onChange={(e) => updateRegForm('businessName', e.target.value)}
                                                     required
+                                                    id="reg-business-name"
                                                 />
-                                            </label>
-                                            {licenseFile && (
-                                                <div className="mejilis-file-preview">
-                                                    <img src={URL.createObjectURL(licenseFile)} alt="Government license preview" />
-                                                    <button type="button" onClick={() => setLicenseFile(null)}>Remove</button>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">
-                                                National ID Image <span className="required">*</span>
-                                            </label>
-                                            <label
-                                                className={`mejilis-upload-input ${nationalIdDragOver ? 'dragover' : ''}`}
-                                                onDragOver={(e) => {
-                                                    e.preventDefault();
-                                                    setNationalIdDragOver(true);
-                                                }}
-                                                onDragLeave={() => setNationalIdDragOver(false)}
-                                                onDrop={(e) => {
-                                                    e.preventDefault();
-                                                    setNationalIdDragOver(false);
-                                                    selectNationalIdFile(e.dataTransfer.files?.[0] || null);
-                                                }}
-                                            >
-                                                <FiUser size={16} />
-                                                <span>{nationalIdFile ? nationalIdFile.name : 'Drag & drop national ID image, or click to upload'}</span>
-                                                <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                            </div>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">Business Name (Amharic)</label>
                                                 <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => selectNationalIdFile(e.target.files?.[0] || null)}
-                                                    required
+                                                    className="mejilis-form-input"
+                                                    type="text"
+                                                    placeholder="e.g. አዲስ ሐላል ስጋ"
+                                                    value={regForm.businessNameAmharic}
+                                                    onChange={(e) => updateRegForm('businessNameAmharic', e.target.value)}
+                                                    id="reg-business-name-am"
                                                 />
-                                            </label>
-                                            {nationalIdFile && (
-                                                <div className="mejilis-file-preview">
-                                                    <img src={URL.createObjectURL(nationalIdFile)} alt="National ID preview" />
-                                                    <button type="button" onClick={() => setNationalIdFile(null)}>Remove</button>
-                                                </div>
-                                            )}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="mejilis-form-group full-width">
-                                        <label className="mejilis-form-label">
-                                            Business Type <span className="required">*</span>
-                                        </label>
-                                        <select
-                                            className="mejilis-form-select"
-                                            value={regForm.businessType}
-                                            onChange={(e) => updateRegForm('businessType', e.target.value)}
-                                            required
-                                            id="reg-business-type"
-                                        >
-                                            <option value="">Select business type...</option>
-                                            {BUSINESS_TYPES.map((type) => (
-                                                <option key={type.value} value={type.value}>
-                                                    {type.emoji} {type.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className="mejilis-form-group full-width">
-                                        <label className="mejilis-form-label">
-                                            Description <span className="required">*</span>
-                                        </label>
-                                        <textarea
-                                            className="mejilis-form-textarea"
-                                            placeholder="Describe your business, products, and Halal practices..."
-                                            value={regForm.description}
-                                            onChange={(e) => updateRegForm('description', e.target.value)}
-                                            required
-                                            rows={4}
-                                            id="reg-description"
-                                        />
-                                    </div>
-
-                                    <div className="mejilis-form-row">
-                                        <div className="mejilis-form-group">
+                                        <div className="mejilis-form-group full-width" style={{ marginBottom: '20px' }}>
                                             <label className="mejilis-form-label">
-                                                Business Phone <span className="required">*</span>
+                                                Business Type <span className="required">*</span>
                                             </label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="tel"
-                                                placeholder="+251911223344"
-                                                value={regForm.businessPhone}
-                                                onChange={(e) => updateRegForm('businessPhone', e.target.value)}
-                                                required
-                                                id="reg-phone"
-                                            />
-                                        </div>
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">Business Email</label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="email"
-                                                placeholder="info@yourbusiness.com"
-                                                value={regForm.businessEmail}
-                                                onChange={(e) => updateRegForm('businessEmail', e.target.value)}
-                                                id="reg-email"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="mejilis-form-row">
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">Region</label>
                                             <select
                                                 className="mejilis-form-select"
-                                                value={regForm.region}
-                                                onChange={(e) => updateRegForm('region', e.target.value)}
-                                                id="reg-region"
+                                                value={regForm.businessType}
+                                                onChange={(e) => updateRegForm('businessType', e.target.value)}
+                                                required
+                                                id="reg-business-type"
                                             >
-                                                <option value="">Select region...</option>
-                                                {REGIONS.map((r) => (
-                                                    <option key={r} value={r}>{r}</option>
+                                                <option value="">Select business type...</option>
+                                                {BUSINESS_TYPES.map((type) => (
+                                                    <option key={type.value} value={type.value}>
+                                                        {type.emoji} {type.label}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">City</label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="text"
-                                                placeholder="e.g. Addis Ababa"
-                                                value={regForm.city}
-                                                onChange={(e) => updateRegForm('city', e.target.value)}
-                                                id="reg-city"
+
+                                        <div className="mejilis-form-group full-width">
+                                            <label className="mejilis-form-label">
+                                                Description <span className="required">*</span>
+                                            </label>
+                                            <textarea
+                                                className="mejilis-form-textarea"
+                                                placeholder="Describe your business, products, and Halal practices in detail..."
+                                                value={regForm.description}
+                                                onChange={(e) => updateRegForm('description', e.target.value)}
+                                                required
+                                                rows={4}
+                                                id="reg-description"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="mejilis-form-row">
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">Subcity / Kebele</label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="text"
-                                                placeholder="e.g. Bole"
-                                                value={regForm.subcity}
-                                                onChange={(e) => updateRegForm('subcity', e.target.value)}
-                                                id="reg-subcity"
-                                            />
+                                    {/* ── SECTION 2: CONTACT & LOCATION ── */}
+                                    <div className="mejilis-form-section">
+                                        <h4 className="mejilis-form-section-title"><FiTrendingUp /> Contact & Location</h4>
+                                        <div className="mejilis-form-row">
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">
+                                                    Business Phone <span className="required">*</span>
+                                                </label>
+                                                <input
+                                                    className="mejilis-form-input"
+                                                    type="tel"
+                                                    placeholder="+251911223344"
+                                                    value={regForm.businessPhone}
+                                                    onChange={(e) => updateRegForm('businessPhone', e.target.value)}
+                                                    required
+                                                    id="reg-phone"
+                                                />
+                                            </div>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">Business Email</label>
+                                                <input
+                                                    className="mejilis-form-input"
+                                                    type="email"
+                                                    placeholder="info@yourbusiness.com"
+                                                    value={regForm.businessEmail}
+                                                    onChange={(e) => updateRegForm('businessEmail', e.target.value)}
+                                                    id="reg-email"
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="mejilis-form-group">
-                                            <label className="mejilis-form-label">Street</label>
-                                            <input
-                                                className="mejilis-form-input"
-                                                type="text"
-                                                placeholder="e.g. Churchill Ave"
-                                                value={regForm.street}
-                                                onChange={(e) => updateRegForm('street', e.target.value)}
-                                                id="reg-street"
-                                            />
+
+                                        <div className="mejilis-form-row">
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">Region</label>
+                                                <select
+                                                    className="mejilis-form-select"
+                                                    value={regForm.region}
+                                                    onChange={(e) => updateRegForm('region', e.target.value)}
+                                                    id="reg-region"
+                                                >
+                                                    <option value="">Select region...</option>
+                                                    {REGIONS.map((r) => (
+                                                        <option key={r} value={r}>{r}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">City</label>
+                                                <input
+                                                    className="mejilis-form-input"
+                                                    type="text"
+                                                    placeholder="e.g. Addis Ababa"
+                                                    value={regForm.city}
+                                                    onChange={(e) => updateRegForm('city', e.target.value)}
+                                                    id="reg-city"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">Subcity / Kebele</label>
+                                                <input
+                                                    className="mejilis-form-input"
+                                                    type="text"
+                                                    placeholder="e.g. Bole"
+                                                    value={regForm.subcity}
+                                                    onChange={(e) => updateRegForm('subcity', e.target.value)}
+                                                    id="reg-subcity"
+                                                />
+                                            </div>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">Street</label>
+                                                <input
+                                                    className="mejilis-form-input"
+                                                    type="text"
+                                                    placeholder="e.g. Churchill Ave"
+                                                    value={regForm.street}
+                                                    onChange={(e) => updateRegForm('street', e.target.value)}
+                                                    id="reg-street"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* ── SECTION 3: OFFICIAL DOCUMENTS ── */}
+                                    <div className="mejilis-form-section">
+                                        <h4 className="mejilis-form-section-title"><FiShield /> Official Documents</h4>
+                                        <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">
+                                                    Government License Image <span className="required">*</span>
+                                                </label>
+                                                <label
+                                                    className={`mejilis-upload-input ${licenseDragOver ? 'dragover' : ''}`}
+                                                    onDragOver={(e) => {
+                                                        e.preventDefault();
+                                                        setLicenseDragOver(true);
+                                                    }}
+                                                    onDragLeave={() => setLicenseDragOver(false)}
+                                                    onDrop={(e) => {
+                                                        e.preventDefault();
+                                                        setLicenseDragOver(false);
+                                                        selectLicenseFile(e.dataTransfer.files?.[0] || null);
+                                                    }}
+                                                >
+                                                    <FiFileText size={16} />
+                                                    <span>{licenseFile ? licenseFile.name : 'Click or drop license image'}</span>
+                                                    <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => selectLicenseFile(e.target.files?.[0] || null)}
+                                                        required
+                                                    />
+                                                </label>
+                                                {licenseFile && (
+                                                    <div className="mejilis-file-preview">
+                                                        <img src={URL.createObjectURL(licenseFile)} alt="Government license preview" />
+                                                        <button type="button" onClick={() => setLicenseFile(null)}>Remove</button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">
+                                                    National ID Image <span className="required">*</span>
+                                                </label>
+                                                <label
+                                                    className={`mejilis-upload-input ${nationalIdDragOver ? 'dragover' : ''}`}
+                                                    onDragOver={(e) => {
+                                                        e.preventDefault();
+                                                        setNationalIdDragOver(true);
+                                                    }}
+                                                    onDragLeave={() => setNationalIdDragOver(false)}
+                                                    onDrop={(e) => {
+                                                        e.preventDefault();
+                                                        setNationalIdDragOver(false);
+                                                        selectNationalIdFile(e.dataTransfer.files?.[0] || null);
+                                                    }}
+                                                >
+                                                    <FiUser size={16} />
+                                                    <span>{nationalIdFile ? nationalIdFile.name : 'Click or drop national ID image'}</span>
+                                                    <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => selectNationalIdFile(e.target.files?.[0] || null)}
+                                                        required
+                                                    />
+                                                </label>
+                                                {nationalIdFile && (
+                                                    <div className="mejilis-file-preview">
+                                                        <img src={URL.createObjectURL(nationalIdFile)} alt="National ID preview" />
+                                                        <button type="button" onClick={() => setNationalIdFile(null)}>Remove</button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -786,100 +849,106 @@ const Mejilis = () => {
                                 </p>
 
                                 <form className="mejilis-form" onSubmit={handleComplaint}>
-                                    <div className="mejilis-form-row">
-                                        <div className="mejilis-form-group">
+                                    {/* ── SECTION 1: REPORT DETAILS ── */}
+                                    <div className="mejilis-form-section">
+                                        <h4 className="mejilis-form-section-title"><FiSearch /> Merchant & Category</h4>
+                                        <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">
+                                                    Merchant ID <span className="required">*</span>
+                                                </label>
+                                                <input
+                                                    className="mejilis-form-input"
+                                                    type="text"
+                                                    placeholder="Enter Merchant ID here"
+                                                    value={complaintForm.merchantId}
+                                                    onChange={(e) => setComplaintForm({ ...complaintForm, merchantId: e.target.value })}
+                                                    required
+                                                    id="complaint-merchant-id"
+                                                />
+                                            </div>
+                                            <div className="mejilis-form-group">
+                                                <label className="mejilis-form-label">
+                                                    Complaint Category <span className="required">*</span>
+                                                </label>
+                                                <select
+                                                    className="mejilis-form-select"
+                                                    value={complaintForm.category}
+                                                    onChange={(e) => setComplaintForm({ ...complaintForm, category: e.target.value })}
+                                                    required
+                                                    id="complaint-category"
+                                                >
+                                                    <option value="">Select category...</option>
+                                                    {COMPLAINT_CATEGORIES.map((cat) => (
+                                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* ── SECTION 2: ISSUE DESCRIPTION ── */}
+                                    <div className="mejilis-form-section">
+                                        <h4 className="mejilis-form-section-title"><FiFileText /> Incident Details</h4>
+                                        <div className="mejilis-form-group full-width" style={{ marginBottom: '20px' }}>
                                             <label className="mejilis-form-label">
-                                                Merchant ID <span className="required">*</span>
+                                                Subject <span className="required">*</span>
                                             </label>
                                             <input
                                                 className="mejilis-form-input"
                                                 type="text"
-                                                placeholder="Enter merchant ID"
-                                                value={complaintForm.merchantId}
-                                                onChange={(e) => setComplaintForm({ ...complaintForm, merchantId: e.target.value })}
+                                                placeholder="Briefly summarize the issue (e.g. Halal label found on non-compliant food)"
+                                                value={complaintForm.subject}
+                                                onChange={(e) => setComplaintForm({ ...complaintForm, subject: e.target.value })}
                                                 required
-                                                id="complaint-merchant-id"
+                                                id="complaint-subject"
                                             />
                                         </div>
-                                        <div className="mejilis-form-group">
+                                        <div className="mejilis-form-group full-width" style={{ marginBottom: '20px' }}>
                                             <label className="mejilis-form-label">
-                                                Category <span className="required">*</span>
+                                                Description <span className="required">*</span>
                                             </label>
-                                            <select
-                                                className="mejilis-form-select"
-                                                value={complaintForm.category}
-                                                onChange={(e) => setComplaintForm({ ...complaintForm, category: e.target.value })}
+                                            <textarea
+                                                className="mejilis-form-textarea"
+                                                placeholder="Provide detailed chronological information about your experience..."
+                                                value={complaintForm.description}
+                                                onChange={(e) => setComplaintForm({ ...complaintForm, description: e.target.value })}
                                                 required
-                                                id="complaint-category"
-                                            >
-                                                <option value="">Select category...</option>
-                                                {COMPLAINT_CATEGORIES.map((cat) => (
-                                                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className="mejilis-form-group full-width">
-                                        <label className="mejilis-form-label">
-                                            Subject <span className="required">*</span>
-                                        </label>
-                                        <input
-                                            className="mejilis-form-input"
-                                            type="text"
-                                            placeholder="Brief summary of the issue"
-                                            value={complaintForm.subject}
-                                            onChange={(e) => setComplaintForm({ ...complaintForm, subject: e.target.value })}
-                                            required
-                                            id="complaint-subject"
-                                        />
-                                    </div>
-
-                                    <div className="mejilis-form-group full-width">
-                                        <label className="mejilis-form-label">
-                                            Description <span className="required">*</span>
-                                        </label>
-                                        <textarea
-                                            className="mejilis-form-textarea"
-                                            placeholder="Provide detailed information about your complaint..."
-                                            value={complaintForm.description}
-                                            onChange={(e) => setComplaintForm({ ...complaintForm, description: e.target.value })}
-                                            required
-                                            rows={5}
-                                            id="complaint-description"
-                                        />
-                                    </div>
-
-                                    <div className="mejilis-form-group full-width">
-                                        <label className="mejilis-form-label">Evidence Image (Optional)</label>
-                                        <label
-                                            className={`mejilis-upload-input ${complaintDragOver ? 'dragover' : ''}`}
-                                            onDragOver={(e) => {
-                                                e.preventDefault();
-                                                setComplaintDragOver(true);
-                                            }}
-                                            onDragLeave={() => setComplaintDragOver(false)}
-                                            onDrop={(e) => {
-                                                e.preventDefault();
-                                                setComplaintDragOver(false);
-                                                selectComplaintEvidence(e.dataTransfer.files?.[0] || null);
-                                            }}
-                                        >
-                                            <FiFileText size={16} />
-                                            <span>{complaintEvidenceFile ? complaintEvidenceFile.name : 'Drag & drop complaint image, or click to upload'}</span>
-                                            <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={(e) => selectComplaintEvidence(e.target.files?.[0] || null)}
+                                                rows={5}
+                                                id="complaint-description"
                                             />
-                                        </label>
-                                        {complaintEvidenceFile && (
-                                            <div className="mejilis-file-preview">
-                                                <img src={URL.createObjectURL(complaintEvidenceFile)} alt="Complaint evidence preview" />
-                                                <button type="button" onClick={() => setComplaintEvidenceFile(null)}>Remove</button>
-                                            </div>
-                                        )}
+                                        </div>
+                                        <div className="mejilis-form-group full-width" style={{ marginBottom: 0 }}>
+                                            <label className="mejilis-form-label">Photographic Evidence (Optional)</label>
+                                            <label
+                                                className={`mejilis-upload-input ${complaintDragOver ? 'dragover' : ''}`}
+                                                onDragOver={(e) => {
+                                                    e.preventDefault();
+                                                    setComplaintDragOver(true);
+                                                }}
+                                                onDragLeave={() => setComplaintDragOver(false)}
+                                                onDrop={(e) => {
+                                                    e.preventDefault();
+                                                    setComplaintDragOver(false);
+                                                    selectComplaintEvidence(e.dataTransfer.files?.[0] || null);
+                                                }}
+                                            >
+                                                <FiFileText size={16} />
+                                                <span>{complaintEvidenceFile ? complaintEvidenceFile.name : 'Click or drop complaint evidence image'}</span>
+                                                <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => selectComplaintEvidence(e.target.files?.[0] || null)}
+                                                />
+                                            </label>
+                                            {complaintEvidenceFile && (
+                                                <div className="mejilis-file-preview">
+                                                    <img src={URL.createObjectURL(complaintEvidenceFile)} alt="Complaint evidence preview" />
+                                                    <button type="button" onClick={() => setComplaintEvidenceFile(null)}>Remove</button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <button

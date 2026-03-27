@@ -139,6 +139,35 @@ export const verifyMerchantByMejilis = async (req, res, next) => {
             });
         }
 
+        // --- Auto-Issue Halal Certification if Approved ---
+        if (verificationStatus === 'approved') {
+            let cert = await Certification.findOne({ merchant: merchant._id });
+            if (!cert) {
+                // Issue a new certification for 1 year
+                const expiryDate = new Date();
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+                cert = await Certification.create({
+                    merchant: merchant._id,
+                    certificateType: 'halal_establishment',
+                    status: 'approved',
+                    issueDate: new Date(),
+                    expiryDate: expiryDate,
+                    reviewedBy: req.user._id,
+                    reviewedAt: new Date()
+                });
+                merchant.halalCertification = cert._id;
+                await merchant.save();
+            } else if (cert.status !== 'approved') {
+                cert.status = 'approved';
+                cert.issueDate = new Date();
+                const expiryDate = new Date();
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                cert.expiryDate = expiryDate;
+                await cert.save();
+            }
+        }
+
         // Update Mejilis stats
         const mejilis = await Mejilis.findOne({ isActive: true });
         if (mejilis) {
