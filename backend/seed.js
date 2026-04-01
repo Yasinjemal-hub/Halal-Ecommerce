@@ -1,4 +1,4 @@
-import 'dotenv/config';
+﻿import 'dotenv/config';
 import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import User from './models/User.js';
@@ -33,53 +33,74 @@ const seedData = async () => {
         const types = ['butcher', 'spice_shop', 'grocery', 'clothing', 'bakery', 'restaurant'];
 
         const categoryProducts = {
+            // ============ MEAT - Raw cuts, butcher shop imagery ============
             meat: [
-                { name: 'Fresh Beef Tibs Meat', nameAmharic: 'የጥብስ ስጋ', desc: 'Premium quality fresh beef perfectly cut for Ethiopian tibs.', image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80', price: 800, category: 'meat' },
-                { name: 'Premium Goat Meat (Fiyel)', nameAmharic: 'የፍየል ስጋ', desc: 'Tender fresh goat meat, sourced locally and halal certified.', image: 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=800&q=80', price: 1200, category: 'meat' },
-                { name: 'Minced Beef for Kitfo', nameAmharic: 'የክትፎ ስጋ', desc: 'Lean, finely minced red beef essential for authentic kitfo.', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80', price: 950, category: 'meat' }
+                { name: 'Fresh Beef for Tibs (ጥብስ)', nameAmharic: 'የጥብስ ስጋ', desc: 'Premium cubed beef cuts prepared for sizzling Ethiopian tibs, sourced from local highland cattle.', image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=800&q=80', price: 850, category: 'meat' },
+                { name: 'Minced Beef for Kitfo (ክትፎ)', nameAmharic: 'የክትፎ ስጋ', desc: 'Lean finely minced raw beef essential for authentic Ethiopian kitfo, halal certified.', image: 'https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=800&q=80', price: 950, category: 'meat' },
+                { name: 'Premium Goat Meat (የፍየል ስጋ)', nameAmharic: 'የፍየል ስጋ', desc: 'Tender, locally sourced goat meat perfect for slow-cooked yebeg wot.', image: 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=800&q=80', price: 1200, category: 'meat' },
+                { name: 'Lamb Chops (የበግ ስጋ)', nameAmharic: 'የበግ አንጀት ስጋ', desc: 'Succulent lamb chops, ideal for grilling or traditional Ethiopian yebeg tibs.', image: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80', price: 1400, category: 'meat' }
             ],
+            // ============ POULTRY - Whole chicken, eggs ============
             poultry: [
-                { name: 'Fresh Doro (Local Chicken)', nameAmharic: 'የሀበሻ ዶሮ', desc: 'Farm raised local chicken, dressed and ready for doro wot.', image: 'https://images.unsplash.com/photo-1626200926732-4752ff9fbaf5?w=800&q=80', price: 650, category: 'poultry' },
-                { name: 'Farm Fresh Eggs', nameAmharic: 'ትኩስ እንቁላል', desc: 'Organic farm-fresh eggs, perfect for cooking and baking.', image: 'https://images.unsplash.com/photo-1598514982205-f36b96d1ea8d?w=800&q=80', price: 200, category: 'poultry' }
+                { name: 'Whole Doro (ዶሮ) Chicken', nameAmharic: 'ሙሉ ዶሮ', desc: 'Farm-raised whole local chicken, dressed and ready for classic doro wot.', image: 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=800&q=80', price: 650, category: 'poultry' },
+                { name: 'Free-Range Eggs (እንቁላል)', nameAmharic: 'የቤት እንቁላል', desc: 'Pack of 30 organic free-range eggs from highland farms.', image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=800&q=80', price: 250, category: 'poultry' },
+                { name: 'Chicken Drumsticks', nameAmharic: 'የዶሮ እግር', desc: 'Fresh chicken drumsticks, perfect for grilled or fried dishes.', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80', price: 450, category: 'poultry' }
             ],
+            // ============ SPICES - Red powders, whole spices, bowls ============
             spices: [
-                { name: 'Authentic Berbere Blend', nameAmharic: 'በርበሬ', desc: 'Traditional Ethiopian berbere blend made from premium chili, garlic, and aromatic spices.', image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80', price: 350, category: 'spices' },
-                { name: 'Mitmita Hot Spice', nameAmharic: 'ሚጥሚጣ', desc: 'Authentic mitmita with intense heat, ideal for kitfo and tibs.', image: 'https://images.unsplash.com/photo-1621236378699-8597faf6a176?w=800&q=80', price: 280, category: 'spices' },
-                { name: 'Shiro Powder', nameAmharic: 'የሽሮ ዱቄት', desc: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro.', image: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?w=800&q=80', price: 250, category: 'spices' }
+                { name: 'Berbere Spice Blend (በርበሬ)', nameAmharic: 'በርበሬ', desc: 'Vibrant red Ethiopian berbere blend with chili, fenugreek, garlic, and cardamom. The soul of every wot.', image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80', price: 350, category: 'spices' },
+                { name: 'Mitmita Hot Pepper (ሚጥሚጣ)', nameAmharic: 'ሚጥሚጣ', desc: 'Fiery orange-red mitmita made from bird\'s-eye chili peppers, perfect for kitfo.', image: 'https://images.unsplash.com/photo-1599909531610-14a64e85a648?w=800&q=80', price: 280, category: 'spices' },
+                { name: 'Shiro Powder (ሽሮ)', nameAmharic: 'የሽሮ ዱቄት', desc: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro wot.', image: 'https://images.unsplash.com/photo-1625398407796-82650a8c135f?w=800&q=80', price: 250, category: 'spices' },
+                { name: 'Korerima (Ethiopian Cardamom)', nameAmharic: 'ኮረሪማ', desc: 'Aromatic Ethiopian cardamom pods, essential for traditional coffee and stew recipes.', image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80', price: 400, category: 'spices' },
+                { name: 'Turmeric Powder (ዕርድ)', nameAmharic: 'ዕርድ', desc: 'Pure golden turmeric powder used in Ethiopian cooking and natural health remedies.', image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80', price: 200, category: 'spices' }
             ],
+            // ============ GRAINS - Whole grains, flour, seeds ============
             grains: [
-                { name: 'Premium White Teff', nameAmharic: 'ነጭ ጤፍ', desc: 'Top quality white teff flour for baking soft, perfect injera.', image: 'https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=800&q=80', price: 4500, category: 'grains' },
-                { name: 'Red Teff', nameAmharic: 'ቀይ ጤፍ', desc: 'Nutrient-rich red teff grain sourced tightly from local highlands.', image: 'https://images.unsplash.com/photo-1593414220166-085ba36203cf?w=800&q=80', price: 4000, category: 'grains' },
-                { name: 'Roasted Barley (Kolo)', nameAmharic: 'ቆሎ', desc: 'Freshly roasted barley snack mixed with peanuts and chickpeas.', image: 'https://images.unsplash.com/photo-1628188172900-a54817a00f27?w=800&q=80', price: 150, category: 'grains' }
+                { name: 'White Teff Grain (ነጭ ጤፍ)', nameAmharic: 'ነጭ ጤፍ', desc: 'Premium white teff grain from Ethiopian highlands, produces the finest soft injera.', image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80', price: 4500, category: 'grains' },
+                { name: 'Red Teff Grain (ቀይ ጤፍ)', nameAmharic: 'ቀይ ጤፍ', desc: 'Nutrient-rich red teff grain, slightly nutty and nutrient-dense for dark injera.', image: 'https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=800&q=80', price: 4000, category: 'grains' },
+                { name: 'Wheat Flour (የስንዴ ዱቄት)', nameAmharic: 'የስንዴ ዱቄት', desc: 'All-purpose wheat flour for making dabo, himbasha and pastries.', image: 'https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=800&q=80', price: 1800, category: 'grains' },
+                { name: 'Lentils (ምስር)', nameAmharic: 'ምስር', desc: 'Red split lentils ideal for misir wot, a staple Ethiopian stew.', image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&q=80', price: 300, category: 'grains' }
             ],
+            // ============ HONEY - Jars, golden liquid, natural ============
             honey: [
-                { name: 'Pure Lalibela Honey', nameAmharic: 'የላሊበላ ማር', desc: '100% natural, raw organic honey harvested from the mountains of Lalibela.', image: 'https://images.unsplash.com/photo-1587049352847-8d4c0b490f89?w=800&q=80', price: 800, category: 'honey' },
-                { name: 'White Gojjam Honey', nameAmharic: 'የጎጃም ነጭ ማር', desc: 'Premium thick white honey perfectly suited for natural sweetening.', image: 'https://images.unsplash.com/photo-1587049352851-8d4c0b490f89?w=800&q=80', price: 950, category: 'honey' }
+                { name: 'Pure Lalibela Honey (ማር)', nameAmharic: 'የላሊበላ ንጹህ ማር', desc: '100% raw, unfiltered highland honey from Lalibela region, rich golden color and deep floral aroma.', image: 'https://images.unsplash.com/photo-1558583055-d7ac00b1adca?w=800&q=80', price: 850, category: 'honey' },
+                { name: 'White Gojjam Honey (ነጭ ማር)', nameAmharic: 'የጎጃም ነጭ ማር', desc: 'Rare Ethiopian white honey with thick creamy texture and mild sweet taste.', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80', price: 1200, category: 'honey' },
+                { name: 'Tigray Mountain Honey', nameAmharic: 'የትግራይ ተራራ ማር', desc: 'Dark amber wildflower honey from the mountains of Tigray, intensely rich.', image: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=800&q=80', price: 950, category: 'honey' }
             ],
+            // ============ CLOTHING - Traditional Ethiopian garments ============
             clothing: [
-                { name: 'Traditional Habesha Kemis', nameAmharic: 'የሀበሻ ቀሚስ', desc: 'Beautiful handwoven Ethiopian traditional dress with intricate tilet patterns.', image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80', price: 3500, category: 'clothing' },
-                { name: 'Elegant Abaya', nameAmharic: 'አባያ', desc: 'High-quality modest elegant abaya with beautiful detailing.', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=80', price: 1800, category: 'clothing' },
-                { name: 'Men\'s Netela/Gabi', nameAmharic: 'ጋቢ', desc: 'Warm and comforting traditional handwoven cotton blanket/wrap.', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80', price: 1200, category: 'clothing' }
+                { name: 'Habesha Kemis (የሀበሻ ቀሚስ)', nameAmharic: 'የሀበሻ ቀሚስ', desc: 'Elegant handwoven Ethiopian traditional dress with intricate tilet cross-stitch embroidery.', image: 'https://images.unsplash.com/photo-1518622358385-8ea7d0794bf6?w=800&q=80', price: 3500, category: 'clothing' },
+                { name: 'Elegant Abaya (አባያ)', nameAmharic: 'አባያ', desc: 'Modest, premium-quality abaya with lacework detailing, perfect for daily and special occasions.', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80', price: 2200, category: 'clothing' },
+                { name: 'Gabi Cotton Wrap (ጋቢ)', nameAmharic: 'ጋቢ', desc: 'Warm handwoven Ethiopian cotton wrap/blanket with thick weave for cold highland evenings.', image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80', price: 1500, category: 'clothing' },
+                { name: 'Men\'s Jelebiya (ጀለቢያ)', nameAmharic: 'ጀለቢያ', desc: 'Traditional flowing men\'s garment, lightweight and comfortable for prayer and gatherings.', image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&q=80', price: 1800, category: 'clothing' }
             ],
+            // ============ BAKERY - Breads, flatbreads, pastries ============
             bakery: [
-                { name: 'Fresh Ambasha Bread', nameAmharic: 'አምባሻ', desc: 'Sweet, festive Ethiopian bread with rich flavors and soft texture.', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80', price: 100, category: 'bakery' },
-                { name: 'Defo Dabo', nameAmharic: 'ድፎ ዳቦ', desc: 'Traditional spiced bread baked wrapped in banana leaves.', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80', price: 350, category: 'bakery' },
-                { name: 'Fresh Injera (10 Rolls)', nameAmharic: 'እንጀራ', desc: 'Soft and spongy 100% teff authentic injera made fresh daily.', image: 'https://images.unsplash.com/photo-1509365465994-3e8c58852115?w=800&q=80', price: 200, category: 'bakery' }
+                { name: 'Fresh Injera (እንጀራ) - 10 Rolls', nameAmharic: 'እንጀራ', desc: 'Soft, spongy, and tangy teff injera freshly made daily. The heart of every Ethiopian meal.', image: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=800&q=80', price: 200, category: 'bakery' },
+                { name: 'Ambasha Bread (አምባሻ)', nameAmharic: 'አምባሻ', desc: 'Sweet festive Ethiopian bread decorated with traditional cross patterns, soft and fragrant.', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80', price: 120, category: 'bakery' },
+                { name: 'Defo Dabo (ድፎ ዳቦ)', nameAmharic: 'ድፎ ዳቦ', desc: 'Dense traditional spiced celebration bread baked in banana leaves for holidays.', image: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=800&q=80', price: 350, category: 'bakery' },
+                { name: 'Himbasha (ህንባሻ)', nameAmharic: 'ህንባሻ', desc: 'Slightly sweet cardamom-spiced celebratory bread, often shared during holidays.', image: 'https://images.unsplash.com/photo-1549931319-a545753467c8?w=800&q=80', price: 150, category: 'bakery' }
             ],
+            // ============ PERFUME - Fragrances, oud, incense ============
             perfume: [
-                { name: 'Luxury Oud Fragrance', nameAmharic: 'የኡድ ሽቶ', desc: 'Long-lasting and captivating luxury Oud perfume fragrance without alcohol.', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80', price: 2500, category: 'perfume' },
-                { name: 'Bakhur Incense', nameAmharic: 'ዕጣን / ባኩር', desc: 'Premium aromatic incense blocks to refresh your home space.', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80', price: 450, category: 'perfume' }
+                { name: 'Luxury Oud Perfume (ዑድ)', nameAmharic: 'የዑድ ሽቶ', desc: 'Long-lasting alcohol-free Arabian oud fragrance, deep and captivating.', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80', price: 2500, category: 'perfume' },
+                { name: 'Bakhur Incense (ባኩር)', nameAmharic: 'ባኩር', desc: 'Aromatic incense chips that fill the home with warm, inviting woodsy fragrance.', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80', price: 450, category: 'perfume' },
+                { name: 'Musk Attar Oil (ሙስክ)', nameAmharic: 'ሙስክ ዘይት', desc: 'Pure concentrated musk attar perfume oil, applied on pulse points for lasting scent.', image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&q=80', price: 800, category: 'perfume' }
             ],
+            // ============ SNACKS - Dates, sambusa, kolo ============
             snacks: [
-                { name: 'Premium Khudri Dates (Temir)', nameAmharic: 'ተምር', desc: 'Fresh, sweet, and pure premium dates, perfect for fasting and daily snacking.', image: 'https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=800&q=80', price: 400, category: 'snacks' },
-                { name: 'Vegetable Sambusa', nameAmharic: 'የአትክልት ሳምቡሳ', desc: 'Crispy fried dough pastry packed with savory lentil and vegetable filling.', image: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800&q=80', price: 50, category: 'snacks' },
-                { name: 'Beso (Toasted Barley Snack)', nameAmharic: 'በሶ', desc: 'Traditional moistened toasted barley, packed with energy and nutrition.', image: 'https://images.unsplash.com/photo-1628188172900-a54817a00f27?w=800&q=80', price: 150, category: 'snacks' }
+                { name: 'Medjool Dates (ተምር)', nameAmharic: 'ተምር', desc: 'Premium large medjool dates, sweet and soft, perfect for Iftar and daily snacking.', image: 'https://images.pexels.com/photos/4469611/pexels-photo-4469611.jpeg', price: 500, category: 'snacks' },
+                { name: 'Sambusa (ሳምቡሳ)', nameAmharic: 'ሳምቡሳ', desc: 'Crispy golden fried pastry triangles filled with seasoned lentils and vegetables.', image: 'https://images.unsplash.com/photo-1567337710282-00832b415979?w=800&q=80', price: 80, category: 'snacks' },
+                { name: 'Roasted Kolo (ቆሎ)', nameAmharic: 'ቆሎ', desc: 'Freshly roasted barley, chickpeas, and peanut mix — Ethiopia\'s favorite crunchy snack.', image: 'https://images.unsplash.com/photo-1599599810694-b5b37304c041?w=800&q=80', price: 150, category: 'snacks' },
+                { name: 'Beso Flour (በሶ)', nameAmharic: 'በሶ', desc: 'Traditional energy-rich toasted barley flour, mixed with water or honey for quick nutrition.', image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80', price: 180, category: 'snacks' }
             ],
+            // ============ OTHER - Coffee, jebena, household, accessories ============
             other: [
-                { name: 'Jebena (Traditional Coffee Pot)', nameAmharic: 'ጀበና', desc: 'Iconic black clay pot essential for the Ethiopian coffee ceremony.', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80', price: 300, category: 'other' },
-                { name: 'Rekbot Mini Table', nameAmharic: 'ረከቦት', desc: 'Beautifully crafted wooden table stand used for serving traditional coffee.', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80', price: 800, category: 'other' },
-                { name: 'Frankincense (Etan)', nameAmharic: 'ዕጣን', desc: 'Natural tree resin incensce sourced locally to produce calming aromas.', image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&q=80', price: 150, category: 'other' },
-                { name: 'Niter Kibbeh (Spiced Butter)', nameAmharic: 'ንጥር ቅቤ', desc: 'Authentic clarified butter simmered with herbs, perfect for enhancing wots.', image: 'https://images.unsplash.com/photo-1620189507195-68309c04c4d0?w=800&q=80', price: 450, category: 'other' }
+                { name: 'Ethiopian Buna Coffee (ቡና)', nameAmharic: 'ቡና', desc: 'Fresh roasted premium Ethiopian Yirgacheffe coffee beans with bold floral aroma.', image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80', price: 550, category: 'other' },
+                { name: 'Jebena Coffee Pot (ጀበና)', nameAmharic: 'ጀበና', desc: 'Traditional black clay jebena pot, essential for the Ethiopian buna ceremony.', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&q=80', price: 350, category: 'other' },
+                { name: 'Frankincense Resin (ዕጣን)', nameAmharic: 'ዕጣን', desc: 'Pure natural frankincense resin from Tigray, burned for calming aroma and spiritual cleansing.', image: 'https://images.unsplash.com/photo-1607631568010-a87245c0daf8?w=800&q=80', price: 200, category: 'other' },
+                { name: 'Niter Kibbeh (ንጥር ቅቤ)', nameAmharic: 'ንጥር ቅቤ', desc: 'Spiced clarified butter infused with rosemary, garlic, ginger, turmeric — base of every wot.', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=800&q=80', price: 480, category: 'other' },
+                { name: 'Mesob Basket (መሶብ)', nameAmharic: 'መሶብ', desc: 'Colorful handwoven Ethiopian serving basket used to present injera, a cultural icon.', image: 'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&q=80', price: 2500, category: 'other' }
             ]
         };
 
@@ -159,13 +180,18 @@ const seedData = async () => {
         if (createdMerchants.length > 0) {
             const featuredMerchant = createdMerchants[0];
             const featuredItems = [
-                categoryProducts.spices[0], 
-                categoryProducts.spices[1],
-                categoryProducts.grains[0],
-                categoryProducts.clothing[0],
-                categoryProducts.perfume[0]
+                categoryProducts.spices[0],    // Berbere
+                categoryProducts.meat[0],      // Beef Tibs
+                categoryProducts.grains[0],    // White Teff
+                categoryProducts.honey[0],     // Lalibela Honey
+                categoryProducts.clothing[0],  // Habesha Kemis
+                categoryProducts.bakery[0],    // Injera
+                categoryProducts.snacks[0],    // Dates
+                categoryProducts.perfume[0],   // Oud
+                categoryProducts.other[0],     // Buna Coffee
+                categoryProducts.poultry[0]    // Doro Chicken
             ];
-            
+
             for (const item of featuredItems) {
                 if (!item) continue;
                 await Product.create({
