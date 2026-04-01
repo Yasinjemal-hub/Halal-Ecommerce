@@ -8,27 +8,25 @@ import Merchant from '../models/Merchant.js';
  */
 export const createProduct = async (req, res, next) => {
     try {
-        // Find merchant profile for the logged-in user
+        // Optional: Find merchant profile for the logged-in user
         const merchant = await Merchant.findOne({ user: req.user._id });
-
-        if (!merchant) {
-            return res.status(403).json({
-                success: false,
-                message: 'You must have a merchant profile to create products',
-            });
-        }
 
         const productData = {
             ...req.body,
-            merchant: merchant._id,
         };
+
+        if (merchant) {
+            productData.merchant = merchant._id;
+        }
 
         const product = await Product.create(productData);
 
-        // Increment merchant product count
-        await Merchant.findByIdAndUpdate(merchant._id, {
-            $inc: { totalProducts: 1 },
-        });
+        // Increment merchant product count if merchant exists
+        if (merchant) {
+            await Merchant.findByIdAndUpdate(merchant._id, {
+                $inc: { totalProducts: 1 },
+            });
+        }
 
         res.status(201).json({
             success: true,

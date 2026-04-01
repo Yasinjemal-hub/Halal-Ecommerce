@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema(
         merchant: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Merchant',
-            required: [true, 'Product must belong to a merchant'],
+            required: false, // Made optional for seamless listing
         },
 
         // ── Basic Information ───────────────────────────────
