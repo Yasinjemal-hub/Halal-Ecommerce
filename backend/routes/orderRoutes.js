@@ -17,20 +17,104 @@ const router = Router();
 // All order routes require authentication
 router.use(protect);
 
+// Normalize order body to accept either nested `shippingAddress` or flat shipping fields
+const normalizeShipping = (req, res, next) => {
+    if (!req.body.shippingAddress) {
+        const {
+            fullName,
+            phone,
+            street,
+            city,
+            region,
+            postalCode,
+        } = req.body;
+
+        if (fullName || phone || street || city || region || postalCode) {
+            // sanitize phone (remove spaces and dashes)
+            const cleanedPhone = phone ? String(phone).replace(/[\s-()]/g, '') : '';
+
+            req.body.shippingAddress = {
+                fullName: fullName || '',
+                phone: cleanedPhone || '',
+                street: street || '',
+                city: city || '',
+                region: region || '',
+                postalCode: postalCode || '',
+            };
+        }
+    }
+
+    next();
+};
+
+// Normalize payment method synonyms to canonical values
+const normalizePaymentMethod = (req, res, next) => {
+    if (req.body.paymentMethod && typeof req.body.paymentMethod === 'string') {
+        const pm = req.body.paymentMethod.toLowerCase();
+        const map = {
+            cod: 'cash_on_delivery',
+            cash: 'cash_on_delivery',
+            'cash-on-delivery': 'cash_on_delivery',
+            cbe: 'cbe_birr',
+            'cbe-birr': 'cbe_birr',
+            telebirr: 'telebirr',
+            amole: 'amole',
+            bank: 'bank_transfer',
+            'bank-transfer': 'bank_transfer',
+        };
+
+        if (map[pm]) req.body.paymentMethod = map[pm];
+    }
+
+    next();
+};
+
 // ── Consumer Routes ─────────────────────────────────────
 router.post(
     '/',
+    normalizeShipping,
+    normalizePaymentMethod,
     [
         body('shippingAddress.fullName')
             .trim()
             .notEmpty()
             .withMessage('Full name is required'),
         body('shippingAddress.phone')
-            .matches(/^(\+251|0)(9|7)\d{8}$/)
-            .withMessage('Please provide a valid Ethiopian phone number'),
+            .custom((val, { req }) => {
+                const v = String(val || '').replace(/[\s-()]/g, '');
+                // Accept numbers like +2519XXXXXXXX or 09XXXXXXXX
+                if (/^(?:\+251|0)([79]\d{8})$/.test(v)) {
+                    // store cleaned phone back to request body
+                    req.body.shippingAddress.phone = v;
+                    return true;
+                }
+                throw new Error('Please provide a valid Ethiopian phone number');
+            }),
+        body('shippingAddress.street')
+            .optional()
+            .trim(),
+        body('shippingAddress.city')
+            .trim()
+            .notEmpty()
+            .withMessage('City is required'),
+        body('shippingAddress.region')
+            .trim()
+            .notEmpty()
+            .withMessage('Region is required'),
+        body('shippingAddress.postalCode')
+            .optional()
+            .trim(),
         body('paymentMethod')
             .isIn(['telebirr', 'cbe_birr', 'cash_on_delivery', 'bank_transfer', 'amole'])
             .withMessage('Invalid payment method'),
+        body('deliveryFee')
+            .optional()
+            .isFloat({min: 0, max: 10000})
+            .withMessage('Delivery fee must be between 0 and 10000'),
+        body('discount')
+            .optional()
+            .isFloat({min: 0})
+            .withMessage('Discount must be a positive number'),
     ],
     validate,
     createOrder

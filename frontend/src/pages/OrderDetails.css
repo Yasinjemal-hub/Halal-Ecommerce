@@ -1,0 +1,170 @@
+.order-details-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(13, 124, 61, 0.05) 0%, rgba(13, 124, 61, 0.02) 100%);
+    padding: 40px 20px;
+}
+
+.order-details-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.order-header {
+    margin-bottom: 32px;
+}
+
+.order-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 16px 0 8px 0;
+}
+
+.order-date {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.order-status-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #0D7C3D;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-item-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.order-item-card:hover {
+    border-color: #0D7C3D;
+    box-shadow: 0 4px 12px rgba(13, 124, 61, 0.1);
+}
+
+.order-summary-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    margin-top: 16px;
+    font-size: 0.95rem;
+}
+
+.order-info-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    margin-top: 16px;
+}
+
+.review-form-card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+}
+
+.textarea-focus:focus {
+    outline: none;
+    border-color: #0D7C3D;
+    box-shadow: 0 0 0 3px rgba(13, 124, 61, 0.1);
+}
+
+/* Star Rating Styles */
+.star-rating {
+    display: flex;
+    gap: 8px;
+}
+
+.star-rating button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    transition: all 0.2s ease;
+}
+
+.star-rating button:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .order-details-page {
+        padding: 24px 16px;
+    }
+
+    .order-title {
+        font-size: 1.5rem;
+    }
+
+    .order-details-page > div > div {
+        grid-template-columns: 1fr !important;
+    }
+
+    .order-item-card {
+        padding: 12px;
+    }
+
+    .review-form-card {
+        padding: 12px;
+    }
+}
+
+/* Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: #0D7C3D;
+    border: 1px solid #0D7C3D;
+}
+
+.btn-ghost:hover {
+    background: rgba(13, 124, 61, 0.05);
+}
+
+.btn-primary {
+    background: #0D7C3D;
+    color: white;
+    width: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #0a5c2f;
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
