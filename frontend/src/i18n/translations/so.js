@@ -10,6 +10,7 @@ const so = {
     nav_merchants: 'Ganacsatada',
     nav_about: 'Nagu Saabsan',
     nav_search_placeholder: 'Raadi badeecada xalaasha...',
+    nav_search_merchant_placeholder: 'Raadi badeecadayda...',
     nav_search: 'Raadi',
     nav_login: 'Soo Gal',
     nav_register: 'Is Diiwaangeli',

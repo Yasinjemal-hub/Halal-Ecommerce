@@ -10,6 +10,7 @@ const en = {
     nav_merchants: 'Merchants',
     nav_about: 'About',
     nav_search_placeholder: 'Search halal products, merchants...',
+    nav_search_merchant_placeholder: 'Search my products...',
     nav_search: 'Search',
     nav_login: 'Login',
     nav_register: 'Register',

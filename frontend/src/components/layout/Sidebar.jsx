@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FiGrid, FiPackage, FiShoppingBag, FiStar, FiSettings, FiBarChart2, FiUsers, FiShield, FiLogOut } from 'react-icons/fi';
+import { FiGrid, FiPackage, FiShoppingBag, FiStar, FiSettings, FiBarChart2, FiUsers, FiShield, FiLogOut, FiCheckCircle } from 'react-icons/fi';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../redux/slices/authSlice';
 import './Sidebar.css';
@@ -22,12 +22,10 @@ const Sidebar = ({ isOpen, onClose }) => {
 
     const adminLinks = [
         { path: '/admin', label: 'Overview', icon: <FiGrid /> },
+        { path: '/admin/consumers', label: 'Consumers', icon: <FiUsers /> },
         { path: '/admin/merchants', label: 'Merchants', icon: <FiShoppingBag /> },
-        { path: '/admin/users', label: 'Users', icon: <FiUsers /> },
+        { path: '/admin/profile-approvals', label: 'Approvals', icon: <FiCheckCircle /> },
         { path: '/admin/certifications', label: 'Certifications', icon: <FiShield /> },
-        { path: '/admin/orders', label: 'Orders', icon: <FiPackage /> },
-        { path: '/admin/analytics', label: 'Analytics', icon: <FiBarChart2 /> },
-        { path: '/admin/settings', label: 'Settings', icon: <FiSettings /> },
     ];
 
     const links = isAdmin ? adminLinks : merchantLinks;

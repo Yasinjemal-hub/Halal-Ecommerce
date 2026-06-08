@@ -1,42 +1,49 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 // Layout
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import CartDrawer from './components/common/CartDrawer';
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import CartDrawer from "./components/common/CartDrawer";
 
 // Pages
-import Home from './pages/Home';
-import Shop from './pages/Shop';
-import Merchants from './pages/Merchants';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Login from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
-import About from './pages/About';
-import MerchantDashboard from './pages/Dashboard/MerchantDashboard';
-import AdminDashboard from './pages/Dashboard/AdminDashboard';
-import ProductManager from './pages/Dashboard/ProductManager';
-import Mejilis from './pages/Mejilis';
-import MerchantShop from './pages/MerchantShop';
+import Home from "./pages/Home";
+import Shop from "./pages/Shop";
+import Merchants from "./pages/Merchants";
+import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import About from "./pages/About";
+import MerchantDashboard from "./pages/Dashboard/MerchantDashboard";
+import AdminDashboard from "./pages/Dashboard/AdminDashboard";
+import AdminConsumers from "./pages/Dashboard/AdminConsumers";
+import AdminMerchants from "./pages/Dashboard/AdminMerchants";
+import AdminProfileApprovals from "./pages/Dashboard/AdminProfileApprovals";
+import ProductManager from "./pages/Dashboard/ProductManager";
+import Settings from "./pages/Dashboard/Settings";
+import Mejilis from "./pages/Mejilis";
+import MerchantShop from "./pages/MerchantShop";
+import Orders from "./pages/Orders";
+import OrderDetails from "./pages/OrderDetails";
+import Wishlist from "./pages/Wishlist";
+import MerchantRegister from "./pages/MerchantRegister";
+import RequireAuth from "./components/common/RequireAuth";
 
 // Layout Component — wraps pages with Navbar + Footer
 const MainLayout = ({ children }) => (
   <>
     <Navbar />
-    <main style={{ minHeight: '60vh' }}>{children}</main>
+    <main style={{ minHeight: "60vh" }}>{children}</main>
     <Footer />
     <CartDrawer />
   </>
 );
 
 // Auth Layout — no Navbar/Footer
-const AuthLayout = ({ children }) => (
-  <>{children}</>
-);
+const AuthLayout = ({ children }) => <>{children}</>;
 
 function App() {
   return (
@@ -46,55 +53,262 @@ function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: 'var(--bg-secondary)',
-            color: 'var(--text-primary)',
-            borderRadius: 'var(--radius-md)',
-            boxShadow: 'var(--shadow-lg)',
-            fontFamily: 'var(--font-body)',
-            fontSize: '0.9375rem',
+            background: "var(--bg-secondary)",
+            color: "var(--text-primary)",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-lg)",
+            fontFamily: "var(--font-body)",
+            fontSize: "0.9375rem",
           },
           success: {
-            iconTheme: { primary: '#0D7C3D', secondary: '#fff' },
+            iconTheme: { primary: "#0D7C3D", secondary: "#fff" },
           },
           error: {
-            iconTheme: { primary: '#dc2626', secondary: '#fff' },
+            iconTheme: { primary: "#dc2626", secondary: "#fff" },
           },
         }}
       />
 
       <Routes>
         {/* Auth Routes (no Navbar/Footer) */}
-        <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
-        <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
+        <Route
+          path="/login"
+          element={
+            <AuthLayout>
+              <Login />
+            </AuthLayout>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <AuthLayout>
+              <Register />
+            </AuthLayout>
+          }
+        />
 
         {/* Main Routes */}
-        <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-        <Route path="/shop" element={<MainLayout><Shop /></MainLayout>} />
-        <Route path="/merchants" element={<MainLayout><Merchants /></MainLayout>} />
-        <Route path="/product/:id" element={<MainLayout><ProductDetails /></MainLayout>} />
-        <Route path="/merchant/:id" element={<MainLayout><MerchantShop /></MainLayout>} />
-        <Route path="/cart" element={<MainLayout><Cart /></MainLayout>} />
-        <Route path="/checkout" element={<MainLayout><Checkout /></MainLayout>} />
-        <Route path="/about" element={<MainLayout><About /></MainLayout>} />
-        <Route path="/mejilis" element={<MainLayout><Mejilis /></MainLayout>} />
+        <Route
+          path="/"
+          element={
+            <MainLayout>
+              <Home />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/shop"
+          element={
+            <MainLayout>
+              <Shop />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/merchants"
+          element={
+            <MainLayout>
+              <Merchants />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/product/:id"
+          element={
+            <MainLayout>
+              <ProductDetails />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/merchant/:id"
+          element={
+            <MainLayout>
+              <MerchantShop />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <MainLayout>
+              <Cart />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/checkout"
+          element={
+            <MainLayout>
+              <Checkout />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <MainLayout>
+              <RequireAuth>
+              <Orders />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/orders/:id"
+          element={
+            <MainLayout>
+              <RequireAuth>
+                <OrderDetails />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <MainLayout>
+              <RequireAuth>
+              <Wishlist />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/merchant/register"
+          element={
+            <MainLayout>
+              <RequireAuth>
+              <MerchantRegister />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <MainLayout>
+              <About />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/mejilis"
+          element={
+            <MainLayout>
+              <Mejilis />
+            </MainLayout>
+          }
+        />
 
         {/* Dashboard Routes */}
-        <Route path="/dashboard" element={<MainLayout><MerchantDashboard /></MainLayout>} />
-        <Route path="/dashboard/products" element={<MainLayout><ProductManager /></MainLayout>} />
-        <Route path="/admin" element={<MainLayout><AdminDashboard /></MainLayout>} />
+        <Route
+          path="/dashboard"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["merchant", "consumer"]}>
+              <MerchantDashboard />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/dashboard/settings"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["merchant", "consumer"]}>
+                <Settings />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/dashboard/products"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["merchant"]}>
+              <ProductManager />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/dashboard/orders"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["merchant"]}>
+                <MerchantDashboard />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["admin"]}>
+              <AdminDashboard />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/consumers"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["admin"]}>
+              <AdminConsumers />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/merchants"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["admin"]}>
+              <AdminMerchants />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/profile-approvals"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["admin"]}>
+              <AdminProfileApprovals />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
 
         {/* Catch-all 404 */}
         <Route
           path="*"
           element={
             <MainLayout>
-              <div style={{ textAlign: 'center', padding: '120px 20px', minHeight: '60vh' }}>
-                <h1 style={{ fontSize: '4rem', marginBottom: '16px' }}>404</h1>
-                <h2 style={{ marginBottom: '8px' }}>Page Not Found</h2>
-                <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px' }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "120px 20px",
+                  minHeight: "60vh",
+                }}
+              >
+                <h1 style={{ fontSize: "4rem", marginBottom: "16px" }}>404</h1>
+                <h2 style={{ marginBottom: "8px" }}>Page Not Found</h2>
+                <p
+                  style={{
+                    color: "var(--text-tertiary)",
+                    marginBottom: "24px",
+                  }}
+                >
                   The page you're looking for doesn't exist.
                 </p>
-                <a href="/" className="btn btn-primary">Go Home</a>
+                <a href="/" className="btn btn-primary">
+                  Go Home
+                </a>
               </div>
             </MainLayout>
           }

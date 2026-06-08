@@ -481,6 +481,17 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-secondary);
 }
 
+.btn-ghost.wishlisted {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.4);
+  background: rgba(254, 226, 226, 0.45);
+}
+
+.btn-ghost.wishlisted:hover {
+  background: rgba(254, 226, 226, 0.65);
+  color: #991b1b;
+}
+
 .btn-ghost:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
