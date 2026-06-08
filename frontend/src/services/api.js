@@ -1,6 +1,15 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Prefer explicit REACT_APP_API_URL. If not set, default to backend URL in dev
+let API_URL = process.env.REACT_APP_API_URL;
+if (!API_URL) {
+    // If running in the browser on localhost during development, point directly to backend
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+        API_URL = 'http://localhost:5000/api';
+    } else {
+        API_URL = '/api';
+    }
+}
 
 const api = axios.create({
     baseURL: API_URL,
@@ -11,17 +20,9 @@ const api = axios.create({
     withCredentials: true,
 });
 
-// Request interceptor — attach token
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+// Request interceptor — no Authorization header required when using httpOnly cookies
+// The server will read accessToken from the httpOnly cookie. Keep withCredentials:true above.
+api.interceptors.request.use((config) => config, (error) => Promise.reject(error));
 
 // Response interceptor — handle errors globally
 api.interceptors.response.use(
@@ -33,28 +34,19 @@ api.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            try {
-                // Attempt token refresh
-                const refreshResponse = await axios.post(
-                    `${API_URL}/auth/refresh-token`,
-                    {},
-                    { withCredentials: true }
-                );
-
-                if (refreshResponse.data.accessToken) {
-                    localStorage.setItem('token', refreshResponse.data.accessToken);
-                    originalRequest.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;
+                try {
+                    // Attempt token refresh - new access token will be set as httpOnly cookie by server
+                    await axios.post(`${API_URL}/auth/refresh-token`, {}, { withCredentials: true });
+                    // Retry original request (cookies sent automatically)
                     return api(originalRequest);
+                } catch (refreshError) {
+                    // Refresh failed — force logout client-side
+                    localStorage.removeItem('user');
+                    if (window.location.pathname !== '/login') {
+                        window.location.href = '/login';
+                    }
+                    return Promise.reject(refreshError);
                 }
-            } catch (refreshError) {
-                // Refresh failed — force logout
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                if (window.location.pathname !== '/login') {
-                    window.location.href = '/login';
-                }
-                return Promise.reject(refreshError);
-            }
         }
 
         // Handle network errors
