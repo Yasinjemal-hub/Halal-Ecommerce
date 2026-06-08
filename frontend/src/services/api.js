@@ -1,18 +1,20 @@
 import axios from 'axios';
 
-// Prefer explicit REACT_APP_API_URL. If not set, default to backend URL in dev
-let API_URL = process.env.REACT_APP_API_URL;
-if (!API_URL) {
-    // If running in the browser on localhost during development, point directly to backend
-    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-        API_URL = 'http://localhost:5000/api';
-    } else {
-        API_URL = '/api';
+const getApiUrl = () => {
+    if (process.env.REACT_APP_API_URL) {
+        return process.env.REACT_APP_API_URL;
     }
-}
+    if (typeof window !== 'undefined') {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:5000/api';
+        }
+        return `${window.location.origin}/api`;
+    }
+    return '/api';
+};
 
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: getApiUrl(),
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
@@ -36,7 +38,8 @@ api.interceptors.response.use(
 
                 try {
                     // Attempt token refresh - new access token will be set as httpOnly cookie by server
-                    await axios.post(`${API_URL}/auth/refresh-token`, {}, { withCredentials: true });
+                    const refreshUrl = getApiUrl() + '/auth/refresh-token';
+                    await axios.post(refreshUrl, {}, { withCredentials: true });
                     // Retry original request (cookies sent automatically)
                     return api(originalRequest);
                 } catch (refreshError) {
@@ -61,7 +64,8 @@ api.interceptors.response.use(
 // Health check utility
 export const checkBackendHealth = async () => {
     try {
-        const response = await api.get('/health');
+        const healthUrl = getApiUrl() + '/health';
+        const response = await axios.get(healthUrl, { withCredentials: true, timeout: 10000 });
         return response.data;
     } catch (error) {
         console.error('Backend health check failed:', error.message);
