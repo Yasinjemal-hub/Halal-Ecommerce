@@ -8,6 +8,12 @@ const validate = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+        // Log validation errors for easier debugging in dev
+        try {
+            console.warn('Validation failed for', req.method, req.originalUrl, JSON.stringify(errors.array()));
+        } catch (e) {
+            console.warn('Validation failed (unable to stringify errors)');
+        }
         return res.status(400).json({
             success: false,
             message: 'Validation failed',
