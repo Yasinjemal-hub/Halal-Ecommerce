@@ -37,6 +37,96 @@ export const getAllUsers = async (req, res, next) => {
     }
 };
 
+export const getPendingProfileUpdates = async (req, res, next) => {
+    try {
+        const users = await User.find({ 'pendingProfileUpdate.status': 'pending' });
+
+        res.status(200).json({
+            success: true,
+            count: users.length,
+            users,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const approveUserProfileUpdate = async (req, res, next) => {
+    try {
+        const { action, reviewNotes } = req.body;
+        const normalizedAction = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : action;
+
+        if (!['approved', 'rejected'].includes(normalizedAction)) {
+            return res.status(400).json({
+                success: false,
+                message: "Action must be 'approved' or 'rejected'.",
+            });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user || !user.pendingProfileUpdate?.status) {
+            return res.status(404).json({
+                success: false,
+                message: 'User or pending profile update not found.',
+            });
+        }
+
+        const pending = user.pendingProfileUpdate;
+        if (pending.status !== 'pending') {
+            return res.status(400).json({
+                success: false,
+                message: 'There is no pending profile update for this user.',
+            });
+        }
+
+        if (action === 'approved') {
+            const updateData = {};
+            if (pending.firstName) updateData.firstName = pending.firstName;
+            if (pending.lastName) updateData.lastName = pending.lastName;
+            if (pending.email) {
+                const existingUser = await User.findOne({
+                    email: pending.email,
+                    _id: { $ne: user._id },
+                });
+                if (existingUser) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Requested email is already in use by another account.',
+                    });
+                }
+                updateData.email = pending.email;
+            }
+            if (pending.phone) updateData.phone = pending.phone;
+
+            Object.assign(user, updateData);
+            user.pendingProfileUpdate = {
+                ...pending,
+                status: 'approved',
+                reviewedAt: new Date(),
+                reviewedBy: req.user._id,
+                reviewNotes,
+            };
+        } else {
+            user.pendingProfileUpdate = {
+                ...pending,
+                status: 'rejected',
+                reviewedAt: new Date(),
+                reviewedBy: req.user._id,
+                reviewNotes,
+            };
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 /**
  * @desc    Update user role
  * @route   PUT /api/admin/users/:id/role
@@ -118,7 +208,6 @@ export const getDashboardStats = async (req, res, next) => {
             totalOrders,
             pendingMerchants,
             pendingCertifications,
-            recentOrders,
         ] = await Promise.all([
             User.countDocuments(),
             Merchant.countDocuments(),
@@ -126,11 +215,16 @@ export const getDashboardStats = async (req, res, next) => {
             Order.countDocuments(),
             Merchant.countDocuments({ verificationStatus: 'pending' }),
             Certification.countDocuments({ status: 'pending' }),
-            Order.find()
+        ]);
+
+        // Only fetch recent orders when there are orders in the system
+        let recentOrders = [];
+        if (totalOrders > 0) {
+            recentOrders = await Order.find()
                 .sort({ createdAt: -1 })
                 .limit(10)
-                .populate('user', 'firstName lastName email'),
-        ]);
+                .populate('user', 'firstName lastName email');
+        }
 
         // Revenue calculation
         const revenueResult = await Order.aggregate([

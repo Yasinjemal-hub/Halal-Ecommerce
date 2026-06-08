@@ -38,6 +38,18 @@ const adminService = {
         const response = await api.put(`/admin/merchants/${id}/verify`, data);
         return response.data;
     },
+
+    // Get pending profile updates
+    getPendingProfileUpdates: async () => {
+        const response = await api.get('/admin/users/pending-updates');
+        return response.data;
+    },
+
+    // Approve or reject user profile update
+    approveUserProfileUpdate: async (id, data) => {
+        const response = await api.put(`/admin/users/${id}/profile-approval`, data);
+        return response.data;
+    },
 };
 
 export default adminService;

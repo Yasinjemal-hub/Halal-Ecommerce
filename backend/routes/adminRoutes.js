@@ -3,6 +3,8 @@ import { protect } from '../middleware/auth.js';
 import { authorize } from '../middleware/roleCheck.js';
 import {
     getAllUsers,
+    getPendingProfileUpdates,
+    approveUserProfileUpdate,
     updateUserRole,
     toggleUserStatus,
     getDashboardStats,
@@ -20,6 +22,8 @@ router.get('/dashboard', getDashboardStats);
 
 // ── Users ───────────────────────────────────────────────
 router.get('/users', getAllUsers);
+router.get('/users/pending-updates', getPendingProfileUpdates);
+router.put('/users/:id/profile-approval', approveUserProfileUpdate);
 router.put('/users/:id/role', updateUserRole);
 router.put('/users/:id/status', toggleUserStatus);
 
