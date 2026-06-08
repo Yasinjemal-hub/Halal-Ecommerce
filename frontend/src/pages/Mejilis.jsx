@@ -57,6 +57,7 @@ const Mejilis = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const isLoggedIn = authService.isAuthenticated();
     const currentUser = authService.getCurrentUser();
+    const isMerchantUser = currentUser?.role === 'merchant';
 
     // ── Registration State ─────────────────────────────────
     const [regStatus, setRegStatus] = useState(null);
@@ -81,7 +82,7 @@ const Mejilis = () => {
 
     // ── Complaint State ────────────────────────────────────
     const [complaintForm, setComplaintForm] = useState({
-        merchantId: '',
+        merchantIdentifier: '',
         category: '',
         subject: '',
         description: '',
@@ -95,6 +96,8 @@ const Mejilis = () => {
     const [merchants, setMerchants] = useState([]);
     const [merchantFilter, setMerchantFilter] = useState('');
     const [dashLoading, setDashLoading] = useState(false);
+    const [merchantsLoading, setMerchantsLoading] = useState(false);
+    const [merchantsError, setMerchantsError] = useState('');
 
     const checkRegistrationStatus = useCallback(async () => {
         try {
@@ -123,12 +126,23 @@ const Mejilis = () => {
 
     const loadMerchants = useCallback(async () => {
         try {
+            setMerchantsLoading(true);
+            setMerchantsError('');
             const params = {};
             if (merchantFilter) params.verificationStatus = merchantFilter;
+            console.log('Fetching merchants with params:', params);
             const data = await mejilisService.getMerchants(params);
-            setMerchants(data.merchants || []);
+            console.log('Merchants response:', data);
+            const merchantsList = data.merchants || [];
+            console.log('Merchants count:', merchantsList.length);
+            setMerchants(merchantsList);
         } catch (err) {
-            console.error('Error loading merchants:', err);
+            const errorMsg = err.response?.data?.message || err.message || 'Failed to load merchants';
+            console.error('Error loading merchants:', errorMsg, err);
+            setMerchantsError(errorMsg);
+            setMerchants([]);
+        } finally {
+            setMerchantsLoading(false);
         }
     }, [merchantFilter]);
 
@@ -208,7 +222,7 @@ const Mejilis = () => {
                 evidence: evidenceUrl ? [{ url: evidenceUrl, name: complaintEvidenceFile.name }] : [],
             });
             setSuccessMsg(result.message || 'Complaint filed successfully!');
-            setComplaintForm({ merchantId: '', category: '', subject: '', description: '' });
+            setComplaintForm({ merchantIdentifier: '', category: '', subject: '', description: '' });
             setComplaintEvidenceFile(null);
         } catch (err) {
             setErrorMsg(err.response?.data?.message || 'Failed to file complaint.');
@@ -534,6 +548,28 @@ const Mejilis = () => {
                                 </div>
                             )}
                         </div>
+                    ) : !isMerchantUser ? (
+                        <div className="mejilis-status-card">
+                            <div className="mejilis-status-icon warning">
+                                <FiAlertTriangle size={36} />
+                            </div>
+                            <h3>Merchant Registration Restricted</h3>
+                            <p>
+                                Your account is currently registered as a <strong>{currentUser?.role || 'consumer'}</strong>.
+                                This merchant onboarding form is for merchant accounts only.
+                            </p>
+                            <p>
+                                If you believe this is an error, please contact support or upgrade your account to merchant through the proper onboarding process.
+                            </p>
+                            <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                                <Link to="/" className="btn btn-primary btn-lg">
+                                    Return to Home
+                                </Link>
+                                <Link to="/dashboard" className="btn btn-white-outline btn-lg">
+                                    Go to Dashboard
+                                </Link>
+                            </div>
+                        </div>
                     ) : (
                         <div className="mejilis-register-layout">
                             {/* Left - Info */}
@@ -855,17 +891,20 @@ const Mejilis = () => {
                                         <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
                                             <div className="mejilis-form-group">
                                                 <label className="mejilis-form-label">
-                                                    Merchant ID <span className="required">*</span>
+                                                    Merchant Email or Exact Store Name <span className="required">*</span>
                                                 </label>
                                                 <input
                                                     className="mejilis-form-input"
                                                     type="text"
-                                                    placeholder="Enter Merchant ID here"
-                                                    value={complaintForm.merchantId}
-                                                    onChange={(e) => setComplaintForm({ ...complaintForm, merchantId: e.target.value })}
+                                                    placeholder="Enter merchant email or exact business name"
+                                                    value={complaintForm.merchantIdentifier}
+                                                    onChange={(e) => setComplaintForm({ ...complaintForm, merchantIdentifier: e.target.value })}
                                                     required
-                                                    id="complaint-merchant-id"
+                                                    id="complaint-merchant-identifier"
                                                 />
+                                                <small style={{ display: 'block', marginTop: '8px', color: 'var(--text-tertiary)' }}>
+                                                    Use the merchant's business email or the exact store name as shown on the merchant profile.
+                                                </small>
                                             </div>
                                             <div className="mejilis-form-group">
                                                 <label className="mejilis-form-label">
@@ -1146,7 +1185,19 @@ const Mejilis = () => {
                                 </div>
                             </div>
 
-                            {merchants.length > 0 ? (
+                            {merchantsError && (
+                                <div className="mejilis-error-message" style={{ marginBottom: '20px' }}>
+                                    <FiAlertCircle size={20} />
+                                    <p>{merchantsError}</p>
+                                </div>
+                            )}
+
+                            {merchantsLoading ? (
+                                <div className="mejilis-loading">
+                                    <div className="spinner" />
+                                    <p>Loading merchants...</p>
+                                </div>
+                            ) : merchants.length > 0 ? (
                                 <div className="mejilis-table-container">
                                     <table className="mejilis-table">
                                         <thead>

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Mejilis from '../models/Mejilis.js';
 import Merchant from '../models/Merchant.js';
 import Certification from '../models/Certification.js';
@@ -207,6 +208,8 @@ export const getMejilisMerchants = async (req, res, next) => {
             filter.businessName = { $regex: req.query.search, $options: 'i' };
         }
 
+        console.log('📊 Fetching merchants with filter:', filter);
+
         const [merchants, total] = await Promise.all([
             Merchant.find(filter)
                 .populate('user', 'firstName lastName email phone avatar')
@@ -218,6 +221,8 @@ export const getMejilisMerchants = async (req, res, next) => {
             Merchant.countDocuments(filter),
         ]);
 
+        console.log(`✅ Found ${merchants.length} merchants (total: ${total})`);
+
         res.status(200).json({
             success: true,
             count: merchants.length,
@@ -227,6 +232,7 @@ export const getMejilisMerchants = async (req, res, next) => {
             merchants,
         });
     } catch (error) {
+        console.error('❌ Error fetching merchants:', error);
         next(error);
     }
 };
@@ -345,16 +351,39 @@ export const getAllCertifications = async (req, res, next) => {
  * @route   POST /api/mejilis/complaints
  * @access  Private (authenticated user)
  */
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const fileComplaint = async (req, res, next) => {
     try {
-        const { merchantId, category, subject, description, evidence = [] } = req.body;
+        const { merchantIdentifier, category, subject, description, evidence = [] } = req.body;
+        const identifier = (merchantIdentifier || '').trim();
 
-        // Verify merchant exists
-        const merchant = await Merchant.findById(merchantId);
+        if (!identifier) {
+            return res.status(400).json({
+                success: false,
+                message: 'Merchant email or business name is required',
+            });
+        }
+
+        let merchant = null;
+        if (mongoose.Types.ObjectId.isValid(identifier)) {
+            merchant = await Merchant.findById(identifier);
+        }
+
+        if (!merchant && identifier.includes('@')) {
+            merchant = await Merchant.findOne({ businessEmail: identifier.toLowerCase() });
+        }
+
+        if (!merchant) {
+            merchant = await Merchant.findOne({
+                businessName: new RegExp(`^${escapeRegex(identifier)}$`, 'i'),
+            });
+        }
+
         if (!merchant) {
             return res.status(404).json({
                 success: false,
-                message: 'Merchant not found',
+                message: 'Merchant not found. Please use the merchant email or exact business name.',
             });
         }
 
@@ -368,7 +397,7 @@ export const fileComplaint = async (req, res, next) => {
 
         const complaint = {
             complainant: req.user._id,
-            merchant: merchantId,
+            merchant: merchant._id,
             category,
             subject,
             description,
@@ -576,6 +605,13 @@ export const registerAsMerchant = async (req, res, next) => {
                 success: false,
                 message: 'You already have a merchant profile',
                 merchant: existing,
+            });
+        }
+
+        if (req.user.role !== 'merchant') {
+            return res.status(403).json({
+                success: false,
+                message: 'Consumer accounts cannot submit merchant registration from this form. Please use a merchant account.',
             });
         }
 

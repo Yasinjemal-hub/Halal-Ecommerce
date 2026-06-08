@@ -33,8 +33,16 @@ const mejilisService = {
     // ── Merchant Management (Admin) ─────────────────────────
     getMerchants: async (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
-        const response = await api.get(`/mejilis/merchants?${queryString}`);
-        return response.data;
+        const url = `/mejilis/merchants?${queryString}`;
+        console.log('Calling API:', url);
+        try {
+            const response = await api.get(url);
+            console.log('Merchants API response:', response);
+            return response.data;
+        } catch (error) {
+            console.error('Merchants API error:', error.response?.data || error.message);
+            throw error;
+        }
     },
 
     verifyMerchant: async (id, data) => {

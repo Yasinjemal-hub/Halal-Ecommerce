@@ -62,7 +62,7 @@ router.post(
     '/complaints',
     protect,
     [
-        body('merchantId').notEmpty().withMessage('Merchant ID is required'),
+        body('merchantIdentifier').notEmpty().withMessage('Merchant email or business name is required'),
         body('category')
             .isIn([
                 'halal_violation',
