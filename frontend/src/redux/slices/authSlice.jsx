@@ -1,14 +1,22 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import authService from '../../services/authService';
 
+// Clear wishlist from localStorage on logout
+const clearWishlistStorage = () => {
+    localStorage.removeItem('wishlist'); // Clear old generic key
+    const user = authService.getCurrentUser();
+    if (user?._id) {
+        localStorage.removeItem(`wishlist_${user._id}`);
+    }
+};
+
 // Get user from localStorage
 const user = authService.getCurrentUser();
-const token = authService.getToken();
 
 const initialState = {
     user: user || null,
-    token: token || null,
-    isAuthenticated: !!token,
+    token: null,
+    isAuthenticated: !!user,
     isLoading: false,
     error: null,
     message: null,
@@ -75,7 +83,7 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = true;
                 state.user = action.payload.user;
-                state.token = action.payload.token;
+                state.token = null;
                 state.message = 'Registration successful!';
             })
             .addCase(register.rejected, (state, action) => {
@@ -91,7 +99,7 @@ const authSlice = createSlice({
                 state.isLoading = false;
                 state.isAuthenticated = true;
                 state.user = action.payload.user;
-                state.token = action.payload.token;
+                state.token = null;
                 state.message = 'Welcome back!';
             })
             .addCase(login.rejected, (state, action) => {
@@ -100,6 +108,7 @@ const authSlice = createSlice({
             })
             // Logout
             .addCase(logout.fulfilled, (state) => {
+                clearWishlistStorage();
                 state.user = null;
                 state.token = null;
                 state.isAuthenticated = false;

@@ -3,24 +3,20 @@ import api from './api';
 const authService = {
     register: async (userData) => {
         const response = await api.post('/auth/register', userData);
-        // Backend returns { success, accessToken, user }
-        const token = response.data.accessToken || response.data.token;
-        if (token) {
-            localStorage.setItem('token', token);
+        // Backend sets httpOnly cookies (accessToken & refreshToken) and returns user
+        if (response.data.user) {
             localStorage.setItem('user', JSON.stringify(response.data.user));
         }
-        return { ...response.data, token };
+        return response.data;
     },
 
     login: async (credentials) => {
         const response = await api.post('/auth/login', credentials);
-        // Backend returns { success, accessToken, user }
-        const token = response.data.accessToken || response.data.token;
-        if (token) {
-            localStorage.setItem('token', token);
+        // Backend sets httpOnly cookies (accessToken & refreshToken) and returns user
+        if (response.data.user) {
             localStorage.setItem('user', JSON.stringify(response.data.user));
         }
-        return { ...response.data, token };
+        return response.data;
     },
 
     logout: async () => {
@@ -29,7 +25,6 @@ const authService = {
         } catch (error) {
             // Logout even if API call fails
         }
-        localStorage.removeItem('token');
         localStorage.removeItem('user');
     },
 
@@ -58,8 +53,7 @@ const authService = {
         return user ? JSON.parse(user) : null;
     },
 
-    getToken: () => localStorage.getItem('token'),
-    isAuthenticated: () => !!localStorage.getItem('token'),
+    isAuthenticated: () => !!localStorage.getItem('user'),
 };
 
 export default authService;

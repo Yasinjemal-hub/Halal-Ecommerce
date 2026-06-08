@@ -54,7 +54,10 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
-            match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+            match: [
+                /^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                'Please provide a valid email address',
+            ],
         },
         password: {
             type: String,
@@ -65,7 +68,10 @@ const userSchema = new mongoose.Schema(
         phone: {
             type: String,
             trim: true,
-            match: [/^(\+251|0)(9|7)\d{8}$/, 'Please provide a valid Ethiopian phone number'],
+            match: [
+                /^(?:\+251|0)([79]\d{8})$/,
+                'Please provide a valid Ethiopian phone number (format: +251912345678 or 0912345678)',
+            ],
         },
         role: {
             type: String,
@@ -83,14 +89,44 @@ const userSchema = new mongoose.Schema(
             default: 'en',
         },
 
+        pendingProfileUpdate: {
+            firstName: { type: String, trim: true, maxlength: 50 },
+            lastName: { type: String, trim: true, maxlength: 50 },
+            email: {
+                type: String,
+                lowercase: true,
+                trim: true,
+                match: [/^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please provide a valid email address'],
+            },
+            phone: {
+                type: String,
+                trim: true,
+                match: [/^(?:\+251|0)([79]\d{8})$/, 'Please provide a valid Ethiopian phone number (format: +251912345678 or 0912345678)'],
+            },
+            requestedAt: Date,
+            status: {
+                type: String,
+                enum: ['pending', 'approved', 'rejected'],
+                default: 'pending',
+            },
+            reviewedAt: Date,
+            reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            reviewNotes: { type: String, trim: true },
+        },
+
         // Email verification
         isEmailVerified: { type: Boolean, default: false },
         emailVerificationToken: String,
         emailVerificationExpires: Date,
+        emailVerificationAttempts: { type: Number, default: 0 },
 
         // Password reset
         passwordResetToken: String,
         passwordResetExpires: Date,
+
+        // Refresh token (hashed) for server-side invalidation
+        refreshToken: { type: String, select: false },
+        refreshTokenExpires: Date,
 
         // Account status
         isActive: { type: Boolean, default: true },

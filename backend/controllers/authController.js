@@ -123,15 +123,42 @@ export const login = async (req, res, next) => {
  * @access  Private
  */
 export const logout = (req, res) => {
-    res.cookie('refreshToken', '', {
-        httpOnly: true,
-        expires: new Date(0),
-    });
+    try {
+        const token = req.cookies?.refreshToken;
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+                if (decoded?.id) {
+                    User.findByIdAndUpdate(decoded.id, {
+                        $unset: { refreshToken: 1, refreshTokenExpires: 1 },
+                    }).catch((err) => {
+                        console.error('Failed to clear refresh token for user:', err.message);
+                    });
+                }
+            } catch (err) {
+                // Token invalid/expired — still clear cookie client-side
+            }
+        }
 
-    res.status(200).json({
-        success: true,
-        message: 'Logged out successfully',
-    });
+        // Clear both refresh and access tokens
+        res.cookie('refreshToken', '', {
+            httpOnly: true,
+            expires: new Date(0),
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+        res.cookie('accessToken', '', {
+            httpOnly: true,
+            expires: new Date(0),
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        res.status(200).json({ success: true, message: 'Logged out successfully' });
+    } catch (err) {
+        console.error('Logout error:', err.message);
+        res.status(200).cookie('refreshToken', '', { expires: new Date(0) }).json({ success: true, message: 'Logged out' });
+    }
 };
 
 /**
@@ -159,8 +186,10 @@ export const verifyEmail = async (req, res, next) => {
         }
 
         user.isEmailVerified = true;
-        user.emailVerificationToken = undefined;
-        user.emailVerificationExpires = undefined;
+        // Fully invalidate the verification token and reset attempts
+        user.emailVerificationToken = null;
+        user.emailVerificationExpires = null;
+        user.emailVerificationAttempts = 0;
         await user.save();
 
         res.status(200).json({
@@ -256,8 +285,9 @@ export const resetPassword = async (req, res, next) => {
         }
 
         user.password = req.body.password;
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
+        // Invalidate reset token
+        user.passwordResetToken = null;
+        user.passwordResetExpires = null;
         await user.save();
 
         sendTokenResponse(user, 200, res);
@@ -283,7 +313,7 @@ export const refreshToken = async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        const user = await User.findById(decoded.id);
+        const user = await User.findById(decoded.id).select('+refreshToken +refreshTokenExpires');
 
         if (!user || !user.isActive) {
             return res.status(401).json({
@@ -292,12 +322,31 @@ export const refreshToken = async (req, res, next) => {
             });
         }
 
+        // Verify that the refresh token matches the hashed token stored for the user
+        const hashed = require('crypto').createHash('sha256').update(token).digest('hex');
+
+        if (!user.refreshToken || user.refreshToken !== hashed) {
+            return res.status(401).json({ success: false, message: 'Refresh token revoked' });
+        }
+
+        // Verify expiry
+        if (user.refreshTokenExpires && new Date(user.refreshTokenExpires) < new Date()) {
+            return res.status(401).json({ success: false, message: 'Refresh token expired' });
+        }
+
         const accessToken = generateAccessToken(user._id);
 
-        res.status(200).json({
-            success: true,
-            accessToken,
-        });
+        // Set new access token as httpOnly cookie
+        const accessCookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE_MS || `${15 * 60 * 1000}`),
+        };
+
+        res.status(200)
+            .cookie('accessToken', accessToken, accessCookieOptions)
+            .json({ success: true });
     } catch (error) {
         return res.status(401).json({
             success: false,

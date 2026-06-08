@@ -35,6 +35,10 @@ router.put(
             .optional()
             .matches(/^(\+251|0)(9|7)\d{8}$/)
             .withMessage('Please provide a valid Ethiopian phone number'),
+        body('email')
+            .optional()
+            .isEmail()
+            .withMessage('Please provide a valid email address'),
         body('preferredLanguage')
             .optional()
             .isIn(['en', 'am', 'om', 'so'])
