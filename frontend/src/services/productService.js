@@ -23,7 +23,11 @@ const productService = {
 
     // Create product (merchant)
     create: async (productData) => {
-        const response = await api.post('/products', productData);
+        const config = {};
+        if (productData instanceof FormData) {
+            config.headers = { 'Content-Type': undefined };
+        }
+        const response = await api.post('/products', productData, config);
         return response.data;
     },
 
@@ -36,7 +40,11 @@ const productService = {
 
     // Update product (merchant)
     update: async (id, productData) => {
-        const response = await api.put(`/products/${id}`, productData);
+        const config = {};
+        if (productData instanceof FormData) {
+            config.headers = { 'Content-Type': undefined };
+        }
+        const response = await api.put(`/products/${id}`, productData, config);
         return response.data;
     },
 

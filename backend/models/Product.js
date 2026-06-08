@@ -25,6 +25,10 @@ const productSchema = new mongoose.Schema(
             lowercase: true,
             trim: true,
         },
+        image: {
+            type: String,
+            trim: true,
+        },
         description: {
             type: String,
             required: [true, 'Product description is required'],
@@ -40,18 +44,32 @@ const productSchema = new mongoose.Schema(
         price: {
             type: Number,
             required: [true, 'Product price is required'],
-            min: [0, 'Price cannot be negative'],
+            min: [0.01, 'Price must be greater than 0'],
+            max: [9999999, 'Price cannot exceed 9,999,999'],
         },
         discountPrice: {
             type: Number,
             min: [0, 'Discount price cannot be negative'],
-            validate: {
-                validator: function (val) {
-                    // discountPrice must be less than regular price
-                    return val == null || val < this.price;
+            validate: [
+                {
+                    validator: function (val) {
+                        if (val == null) return true;
+                        const currentPrice = this.price ?? this.getUpdate?.()?.price;
+                        return currentPrice != null && val > 0 && val < currentPrice;
+                    },
+                    message: 'Discount price must be between 0 and the regular price',
                 },
-                message: 'Discount price ({VALUE}) must be less than the regular price',
-            },
+                {
+                    validator: function (val) {
+                        if (val == null) return true;
+                        const currentPrice = this.price ?? this.getUpdate?.()?.price;
+                        if (currentPrice == null) return true;
+                        const discountPercent = ((currentPrice - val) / currentPrice) * 100;
+                        return discountPercent <= 80;
+                    },
+                    message: 'Discount cannot exceed 80% off',
+                },
+            ],
         },
         currency: {
             type: String,
@@ -89,14 +107,20 @@ const productSchema = new mongoose.Schema(
         tags: [{ type: String, trim: true, lowercase: true }],
 
         // ── Images ──────────────────────────────────────────
-        images: [
-            {
-                url: { type: String, required: true },
-                publicId: { type: String },
-                alt: { type: String, trim: true },
-                isDefault: { type: Boolean, default: false },
-            },
-        ],
+        images: {
+            type: [
+                {
+                    url: { type: String, required: true },
+                    publicId: { type: String },
+                    alt: { type: String, trim: true },
+                    isDefault: { type: Boolean, default: false },
+                },
+            ],
+            validate: [
+                (arr) => arr && arr.length > 0,
+                'At least one product image is required',
+            ],
+        },
 
         // ── Inventory ───────────────────────────────────────
         stock: {
@@ -145,6 +169,7 @@ const productSchema = new mongoose.Schema(
         isActive: { type: Boolean, default: true },
         isFeatured: { type: Boolean, default: false },
         isApproved: { type: Boolean, default: false },
+        isDeleted: { type: Boolean, default: false },
 
         // ── SEO ─────────────────────────────────────────────
         metaTitle: { type: String, trim: true },

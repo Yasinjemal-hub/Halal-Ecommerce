@@ -6,6 +6,7 @@ import { fetchProducts, setFilters, clearFilters } from '../redux/slices/product
 import ProductCard from '../components/common/ProductCard';
 import Pagination from '../components/common/Pagination';
 import Loader from '../components/common/Loader';
+import merchantService from '../services/merchantService';
 import './Shop.css';
 
 const CATEGORIES = [
@@ -37,6 +38,15 @@ const Shop = () => {
     const dispatch = useDispatch();
     const [searchParams, setSearchParams] = useSearchParams();
     const { items, pagination, filters, isLoading, error } = useSelector((state) => state.products);
+    const { user } = useSelector((state) => state.auth);
+    const isMerchantUser = user?.role === 'merchant';
+    const [merchantId, setMerchantId] = useState('');
+    const [merchantProducts, setMerchantProducts] = useState([]);
+    const [merchantPagination, setMerchantPagination] = useState({ page: 1, totalPages: 1, total: 0 });
+    const [merchantLoading, setMerchantLoading] = useState(false);
+    const [merchantError, setMerchantError] = useState(null);
+    const [merchantPage, setMerchantPage] = useState(1);
+    const [isMerchantProfileLoading, setIsMerchantProfileLoading] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
     const [localSearch, setLocalSearch] = useState('');
@@ -49,9 +59,70 @@ const Shop = () => {
         setLocalSearch(search);
     }, [searchParams, dispatch]);
 
+    useEffect(() => {
+        if (!isMerchantUser) return;
+
+        const loadMerchantProfile = async () => {
+            setIsMerchantProfileLoading(true);
+            try {
+                const profile = await merchantService.getMyProfile();
+                const merchant = profile.merchant || profile;
+                setMerchantId(merchant?._id || merchant?.id || '');
+            } catch (error) {
+                console.error('Failed to load merchant profile', error);
+            } finally {
+                setIsMerchantProfileLoading(false);
+            }
+        };
+
+        loadMerchantProfile();
+    }, [isMerchantUser]);
+
+    useEffect(() => {
+        if (!isMerchantUser || !merchantId) return;
+
+        const loadMerchantProducts = async () => {
+            setMerchantLoading(true);
+            setMerchantError(null);
+            try {
+                const sortMap = {
+                    '-createdAt': 'newest',
+                    'price': 'price_asc',
+                    '-price': 'price_desc',
+                    '-ratingsAverage': 'rating',
+                    'name': 'newest',
+                };
+                const params = {
+                    page: merchantPage,
+                    limit: 12,
+                    ...(filters.category && { category: filters.category }),
+                    ...(filters.search && { search: filters.search }),
+                    ...(filters.sort && { sort: sortMap[filters.sort] || filters.sort }),
+                    ...(filters.minPrice && { minPrice: filters.minPrice }),
+                    ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
+                    ...(filters.halalCertified && { halalCertified: true }),
+                };
+                const productsData = await merchantService.getMerchantProducts(merchantId, params);
+                setMerchantProducts(productsData.products || []);
+                setMerchantPagination({
+                    page: productsData.currentPage || 1,
+                    totalPages: productsData.totalPages || 1,
+                    total: productsData.total || 0,
+                });
+            } catch (err) {
+                setMerchantError(err.response?.data?.message || 'Failed to load your products.');
+            } finally {
+                setMerchantLoading(false);
+            }
+        };
+
+        loadMerchantProducts();
+    }, [isMerchantUser, merchantId, filters, merchantPage]);
+
     // Fetch products when filters change
     useEffect(() => {
-        // Map frontend sort values to backend sort values
+        if (isMerchantUser) return;
+
         const sortMap = {
             '-createdAt': 'newest',
             'price': 'price_asc',
@@ -70,8 +141,9 @@ const Shop = () => {
             ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
             ...(filters.halalCertified && { halalCertified: true }),
         };
+
         dispatch(fetchProducts(params));
-    }, [dispatch, filters, pagination.page]);
+    }, [dispatch, filters, pagination.page, isMerchantUser]);
 
     const handleFilterChange = (key, value) => {
         dispatch(setFilters({ [key]: value }));
@@ -93,26 +165,22 @@ const Shop = () => {
         dispatch(clearFilters());
         setSearchParams({});
         setLocalSearch('');
+        if (isMerchantUser) setMerchantPage(1);
     };
 
     const handlePageChange = (page) => {
-        dispatch(setFilters({})); // triggers re-fetch
+        if (isMerchantUser) {
+            setMerchantPage(page);
+        } else {
+            dispatch(setFilters({})); // triggers re-fetch
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // Demo products for display
-    const demoProducts = [
-        { _id: 's1', name: 'Halal Chicken Wings', price: 350, category: 'poultry', ratingsAverage: 4.5, ratingsCount: 67, halalCertified: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/0D7C3D/fff?text=Chicken' }], merchant: { businessName: 'Addis Poultry', verificationStatus: 'approved' } },
-        { _id: 's2', name: 'Mitmita Spice Blend', nameAmharic: 'ሚጥሚጣ', price: 120, category: 'spices', ratingsAverage: 4.8, ratingsCount: 156, halalCertified: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/d97706/fff?text=Mitmita' }], merchant: { businessName: 'Harar Spices', verificationStatus: 'approved' } },
-        { _id: 's3', name: 'Organic Teff Grain', nameAmharic: 'ጤፍ', price: 280, category: 'grains', ratingsAverage: 4.6, ratingsCount: 92, halalCertified: true, isInStock: true, isFeatured: true, images: [{ url: 'https://placehold.co/400x400/065f2d/fff?text=Teff' }], merchant: { businessName: 'Teff Farm', verificationStatus: 'approved' } },
-        { _id: 's4', name: 'Shiro Powder', nameAmharic: 'ሽሮ', price: 95, category: 'spices', ratingsAverage: 4.7, ratingsCount: 203, halalCertified: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/c2410c/fff?text=Shiro' }], merchant: { businessName: 'Ethiopian Foods', verificationStatus: 'approved' } },
-        { _id: 's5', name: 'Raw Wildflower Honey', price: 520, discountPrice: 440, category: 'honey', ratingsAverage: 4.9, ratingsCount: 178, halalCertified: true, isInStock: true, isFeatured: true, images: [{ url: 'https://placehold.co/400x400/ca8a04/fff?text=Honey' }], merchant: { businessName: 'Tigray Honey', verificationStatus: 'approved' } },
-        { _id: 's6', name: 'Ethiopian Coffee Beans', nameAmharic: 'ቡና', price: 380, category: 'beverages', ratingsAverage: 4.8, ratingsCount: 341, halalCertified: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/78350f/fff?text=Coffee' }], merchant: { businessName: 'Yirgacheffe Coffee', verificationStatus: 'approved' } },
-        { _id: 's7', name: 'Islamic Calligraphy Art', price: 1200, category: 'home_decor', ratingsAverage: 4.4, ratingsCount: 34, halalCertified: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/4f46e5/fff?text=Art' }], merchant: { businessName: 'Islamic Arts', verificationStatus: 'approved' } },
-        { _id: 's8', name: 'Premium Lamb Cuts', price: 950, discountPrice: 820, category: 'meat', ratingsAverage: 4.7, ratingsCount: 89, halalCertified: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/dc2626/fff?text=Lamb' }], merchant: { businessName: 'Halal Meats AA', verificationStatus: 'approved' } },
-    ];
-
-    const displayProducts = items.length > 0 ? items : demoProducts;
+    const displayProducts = isMerchantUser ? merchantProducts : items;
+    const isLoadingProducts = isMerchantUser ? merchantLoading : isLoading;
+    const errorMessage = isMerchantUser ? merchantError : error;
+    const paginationState = isMerchantUser ? merchantPagination : pagination;
     const hasActiveFilters = filters.category || filters.search || filters.halalCertified || filters.minPrice || filters.maxPrice;
 
     return (
@@ -122,8 +190,14 @@ const Shop = () => {
                 <div className="container">
                     <div className="shop-header-content">
                         <div>
-                            <h1 className="heading-section">Shop Halal Products</h1>
-                            <p className="text-body">Browse {pagination.total || displayProducts.length}+ verified halal products</p>
+                            <h1 className="heading-section">
+                                {isMerchantUser ? 'My Product Listings' : 'Shop Halal Products'}
+                            </h1>
+                            <p className="text-body">
+                                {isMerchantUser
+                                    ? 'Review and manage the products you have listed on Halal Market.'
+                                    : `Browse ${pagination.total || displayProducts.length}+ verified halal products`}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -279,12 +353,18 @@ const Shop = () => {
                     )}
 
                     {/* Products */}
-                    {isLoading ? (
+                    {isLoadingProducts ? (
                         <Loader text="Loading halal products..." />
-                    ) : error ? (
+                    ) : errorMessage ? (
                         <div className="shop-error">
-                            <p>😔 {error}</p>
-                            <button className="btn btn-primary" onClick={() => dispatch(fetchProducts({}))}>Try Again</button>
+                            <p>😔 {errorMessage}</p>
+                            <button className="btn btn-primary" onClick={() => {
+                                if (isMerchantUser) {
+                                    setMerchantPage(merchantPage);
+                                } else {
+                                    dispatch(fetchProducts({}));
+                                }
+                            }}>Try Again</button>
                         </div>
                     ) : (
                         <>
@@ -304,8 +384,8 @@ const Shop = () => {
                             )}
 
                             <Pagination
-                                currentPage={pagination.page}
-                                totalPages={pagination.totalPages}
+                                currentPage={paginationState.page}
+                                totalPages={paginationState.totalPages}
                                 onPageChange={handlePageChange}
                             />
                         </>

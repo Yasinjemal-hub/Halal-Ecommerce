@@ -1,3 +1,5 @@
+import path from 'path';
+import fs from 'fs/promises';
 import Product from '../models/Product.js';
 import Merchant from '../models/Merchant.js';
 
@@ -6,27 +8,96 @@ import Merchant from '../models/Merchant.js';
  * @route   POST /api/products
  * @access  Merchant
  */
+const ensureUploadDir = async () => {
+    const uploadDir = process.env.UPLOAD_DIR || './uploads';
+    const resolvedDir = path.resolve(uploadDir);
+    await fs.mkdir(resolvedDir, { recursive: true });
+    return resolvedDir;
+};
+
+const saveUploadedFile = async (file, req) => {
+    const uploadDir = await ensureUploadDir();
+    const safeName = file.originalname
+        .replace(/[^a-zA-Z0-9.-]/g, '_')
+        .replace(/_+/g, '_');
+    const filename = `${Date.now()}-${safeName}`;
+    const filePath = path.join(uploadDir, filename);
+    await fs.writeFile(filePath, file.buffer);
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    return `${baseUrl}/uploads/${filename}`;
+};
+
+const parseImagesFromBody = (imagesField) => {
+    if (!imagesField) return undefined;
+    if (Array.isArray(imagesField)) return imagesField;
+    if (typeof imagesField === 'string') {
+        try {
+            return JSON.parse(imagesField);
+        } catch {
+            return undefined;
+        }
+    }
+    return undefined;
+};
+
 export const createProduct = async (req, res, next) => {
     try {
         // Optional: Find merchant profile for the logged-in user
         const merchant = await Merchant.findOne({ user: req.user._id });
 
+        if (!merchant) {
+            return res.status(403).json({
+                success: false,
+                message: 'Merchant profile not found. You must register as a merchant first.',
+            });
+        }
+
+        if (merchant.verificationStatus !== 'approved') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your merchant profile must be approved by Mejilis/Admin before adding products.',
+            });
+        }
+
         const productData = {
             ...req.body,
+            merchant: merchant._id,
         };
 
-        if (merchant) {
-            productData.merchant = merchant._id;
+        if (req.file) {
+            const imageUrl = await saveUploadedFile(req.file, req);
+            productData.images = [
+                {
+                    url: imageUrl,
+                    alt: req.body.name?.trim() || 'Product image',
+                    isDefault: true,
+                },
+            ];
+        } else {
+            const parsedImages = parseImagesFromBody(req.body.images);
+            if (parsedImages) {
+                productData.images = parsedImages;
+            } else if (req.body.image) {
+                productData.images = [
+                    {
+                        url: req.body.image,
+                        alt: req.body.name?.trim() || 'Product image',
+                        isDefault: true,
+                    },
+                ];
+            }
+        }
+
+        if (productData.images?.length) {
+            productData.image = productData.images[0].url;
         }
 
         const product = await Product.create(productData);
 
         // Increment merchant product count if merchant exists
-        if (merchant) {
-            await Merchant.findByIdAndUpdate(merchant._id, {
-                $inc: { totalProducts: 1 },
-            });
-        }
+        await Merchant.findByIdAndUpdate(merchant._id, {
+            $inc: { totalProducts: 1 },
+        });
 
         res.status(201).json({
             success: true,
@@ -49,7 +120,7 @@ export const getAllProducts = async (req, res, next) => {
         const skip = (page - 1) * limit;
 
         // Build filter
-        const filter = { isActive: true, isApproved: true };
+        const filter = { isActive: true, isApproved: true, isDeleted: { $ne: true } };
 
         if (req.query.category) filter.category = req.query.category;
         if (req.query.merchant) filter.merchant = req.query.merchant;
@@ -150,9 +221,40 @@ export const updateProduct = async (req, res, next) => {
             });
         }
 
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, {
+        const updateData = { ...req.body };
+
+        if (req.file) {
+            const imageUrl = await saveUploadedFile(req.file, req);
+            updateData.images = [
+                {
+                    url: imageUrl,
+                    alt: req.body.name?.trim() || 'Product image',
+                    isDefault: true,
+                },
+            ];
+        } else {
+            const parsedImages = parseImagesFromBody(req.body.images);
+            if (parsedImages) {
+                updateData.images = parsedImages;
+            } else if (req.body.image) {
+                updateData.images = [
+                    {
+                        url: req.body.image,
+                        alt: req.body.name?.trim() || 'Product image',
+                        isDefault: true,
+                    },
+                ];
+            }
+        }
+
+        if (updateData.images?.length) {
+            updateData.image = updateData.images[0].url;
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, updateData, {
             new: true,
             runValidators: true,
+            context: 'query',
         });
 
         res.status(200).json({
@@ -191,12 +293,15 @@ export const deleteProduct = async (req, res, next) => {
             }
         }
 
-        await Product.findByIdAndDelete(req.params.id);
+        // Soft-delete product instead of hard delete to preserve references
+        await Product.findByIdAndUpdate(req.params.id, { isDeleted: true, isActive: false });
 
         // Decrement merchant product count
-        await Merchant.findByIdAndUpdate(product.merchant, {
-            $inc: { totalProducts: -1 },
-        });
+        if (product.merchant) {
+            await Merchant.findByIdAndUpdate(product.merchant, {
+                $inc: { totalProducts: -1 },
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -230,6 +335,7 @@ export const searchProducts = async (req, res, next) => {
             $text: { $search: q },
             isActive: true,
             isApproved: true,
+            isDeleted: { $ne: true },
         };
         if (category) filter.category = category;
 

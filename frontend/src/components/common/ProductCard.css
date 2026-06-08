@@ -142,6 +142,18 @@
     border-color: #0D7C3D;
 }
 
+.wishlist-btn.wishlisted {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #dc2626;
+}
+
+.wishlist-btn.wishlisted:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(220, 38, 38, 0.65);
+    transform: scale(1.18);
+}
+
 .product-content {
     padding: 24px;
     display: flex;
