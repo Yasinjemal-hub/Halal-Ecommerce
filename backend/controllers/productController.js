@@ -1,31 +1,5 @@
-import path from 'path';
-import fs from 'fs/promises';
 import Product from '../models/Product.js';
 import Merchant from '../models/Merchant.js';
-
-/**
- * @desc    Create a new product
- * @route   POST /api/products
- * @access  Merchant
- */
-const ensureUploadDir = async () => {
-    const uploadDir = process.env.UPLOAD_DIR || './uploads';
-    const resolvedDir = path.resolve(uploadDir);
-    await fs.mkdir(resolvedDir, { recursive: true });
-    return resolvedDir;
-};
-
-const saveUploadedFile = async (file, req) => {
-    const uploadDir = await ensureUploadDir();
-    const safeName = file.originalname
-        .replace(/[^a-zA-Z0-9.-]/g, '_')
-        .replace(/_+/g, '_');
-    const filename = `${Date.now()}-${safeName}`;
-    const filePath = path.join(uploadDir, filename);
-    await fs.writeFile(filePath, file.buffer);
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    return `${baseUrl}/uploads/${filename}`;
-};
 
 const parseImagesFromBody = (imagesField) => {
     if (!imagesField) return undefined;
@@ -40,9 +14,15 @@ const parseImagesFromBody = (imagesField) => {
     return undefined;
 };
 
+const getCloudinaryUrl = (file) => {
+    if (!file) return null;
+    if (file.path) return file.path;
+    if (file.secure_url) return file.secure_url;
+    return null;
+};
+
 export const createProduct = async (req, res, next) => {
     try {
-        // Optional: Find merchant profile for the logged-in user
         const merchant = await Merchant.findOne({ user: req.user._id });
 
         if (!merchant) {
@@ -65,14 +45,16 @@ export const createProduct = async (req, res, next) => {
         };
 
         if (req.file) {
-            const imageUrl = await saveUploadedFile(req.file, req);
-            productData.images = [
-                {
-                    url: imageUrl,
-                    alt: req.body.name?.trim() || 'Product image',
-                    isDefault: true,
-                },
-            ];
+            const imageUrl = getCloudinaryUrl(req.file);
+            if (imageUrl) {
+                productData.images = [
+                    {
+                        url: imageUrl,
+                        alt: req.body.name?.trim() || 'Product image',
+                        isDefault: true,
+                    },
+                ];
+            }
         } else {
             const parsedImages = parseImagesFromBody(req.body.images);
             if (parsedImages) {
@@ -94,7 +76,6 @@ export const createProduct = async (req, res, next) => {
 
         const product = await Product.create(productData);
 
-        // Increment merchant product count if merchant exists
         await Merchant.findByIdAndUpdate(merchant._id, {
             $inc: { totalProducts: 1 },
         });
@@ -212,7 +193,6 @@ export const updateProduct = async (req, res, next) => {
             });
         }
 
-        // Verify ownership
         const merchant = await Merchant.findOne({ user: req.user._id });
         if (!merchant || product.merchant.toString() !== merchant._id.toString()) {
             return res.status(403).json({
@@ -224,14 +204,16 @@ export const updateProduct = async (req, res, next) => {
         const updateData = { ...req.body };
 
         if (req.file) {
-            const imageUrl = await saveUploadedFile(req.file, req);
-            updateData.images = [
-                {
-                    url: imageUrl,
-                    alt: req.body.name?.trim() || 'Product image',
-                    isDefault: true,
-                },
-            ];
+            const imageUrl = getCloudinaryUrl(req.file);
+            if (imageUrl) {
+                updateData.images = [
+                    {
+                        url: imageUrl,
+                        alt: req.body.name?.trim() || 'Product image',
+                        isDefault: true,
+                    },
+                ];
+            }
         } else {
             const parsedImages = parseImagesFromBody(req.body.images);
             if (parsedImages) {

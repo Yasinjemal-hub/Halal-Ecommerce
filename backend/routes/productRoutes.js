@@ -31,7 +31,7 @@ router.post(
     '/',
     protect,
     authorize('merchant', 'admin'),
-    uploadSingle('image'),
+    uploadSingle('image', 'halal-ecommerce/products'),
     [
         body('name').trim().notEmpty().withMessage('Product name is required'),
         body('description').trim().notEmpty().withMessage('Description is required'),
@@ -51,7 +51,7 @@ router.put(
     '/:id',
     protect,
     authorize('merchant', 'admin'),
-    uploadSingle('image'),
+    uploadSingle('image', 'halal-ecommerce/products'),
     updateProduct
 );
 
