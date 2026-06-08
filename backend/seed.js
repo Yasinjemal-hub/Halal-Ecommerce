@@ -141,8 +141,9 @@ const seedData = async () => {
                 verifiedAt: new Date(),
                 ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)), // 4.0 to 5.0
                 ratingsCount: Math.floor(Math.random() * 500) + 10,
-                totalProducts: Math.floor(Math.random() * 20) + 5,
-                totalOrders: Math.floor(Math.random() * 5000) + 100,
+                totalProducts: 0,
+                totalOrders: 0,
+                totalRevenue: 0,
                 isFeatured: i <= 8,
                 isActive: true,
                 logo: { url: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200` },
@@ -169,11 +170,14 @@ const seedData = async () => {
                     halalCertified: true,
                     isFeatured: Math.random() > 0.7,
                     isApproved: true,
+                    image: selectedProduct.image,
                     images: [{ url: selectedProduct.image, isDefault: true }],
                     ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)),
                     ratingsCount: Math.floor(Math.random() * 300) + 5
                 });
             }
+            // Keep merchant.totalProducts accurate (reflect actual products created)
+            await Merchant.findByIdAndUpdate(merchant._id, { totalProducts: numProducts });
         }
 
         // Add a few recognizable featured products to the first merchant
@@ -192,6 +196,7 @@ const seedData = async () => {
                 categoryProducts.poultry[0]    // Doro Chicken
             ];
 
+            let featuredCount = 0;
             for (const item of featuredItems) {
                 if (!item) continue;
                 await Product.create({
@@ -205,10 +210,15 @@ const seedData = async () => {
                     halalCertified: true,
                     isFeatured: true,
                     isApproved: true,
+                    image: item.image,
                     images: [{ url: item.image, isDefault: true }],
                     ratingsAverage: parseFloat((Math.random() * (5 - 4.2) + 4.2).toFixed(1)),
                     ratingsCount: Math.floor(Math.random() * 250) + 20,
                 });
+                featuredCount++;
+            }
+            if (featuredCount > 0) {
+                await Merchant.findByIdAndUpdate(featuredMerchant._id, { $inc: { totalProducts: featuredCount } });
             }
         }
 

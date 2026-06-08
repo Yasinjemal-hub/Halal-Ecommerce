@@ -1,76 +1,161 @@
-import 'dotenv/config';
-import mongoose from 'mongoose';
-import express from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import connectDB from './config/db.js';
-import requestLogger from './utils/logger.js';
-import errorHandler from './middleware/errorHandler.js';
+import "dotenv/config";
+import mongoose from "mongoose";
+import express from "express";
+import path from "path";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import connectDB from "./config/db.js";
+import requestLogger from "./utils/logger.js";
+import errorHandler from "./middleware/errorHandler.js";
+
+// ── Environment Validation ──────────────────────────────
+// Require core env vars; MongoDB may be provided via MONGO_ATLAS_URI or MONGO_URI.
+const requiredEnvVars = [
+  "JWT_SECRET",
+  "JWT_REFRESH_SECRET",
+  "NODE_ENV",
+  "CLIENT_URL",
+];
+
+const missingEnvVars = requiredEnvVars.filter((env) => !process.env[env]);
+
+// Accept either MONGO_ATLAS_URI (preferred) or MONGO_URI
+if (!process.env.MONGO_ATLAS_URI && !process.env.MONGO_URI) {
+  missingEnvVars.unshift("MONGO_ATLAS_URI or MONGO_URI");
+}
+
+if (missingEnvVars.length > 0) {
+  console.error("❌ CRITICAL: Missing required environment variables:");
+  missingEnvVars.forEach((env) => console.error(`   - ${env}`));
+  console.error("\nPlease add these to your .env file");
+  process.exit(1);
+}
+
+// Validate JWT_SECRET strength
+if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+  console.error("❌ CRITICAL: JWT_SECRET must be at least 32 characters");
+  process.exit(1);
+}
+
+if (
+  process.env.JWT_REFRESH_SECRET &&
+  process.env.JWT_REFRESH_SECRET.length < 32
+) {
+  console.error(
+    "❌ CRITICAL: JWT_REFRESH_SECRET must be at least 32 characters",
+  );
+  process.exit(1);
+}
 
 // ── Route Imports ───────────────────────────────────────
-import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import adminRoutes from './routes/adminRoutes.js';
-import productRoutes from './routes/productRoutes.js';
-import merchantRoutes from './routes/merchantRoutes.js';
-import orderRoutes from './routes/orderRoutes.js';
-import cartRoutes from './routes/cartRoutes.js';
-import mejilisRoutes from './routes/mejilisRoutes.js';
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import merchantRoutes from "./routes/merchantRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+import mejilisRoutes from "./routes/mejilisRoutes.js";
 
 // ── Initialize Express ─────────────────────────────────
 const app = express();
 
 // ── Connect to Database ─────────────────────────────────
-connectDB();
+connectDB().catch((err) => {
+  console.error("❌ CRITICAL: Database connection failed:", err.message);
+  console.error("   Ensure MongoDB is running and MONGO_URI is correct");
+  process.exit(1);
+});
 
 // ── Global Middleware ───────────────────────────────────
-app.use(cors({
+app.use(
+  cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
-        // In development, allow any localhost origin
-        if (process.env.NODE_ENV !== 'production' && origin.match(/^http:\/\/localhost:\d+$/)) {
-            return callback(null, true);
-        }
-        // In production, check against CLIENT_URL
-        const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:3000', 'http://localhost:3001'];
-        if (allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-        callback(new Error('Not allowed by CORS'));
+      // Allow requests with no origin (mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      // In development, allow any localhost origin for convenience
+      if (
+        process.env.NODE_ENV !== "production" &&
+        origin &&
+        origin.match(/^http:\/\/localhost:\d+$/)
+      ) {
+        return callback(null, true);
+      }
+
+      // Build allowed origins from environment configuration
+      const extra = (process.env.ALLOWED_ORIGINS || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const allowedOrigins = [process.env.CLIENT_URL, ...extra].filter(Boolean);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Log for debugging CORS issues in development
+      console.warn(
+        `CORS: origin not allowed: ${origin} (allowed: ${allowedOrigins.join(", ")})`,
+      );
+
+      // Do not throw an error here — return false so the CORS middleware
+      // will not set CORS headers. The browser will block the request.
+      // Throwing an Error here results in a 500 from Express which is
+      // less helpful when diagnosing mismatched origins.
+      return callback(null, false);
     },
     credentials: true,
-}));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+  }),
+);
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 app.use(requestLogger);
 
 // ── Health Check ────────────────────────────────────────
-app.get('/api/health', (req, res) => {
+app.get("/api/health", async (req, res) => {
+  try {
+    // Check database connectivity
+    await mongoose.connection.db.admin().ping();
+
+    // Check memory usage
+    const memUsage = process.memoryUsage();
+    const memPercent = (memUsage.heapUsed / memUsage.heapTotal) * 100;
+
     res.status(200).json({
-        success: true,
-        message: 'Halal E-Commerce API is running',
-        timestamp: new Date().toISOString(),
+      success: true,
+      message: "Halal E-Commerce API is running",
+      timestamp: new Date().toISOString(),
+      database: "connected",
+      memoryUsage: memPercent.toFixed(2) + "%",
+      uptime: process.uptime(),
     });
+  } catch (err) {
+    res.status(503).json({
+      success: false,
+      message: "Database connection failed",
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // ── Mount Routes ────────────────────────────────────────
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/merchants', merchantRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/mejilis', mejilisRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/merchants", merchantRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/mejilis", mejilisRoutes);
 
 // ── 404 Handler ─────────────────────────────────────────
 app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: `Route not found: ${req.method} ${req.originalUrl}`,
-    });
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
 });
 
 // ── Global Error Handler ────────────────────────────────
@@ -79,12 +164,44 @@ app.use(errorHandler);
 // ── Start Server ────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
+let server;
 
-app.listen(PORT, () => {
-    console.log(`\n🚀 Server running on port ${PORT}`);
-    console.log(`📍 API Base: http://localhost:${PORT}/api`);
-    console.log(`🏥 Health:    http://localhost:${PORT}/api/health\n`);
+// Graceful shutdown handler
+const gracefulShutdown = async () => {
+  console.log("\n⏹️  Shutdown signal received, closing gracefully...");
+
+  if (server) {
+    server.close(async () => {
+      console.log("✅ HTTP server closed");
+
+      try {
+        await mongoose.connection.close();
+        console.log("✅ Database connection closed");
+      } catch (err) {
+        console.error("❌ Error closing database:", err.message);
+      }
+
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+
+  // Force exit if graceful shutdown takes too long
+  setTimeout(() => {
+    console.error("❌ Forced shutdown due to timeout");
+    process.exit(1);
+  }, 30000);
+};
+
+process.on("SIGTERM", gracefulShutdown);
+process.on("SIGINT", gracefulShutdown);
+
+server = app.listen(PORT, () => {
+  console.log(`\n🚀 Server running on port ${PORT}`);
+  const host = process.env.CLIENT_URL || `http://localhost:${PORT}`;
+  console.log(`📍 API Base: ${host.replace(/\/$/, "")}/api`);
+  console.log(`🏥 Health:    ${host.replace(/\/$/, "")}/api/health`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV}\n`);
 });
-
-console.log("ENV URI:", process.env.MONGO_URI);
 export default app;
