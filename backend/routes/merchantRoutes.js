@@ -16,14 +16,19 @@ import {
 
 const router = Router();
 
-// ── Public Routes ───────────────────────────────────────
-router.get('/featured', getFeaturedMerchants);
+// ── IMPORTANT: Specific routes MUST come before wildcard routes ──────
+// This prevents /me/profile from being matched by /:id wildcard
+
+// ── Public Routes (Specific paths first!) ────────────────
+router.get('/featured', getFeaturedMerchants);  // Before /:id
+
+// ── Protected Routes (Specific paths) ─────────────────────
+router.get('/me/profile', protect, authorize('merchant'), getMyMerchantProfile);  // Before /:id
+
+// ── Public Routes (General) ─────────────────────────────
 router.get('/', getAllMerchants);
 
-// ── Protected Routes (must be before /:id wildcard) ─────
-router.get('/me/profile', protect, authorize('merchant'), getMyMerchantProfile);
-
-// ── Public Routes (wildcard) ────────────────────────────
+// ── Public Routes (Wildcard - must be last) ──────────────
 router.get('/:id/products', getMerchantProducts);
 router.get('/:id', getMerchant);
 

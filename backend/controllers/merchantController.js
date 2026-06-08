@@ -133,10 +133,36 @@ export const getMerchantProducts = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        const filter = { merchant: req.params.id, isActive: true };
+        const filter = {
+            merchant: req.params.id,
+            isActive: true,
+            isDeleted: { $ne: true },
+        };
+
+        if (req.query.category) filter.category = req.query.category;
+        if (req.query.halalCertified) filter.halalCertified = req.query.halalCertified === 'true';
+        if (req.query.minPrice || req.query.maxPrice) {
+            filter.price = {};
+            if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
+            if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice);
+        }
+        if (req.query.search) {
+            filter.$or = [
+                { name: { $regex: req.query.search, $options: 'i' } },
+                { nameAmharic: { $regex: req.query.search, $options: 'i' } },
+                { description: { $regex: req.query.search, $options: 'i' } },
+                { category: { $regex: req.query.search, $options: 'i' } },
+            ];
+        }
+
+        let sort = { createdAt: -1 };
+        if (req.query.sort === 'price_asc') sort = { price: 1 };
+        if (req.query.sort === 'price_desc') sort = { price: -1 };
+        if (req.query.sort === 'rating') sort = { ratingsAverage: -1 };
+        if (req.query.sort === 'newest') sort = { createdAt: -1 };
 
         const [products, total] = await Promise.all([
-            Product.find(filter).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            Product.find(filter).skip(skip).limit(limit).sort(sort),
             Product.countDocuments(filter),
         ]);
 

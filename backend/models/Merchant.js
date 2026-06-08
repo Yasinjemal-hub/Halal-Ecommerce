@@ -106,8 +106,20 @@ const merchantSchema = new mongoose.Schema(
                 ],
             },
             coordinates: {
-                latitude: { type: Number },
-                longitude: { type: Number },
+                latitude: {
+                    type: Number,
+                    validate: [
+                        (val) => val == null || (val >= -90 && val <= 90),
+                        'Latitude must be between -90 and 90',
+                    ],
+                },
+                longitude: {
+                    type: Number,
+                    validate: [
+                        (val) => val == null || (val >= -180 && val <= 180),
+                        'Longitude must be between -180 and 180',
+                    ],
+                },
             },
         },
 
@@ -115,7 +127,10 @@ const merchantSchema = new mongoose.Schema(
         businessPhone: {
             type: String,
             required: [true, 'Business phone is required'],
-            match: [/^(\+251|0)(9|7)\d{8}$/, 'Please provide a valid Ethiopian phone number'],
+            match: [
+                /^(?:\+251|0)([79]\d{8})$/,
+                'Please provide a valid Ethiopian phone number (format: +251912345678 or 0912345678)',
+            ],
         },
         businessEmail: {
             type: String,
