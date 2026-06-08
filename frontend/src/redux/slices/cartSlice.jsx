@@ -83,21 +83,33 @@ export const clearServerCart = createAsyncThunk(
 );
 
 // ── Helper: normalize server cart items into our format ──
+// FIX: Handle null/deleted products gracefully
 const normalizeServerCart = (serverCart) => {
     if (!serverCart || !serverCart.items) return [];
-    return serverCart.items.map((item) => ({
-        _id: item.product?._id || item.product,
-        _cartItemId: item._id, // Track the subdocument id for updates/removes
-        name: item.product?.name || 'Product',
-        images: item.product?.images || [],
-        price: item.product?.price || item.price,
-        discountPrice: item.product?.discountPrice || null,
-        stock: item.product?.stock,
-        isActive: item.product?.isActive ?? true,
-        merchant: item.product?.merchant,
-        quantity: item.quantity,
-        halalCertified: item.product?.halalCertified,
-    }));
+    
+    return serverCart.items
+        .map((item) => {
+            // Skip items where product is null/deleted
+            if (!item.product) {
+                console.warn('Skipping cart item with deleted product:', item._id);
+                return null;
+            }
+
+            return {
+                _id: item.product._id,
+                _cartItemId: item._id, // Track the subdocument id for updates/removes
+                name: item.product.name || 'Product',
+                images: item.product.images || [],
+                price: item.product.price || 0,
+                discountPrice: item.product.discountPrice || null,
+                stock: item.product.stock || 0,
+                isActive: item.product.isActive ?? true,
+                merchant: item.product.merchant,
+                quantity: item.quantity || 1,
+                halalCertified: item.product.halalCertified ?? false,
+            };
+        })
+        .filter(item => item !== null); // Remove null entries
 };
 
 const initialState = {

@@ -51,16 +51,24 @@ const Checkout = () => {
             return;
         }
         setIsSubmitting(true);
-        try {
-            // Step 1: Sync local cart items to server cart
-            // Clear server cart first to avoid duplicates
             try {
-                await cartService.clearCart();
-            } catch (e) {
-                // Ignore if cart doesn't exist yet
+                // Step 1: Sync local cart items to server cart
+                // Clear server cart first to avoid duplicates
+                try {
+                    await cartService.clearCart();
+                } catch (e) {
+                    // Ignore if cart doesn't exist yet
+                }
+
+            // Validate that cart is not empty
+            // Backend will validate product IDs and availability
+            if (items.length === 0) {
+                toast.error('Your cart is empty. Please add items before placing an order.');
+                setIsSubmitting(false);
+                return;
             }
 
-            // Add each local item to the server cart
+            // Add items to the server cart
             for (const item of items) {
                 await cartService.addToCart(item._id, item.quantity);
             }

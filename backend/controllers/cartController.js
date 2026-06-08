@@ -5,6 +5,7 @@ import Product from '../models/Product.js';
  * @desc    Get current user's cart
  * @route   GET /api/cart
  * @access  Private
+ * @fix     Ensures newly created cart is populated with product data
  */
 export const getCart = async (req, res, next) => {
     try {
@@ -16,6 +17,15 @@ export const getCart = async (req, res, next) => {
         if (!cart) {
             // Create empty cart if none exists
             cart = await Cart.create({ user: req.user._id, items: [] });
+            // Newly created cart may be empty; populate to keep consistent response shape
+            cart = await cart.populate('items.product', 'name images price discountPrice stock isActive merchant');
+        }
+
+        // Ensure cart does not contain items referencing soft-deleted products
+        const originalLength = cart.items.length;
+        cart.items = cart.items.filter((item) => item.product !== null && item.product.isDeleted !== true);
+        if (cart.items.length < originalLength) {
+            await cart.save();
         }
 
         res.status(200).json({
@@ -97,6 +107,7 @@ export const addToCart = async (req, res, next) => {
  * @desc    Update cart item quantity
  * @route   PUT /api/cart/:itemId
  * @access  Private
+ * @fix     Handle null product references gracefully
  */
 export const updateCartItem = async (req, res, next) => {
     try {
@@ -125,9 +136,16 @@ export const updateCartItem = async (req, res, next) => {
             });
         }
 
-        // Check stock
+        // Check stock (handle null product gracefully)
         const product = await Product.findById(item.product);
-        if (product && product.stock < quantity) {
+        if (!product || !product.isActive) {
+            return res.status(400).json({
+                success: false,
+                message: 'Product is no longer available',
+            });
+        }
+
+        if (product.stock < quantity) {
             return res.status(400).json({
                 success: false,
                 message: `Only ${product.stock} items available in stock`,
@@ -135,9 +153,7 @@ export const updateCartItem = async (req, res, next) => {
         }
 
         item.quantity = quantity;
-        if (product) {
-            item.price = product.discountPrice || product.price;
-        }
+        item.price = product.discountPrice || product.price;
 
         await cart.save();
         await cart.populate('items.product', 'name images price discountPrice stock isActive');

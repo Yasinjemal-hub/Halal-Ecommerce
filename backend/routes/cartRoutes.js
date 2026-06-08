@@ -15,6 +15,20 @@ const router = Router();
 // All cart routes require authentication
 router.use(protect);
 
+// Development-only request logger to aid debugging of frontend payloads
+if (process.env.NODE_ENV !== 'production') {
+    router.use((req, res, next) => {
+        if (req.path.startsWith('/') && ['POST', 'PUT', 'DELETE'].includes(req.method)) {
+            try {
+                console.debug('[cartRoutes] Incoming', req.method, req.originalUrl, 'body=', JSON.stringify(req.body));
+            } catch (e) {
+                console.debug('[cartRoutes] Incoming', req.method, req.originalUrl, 'body=', req.body);
+            }
+        }
+        next();
+    });
+}
+
 // ── Get Cart ────────────────────────────────────────────
 router.get('/', getCart);
 
@@ -29,8 +43,8 @@ router.post(
             .withMessage('Invalid product ID'),
         body('quantity')
             .optional()
-            .isInt({ min: 1 })
-            .withMessage('Quantity must be at least 1'),
+            .isInt({ min: 1, max: 999 })
+            .withMessage('Quantity must be between 1 and 999'),
     ],
     validate,
     addToCart
@@ -41,8 +55,8 @@ router.put(
     '/:itemId',
     [
         body('quantity')
-            .isInt({ min: 1 })
-            .withMessage('Quantity must be at least 1'),
+            .isInt({ min: 1, max: 999 })
+            .withMessage('Quantity must be between 1 and 999'),
     ],
     validate,
     updateCartItem
