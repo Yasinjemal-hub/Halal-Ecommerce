@@ -120,14 +120,7 @@ const Home = () => {
         return () => clearInterval(interval);
     }, [testimonials.length]);
 
-    const demoProducts = [
-        { _id: 'demo1', name: 'Premium Halal Beef', nameAmharic: 'ፕሪሚየም ሐላል ስጋ', price: 850, discountPrice: 720, category: 'meat', ratingsAverage: 4.8, ratingsCount: 124, halalCertified: true, isFeatured: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/0D7C3D/ffffff?text=Halal+Beef' }], merchant: { businessName: 'Addis Halal Meats', verificationStatus: 'approved' } },
-        { _id: 'demo2', name: 'Ethiopian Berbere Spice', nameAmharic: 'በርበሬ ቅመም', price: 180, category: 'spices', ratingsAverage: 4.9, ratingsCount: 256, halalCertified: true, isFeatured: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/D4A017/ffffff?text=Berbere+Spice' }], merchant: { businessName: 'Harar Spice Market', verificationStatus: 'approved' } },
-        { _id: 'demo3', name: 'Natural Teff Flour', nameAmharic: 'ተፈጥሮአዊ ጤፍ ዱቄት', price: 320, category: 'grains', ratingsAverage: 4.7, ratingsCount: 89, halalCertified: true, isFeatured: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/065f2d/ffffff?text=Teff+Flour' }], merchant: { businessName: 'Oromia Grains Co.', verificationStatus: 'approved' } },
-        { _id: 'demo4', name: 'Pure Raw Honey', nameAmharic: 'ንጹህ ማር', price: 450, discountPrice: 380, category: 'honey', ratingsAverage: 4.9, ratingsCount: 312, halalCertified: true, isFeatured: true, isInStock: true, images: [{ url: 'https://placehold.co/400x400/ca8a04/ffffff?text=Ethiopian+Honey' }], merchant: { businessName: 'Tigray Honey Farm', verificationStatus: 'approved' } },
-    ];
-
-    const products = featuredItems.length > 0 ? featuredItems : demoProducts;
+    const products = featuredItems; // always prefer server-provided featured items; empty => empty state
     const ethiopianEssentials = products.filter((p) => {
         const name = (p.name || '').toLowerCase();
         return ['berbere', 'mitmita', 'shiro', 'niter kibbeh', 'teff', 'buna', 'coffee'].some((k) => name.includes(k));
