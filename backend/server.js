@@ -4,6 +4,8 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
 import requestLogger from "./utils/logger.js";
 import errorHandler from "./middleware/errorHandler.js";
@@ -61,6 +63,24 @@ import mejilisRoutes from "./routes/mejilisRoutes.js";
 // ── Initialize Express ─────────────────────────────────
 const app = express();
 
+// ── Security Headers (Helmet) ──────────────────────────
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false,
+  })
+);
+
+// ── Rate Limiting ──────────────────────────────────────
+const generalLimiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  message: { success: false, message: "Too many requests, please try again later" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api/", generalLimiter);
+
 // ── Connect to Database ─────────────────────────────────
 connectDB().catch((err) => {
   console.error("❌ CRITICAL: Database connection failed:", err.message);
@@ -72,9 +92,7 @@ connectDB().catch((err) => {
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
-      // In development, allow any localhost origin for convenience
       if (
         process.env.NODE_ENV !== "production" &&
         origin &&
@@ -83,7 +101,6 @@ app.use(
         return callback(null, true);
       }
 
-      // Build allowed origins from environment configuration
       const extra = (process.env.ALLOWED_ORIGINS || "")
         .split(",")
         .map((s) => s.trim())
@@ -93,15 +110,10 @@ app.use(
         return callback(null, true);
       }
 
-      // Log for debugging CORS issues in development
       console.warn(
         `CORS: origin not allowed: ${origin} (allowed: ${allowedOrigins.join(", ")})`,
       );
 
-      // Do not throw an error here — return false so the CORS middleware
-      // will not set CORS headers. The browser will block the request.
-      // Throwing an Error here results in a 500 from Express which is
-      // less helpful when diagnosing mismatched origins.
       return callback(null, false);
     },
     credentials: true,
