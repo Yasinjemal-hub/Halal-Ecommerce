@@ -63,19 +63,24 @@ import mejilisRoutes from "./routes/mejilisRoutes.js";
 // ── Initialize Express ─────────────────────────────────
 const app = express();
 
+app.set("trust proxy", 1);
+
 // ── Security Headers (Helmet) ──────────────────────────
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: false,
-  })
+  }),
 );
 
 // ── Rate Limiting ──────────────────────────────────────
 const generalLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: { success: false, message: "Too many requests, please try again later" },
+  message: {
+    success: false,
+    message: "Too many requests, please try again later",
+  },
   standardHeaders: true,
   legacyHeaders: false,
 });
