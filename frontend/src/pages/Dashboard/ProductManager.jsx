@@ -3,6 +3,7 @@ import { FiImage, FiPlus, FiUploadCloud } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import productService from '../../services/productService';
 import merchantService from '../../services/merchantService';
+import { getPlaceholderImage, getProductFallbackImage } from '../../lib/utils';
 import './Dashboard.css';
 
 const PRODUCT_CATEGORIES = [
@@ -12,6 +13,29 @@ const PRODUCT_CATEGORIES = [
 ];
 const MAX_IMAGE_SIZE_MB = 5;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+// Category-specific placeholder colors for better visual distinction
+const CATEGORY_PLACEHOLDERS = {
+    meat: { bg: 'C0392B', text: 'Fresh Meat' },
+    poultry: { bg: 'D4AC0D', text: 'Poultry' },
+    seafood: { bg: '2980B9', text: 'Seafood' },
+    dairy: { bg: 'ECF0F1', text: 'Dairy', textColor: '2C3E50' },
+    bakery: { bg: 'D35400', text: 'Bakery' },
+    grains: { bg: 'F5CBA7', text: 'Grains', textColor: '2C3E50' },
+    spices: { bg: 'CB4335', text: 'Spices' },
+    beverages: { bg: '27AE60', text: 'Beverages' },
+    snacks: { bg: 'A04000', text: 'Snacks' },
+    frozen: { bg: '3498DB', text: 'Frozen' },
+    canned: { bg: 'F39C12', text: 'Canned' },
+    oils: { bg: 'F1C40F', text: 'Oils', textColor: '2C3E50' },
+    honey: { bg: 'B9770E', text: 'Honey' },
+    clothing: { bg: '8E44AD', text: 'Clothing' },
+    cosmetics: { bg: 'E91E63', text: 'Cosmetics' },
+    perfume: { bg: 'D4AF37', text: 'Perfume' },
+    books: { bg: '5D6D7E', text: 'Books' },
+    home_decor: { bg: '8B4513', text: 'Home Decor' },
+    other: { bg: '0D7C3D', text: 'Product' },
+};
 
 const ProductManager = () => {
     const [merchantId, setMerchantId] = useState('');
@@ -133,19 +157,7 @@ const ProductManager = () => {
                 formData.append('image', productImageFile);
                 payload = formData;
             } else {
-                const catImages = {
-                    meat: 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?w=800&q=80',
-                    poultry: 'https://images.unsplash.com/photo-1626200926732-4752ff9fbaf5?w=800&q=80',
-                    spices: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=80',
-                    grains: 'https://images.unsplash.com/photo-1586201375761-83865001e8ac?w=800&q=80',
-                    honey: 'https://images.unsplash.com/photo-1587049352847-8d4c0b490f89?w=800&q=80',
-                    clothing: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80',
-                    bakery: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
-                    perfume: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&q=80',
-                    snacks: 'https://images.unsplash.com/photo-1588600878108-578307a3cc9d?w=800&q=80',
-                    other: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80'
-                };
-                const imageData = catImages[form.category] || catImages.other;
+                const imageData = getProductFallbackImage(form.name);
                 payload = {
                     ...formValues,
                     images: [{ url: imageData, alt: form.name.trim(), isDefault: true }],
@@ -391,7 +403,7 @@ const ProductManager = () => {
                     <div className="dashboard-products-grid">
                         {products.map((product) => (
                             <div className="dashboard-product-card" key={product._id}>
-                                <img src={product.images?.[0]?.url || 'https://placehold.co/400x240/0D7C3D/ffffff?text=No+Image'} alt={product.name} />
+                                <img src={product.images?.[0]?.url || getProductFallbackImage(product.name, 400, 240)} alt={product.name} />
                                 <h4>{product.name}</h4>
                                 <p>{product.category?.replace('_', ' ')}</p>
                                 <div style={{ marginBottom: '8px' }}>

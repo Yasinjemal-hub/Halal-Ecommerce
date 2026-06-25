@@ -1,5 +1,6 @@
 import Product from '../models/Product.js';
 import Merchant from '../models/Merchant.js';
+import { getFileUrl } from '../middleware/upload.js';
 
 const parseImagesFromBody = (imagesField) => {
     if (!imagesField) return undefined;
@@ -12,13 +13,6 @@ const parseImagesFromBody = (imagesField) => {
         }
     }
     return undefined;
-};
-
-const getCloudinaryUrl = (file) => {
-    if (!file) return null;
-    if (file.path) return file.path;
-    if (file.secure_url) return file.secure_url;
-    return null;
 };
 
 export const createProduct = async (req, res, next) => {
@@ -45,7 +39,7 @@ export const createProduct = async (req, res, next) => {
         };
 
         if (req.file) {
-            const imageUrl = getCloudinaryUrl(req.file);
+            const imageUrl = getFileUrl(req, req.file);
             if (imageUrl) {
                 productData.images = [
                     {
@@ -204,7 +198,7 @@ export const updateProduct = async (req, res, next) => {
         const updateData = { ...req.body };
 
         if (req.file) {
-            const imageUrl = getCloudinaryUrl(req.file);
+            const imageUrl = getFileUrl(req, req.file);
             if (imageUrl) {
                 updateData.images = [
                     {

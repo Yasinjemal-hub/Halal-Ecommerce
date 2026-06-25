@@ -5,6 +5,22 @@ import User from './models/User.js';
 import Merchant from './models/Merchant.js';
 import Product from './models/Product.js';
 
+// Support custom image base URL for different environments
+// Defaults to placehold.co which works in all environments (public CDN)
+const IMAGE_BASE_URL = process.env.IMAGE_BASE_URL || 'https://placehold.co/800x800';
+
+const buildImageUrl = (text, bgColor = '0D7C3D', textColor = 'FFFFFF', width = 800, height = 800) => {
+    // Handle different base URL formats:
+    // - placehold.co: https://placehold.co/800x800/bg/text?text=...
+    // - Custom service: https://your-service.com/images/{width}x{height}/{bg}/{text}?text=...
+    // - Simple CDN: https://cdn.example.com/{width}x{height}/{bg}/{text}?text=...
+    if (IMAGE_BASE_URL.includes('placehold.co')) {
+        return `${IMAGE_BASE_URL}/${width}x${height}/${bgColor}/${textColor}/png?text=${encodeURIComponent(text)}`;
+    }
+    // Generic format for other services
+    return `${IMAGE_BASE_URL.replace(/\/$/, '')}/${width}x${height}/${bgColor}/${textColor}?text=${encodeURIComponent(text)}`;
+};
+
 const seedData = async () => {
     try {
         console.log('🌱 Connecting to DB...');

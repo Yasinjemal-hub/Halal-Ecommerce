@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { FiSave, FiX, FiImage } from 'react-icons/fi';
+import { getProductFallbackImage } from '../../lib/utils';
 
 const ProductForm = ({ product, onSubmit, onCancel, isEditing = false }) => {
     const [formData, setFormData] = useState({
@@ -126,16 +127,16 @@ const ProductForm = ({ product, onSubmit, onCancel, isEditing = false }) => {
                                 required
                                 className="border-primary/20 focus-visible:ring-primary h-11"
                             />
-                            {formData.imageUrl && (
-                                <div className="mt-3 relative w-full h-48 rounded-lg overflow-hidden border border-border">
-                                    <img 
-                                        src={formData.imageUrl} 
-                                        alt="Product preview" 
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => { e.target.src = 'https://placehold.co/600x400/eeeeee/666666?text=Invalid+Image'; }}
-                                    />
-                                </div>
-                            )}
+                        {formData.imageUrl && (
+                            <div className="mt-3 relative w-full h-48 rounded-lg overflow-hidden border border-border">
+                                <img 
+                                    src={formData.imageUrl} 
+                                    alt="Product preview" 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.src = getProductFallbackImage('Invalid Image', 600, 400); }}
+                                />
+                            </div>
+                        )}
                         </div>
                     </div>
                 </form>
