@@ -7,6 +7,7 @@
     left: 0;
     width: 260px;
     height: 100vh;
+    height: 100dvh;
     background: var(--bg-secondary);
     border-right: 1px solid var(--gray-200);
     display: flex;
@@ -18,12 +19,14 @@
 .sidebar-header {
     padding: var(--space-6);
     border-bottom: 1px solid var(--gray-200);
+    flex-shrink: 0;
 }
 
 .sidebar-user {
     display: flex;
     align-items: center;
     gap: var(--space-3);
+    min-width: 0;
 }
 
 .sidebar-avatar {
@@ -50,10 +53,17 @@
     font-size: 1rem;
 }
 
+.sidebar-user-info {
+    min-width: 0;
+}
+
 .sidebar-user-name {
     font-weight: 600;
     font-size: 0.9375rem;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sidebar-role-badge {
@@ -63,6 +73,7 @@
     border-radius: var(--radius-full);
     display: inline-block;
     margin-top: 2px;
+    white-space: nowrap;
 }
 
 .role-merchant {
@@ -130,11 +141,13 @@
     font-size: 1.125rem;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .sidebar-footer {
     padding: var(--space-4);
     border-top: 1px solid var(--gray-200);
+    flex-shrink: 0;
 }
 
 .sidebar-logout:hover {
@@ -146,9 +159,13 @@
     display: none;
 }
 
+/* Mobile: Convert sidebar to drawer */
 @media (max-width: 1024px) {
     .sidebar {
         transform: translateX(-100%);
+        box-shadow: var(--shadow-2xl);
+        width: 100%;
+        max-width: 320px;
     }
 
     .sidebar-open {
@@ -163,5 +180,24 @@
         backdrop-filter: blur(4px);
         z-index: calc(var(--z-fixed) - 1);
         animation: fadeIn 0.3s ease;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        max-width: 100%;
+    }
+    
+    .sidebar-header {
+        padding: var(--space-4);
+    }
+    
+    .sidebar-nav {
+        padding: var(--space-3);
+    }
+    
+    .sidebar-link {
+        padding: var(--space-2-5) var(--space-3);
+        font-size: 0.875rem;
     }
 }

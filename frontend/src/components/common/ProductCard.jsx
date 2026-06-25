@@ -5,6 +5,7 @@ import { FiShoppingCart, FiStar, FiHeart, FiEye, FiCheckCircle } from 'react-ico
 import { addToCart } from '../../redux/slices/cartSlice';
 import { addToWishlist, removeFromWishlist, selectWishlistItems } from '../../redux/slices/wishlistSlice';
 import toast from 'react-hot-toast';
+import { getProductFallbackImage } from '../../lib/utils';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
@@ -32,7 +33,7 @@ const ProductCard = ({ product }) => {
 
     const effectivePrice = discountPrice || price;
     const discountPercent = discountPrice ? Math.round(((price - discountPrice) / price) * 100) : 0;
-    const imageUrl = images?.[0]?.url || image || 'https://placehold.co/400x400/0D7C3D/ffffff?text=Halal+Product';
+    const imageUrl = images?.[0]?.url || image || getProductFallbackImage(name);
     const { user } = useSelector((state) => state.auth);
     const isMerchantUser = user?.role === 'merchant';
 

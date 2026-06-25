@@ -8,7 +8,7 @@
     align-items: center;
     justify-content: center;
     z-index: var(--z-modal);
-    padding: var(--space-6);
+    padding: var(--space-4);
 }
 
 .modal-content {
@@ -34,6 +34,32 @@
 
 .modal-full {
     max-width: 90vw;
+}
+
+@media (max-width: 640px) {
+    .modal-backdrop {
+        padding: var(--space-3);
+        align-items: flex-end;
+    }
+    
+    .modal-content {
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        max-height: 85vh;
+    }
+    
+    .modal-default,
+    .modal-lg,
+    .modal-xl {
+        max-width: 100%;
+    }
+    
+    .modal-header {
+        padding: var(--space-4) var(--space-5);
+    }
+    
+    .modal-body {
+        padding: var(--space-5);
+    }
 }
 
 .modal-header {

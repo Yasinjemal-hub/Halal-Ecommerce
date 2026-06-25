@@ -332,3 +332,125 @@
 .add-cart-btn-premium:active {
     transform: scale(0.95);
 }
+
+@media (max-width: 640px) {
+    .product-card-premium {
+        border-radius: 16px;
+    }
+    
+    .product-image-container {
+        aspect-ratio: 1 / 1;
+        padding: 8%;
+    }
+    
+    .product-badges {
+        top: 12px;
+        left: 12px;
+        gap: 6px;
+    }
+    
+    .badge-promo,
+    .badge-halal-premium {
+        padding: 5px 10px;
+        font-size: 0.6875rem;
+    }
+    
+    .product-quick-actions {
+        right: 12px;
+        top: 12px;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .product-content {
+        padding: 20px;
+    }
+    
+    .product-title-premium {
+        font-size: 1.1rem;
+    }
+    
+    .product-amharic {
+        font-size: 0.8rem;
+    }
+    
+    .product-footer-premium {
+        padding-top: 16px;
+    }
+    
+    .price-current-premium {
+        font-size: 1.4rem;
+    }
+    
+    .add-cart-btn-premium {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card-premium {
+        border-radius: 14px;
+    }
+    
+    .product-image-container {
+        padding: 6%;
+    }
+    
+    .product-badges {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .badge-promo,
+    .badge-halal-premium {
+        padding: 4px 8px;
+        font-size: 0.625rem;
+    }
+    
+    .product-quick-actions {
+        right: 10px;
+        top: 10px;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .product-content {
+        padding: 16px;
+    }
+    
+    .product-title-premium {
+        font-size: 1rem;
+    }
+    
+    .product-brand {
+        font-size: 0.6875rem;
+    }
+    
+    .product-rating-premium {
+        padding: 3px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .price-current-premium {
+        font-size: 1.25rem;
+    }
+    
+    .price-old-premium {
+        font-size: 0.75rem;
+    }
+    
+    .add-cart-btn-premium {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+}
