@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FiTrash2, FiMinus, FiPlus, FiArrowLeft, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
 import { removeFromCart, updateQuantity, clearCart, selectCartItems, selectCartTotal } from '../redux/slices/cartSlice';
+import { getThumbnailFallbackImage } from '../lib/utils';
 import './Cart.css';
 
 const Cart = () => {
@@ -44,7 +45,7 @@ const Cart = () => {
                     <div className="cart-items-section">
                         {items.map((item) => {
                             const itemPrice = item.discountPrice || item.price;
-                            const imageUrl = item.images?.[0]?.url || 'https://placehold.co/120x120/0D7C3D/fff?text=H';
+                            const imageUrl = item.images?.[0]?.url || getThumbnailFallbackImage(item.name?.charAt(0) || 'H');
                             return (
                                 <div key={item._id} className="cart-page-item">
                                     <img src={imageUrl} alt={item.name} className="cart-page-item-image" />

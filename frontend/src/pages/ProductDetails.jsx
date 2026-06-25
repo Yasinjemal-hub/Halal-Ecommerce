@@ -7,6 +7,7 @@ import { addToCart, openCart } from '../redux/slices/cartSlice';
 import { addToWishlist, removeFromWishlist, selectWishlistItems } from '../redux/slices/wishlistSlice';
 import Loader from '../components/common/Loader';
 import toast from 'react-hot-toast';
+import { getProductFallbackImage, getPlaceholderImage } from '../lib/utils';
 import './ProductDetails.css';
 import reviewService from '../services/reviewService';
 import orderService from '../services/orderService';
@@ -133,9 +134,9 @@ const ProductDetails = () => {
         currency: 'ETB',
         category: 'meat',
         images: [
-            { url: 'https://placehold.co/600x600/0D7C3D/ffffff?text=Halal+Beef', alt: 'Halal Beef' },
-            { url: 'https://placehold.co/600x600/075c2c/ffffff?text=Fresh+Cut', alt: 'Fresh Cut' },
-            { url: 'https://placehold.co/600x600/054b23/ffffff?text=Packaged', alt: 'Packaged' },
+            { url: getPlaceholderImage('Halal Beef', 600, 600, '0D7C3D'), alt: 'Halal Beef' },
+            { url: getPlaceholderImage('Fresh Cut', 600, 600, '075c2c'), alt: 'Fresh Cut' },
+            { url: getPlaceholderImage('Packaged', 600, 600, '054b23'), alt: 'Packaged' },
         ],
         ratingsAverage: 4.8,
         ratingsCount: 124,
@@ -200,7 +201,7 @@ const ProductDetails = () => {
                     <div className="product-gallery">
                         <div className="product-main-image">
                             <img
-                                src={displayProduct.images?.[selectedImage]?.url || displayProduct.image || 'https://placehold.co/600x600/0D7C3D/ffffff?text=Product'}
+                                src={displayProduct.images?.[selectedImage]?.url || displayProduct.image || getProductFallbackImage(displayProduct.name, 600, 600)}
                                 alt={displayProduct.images?.[selectedImage]?.alt || displayProduct.name}
                             />
                             {displayProduct.halalCertified && (

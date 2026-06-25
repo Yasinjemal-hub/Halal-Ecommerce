@@ -5,6 +5,7 @@ import { selectCartItems, selectCartTotal, clearCart } from '../redux/slices/car
 import orderService from '../services/orderService';
 import cartService from '../services/cartService';
 import toast from 'react-hot-toast';
+import { getThumbnailFallbackImage } from '../lib/utils';
 import './Checkout.css';
 
 const PAYMENT_METHODS = [
@@ -216,10 +217,10 @@ const Checkout = () => {
                         <div className="cart-summary-card">
                             <h3>Order Summary</h3>
                             <div className="checkout-items-list">
-                                {items.map((item) => (
-                                    <div key={item._id} className="checkout-item">
-                                        <img src={item.images?.[0]?.url || 'https://placehold.co/50x50/0D7C3D/fff?text=H'} alt={item.name} />
-                                        <div>
+                            {items.map((item) => (
+                                <div key={item._id} className="checkout-item">
+                                    <img src={item.images?.[0]?.url || getThumbnailFallbackImage(item.name?.charAt(0) || 'H')} alt={item.name} />
+                                    <div>
                                             <p className="checkout-item-name">{item.name}</p>
                                             <p className="checkout-item-qty">Qty: {item.quantity}</p>
                                         </div>

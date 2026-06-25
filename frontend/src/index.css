@@ -1245,10 +1245,7 @@ h1, h2, h3, h4, h5, h6 {
   text-align: right;
 }
 
-[dir="rtl"] .user-dropdown {
-  right: auto;
-  left: 0;
-}
+
 
 [dir="rtl"] .cart-drawer {
   right: auto;

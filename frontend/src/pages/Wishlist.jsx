@@ -13,6 +13,7 @@ import {
 } from "../redux/slices/wishlistSlice";
 import { addToCart, openCart } from "../redux/slices/cartSlice";
 import toast from "react-hot-toast";
+import { getProductFallbackImage } from "../lib/utils";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
@@ -82,7 +83,7 @@ const Wishlist = () => {
             {wishlistItems.map((product) => {
               const imageUrl =
                 product.images?.[0]?.url ||
-                "https://placehold.co/400x400/0D7C3D/ffffff?text=Halal+Product";
+                getProductFallbackImage(product.name);
               const effectivePrice = product.discountPrice || product.price;
 
               return (

@@ -82,9 +82,13 @@
 .product-thumbnails {
     display: flex;
     gap: var(--space-3);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--space-2);
 }
 
 .thumbnail {
+    flex-shrink: 0;
     width: 80px;
     height: 80px;
     border-radius: var(--radius-md);
@@ -203,6 +207,7 @@
     display: flex;
     gap: var(--space-4);
     margin-top: var(--space-4);
+    flex-wrap: wrap;
 }
 
 .qty-selector {
@@ -211,6 +216,7 @@
     border: 2px solid var(--gray-200);
     border-radius: var(--radius-md);
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .qty-selector .qty-btn {
@@ -225,11 +231,13 @@
 
 .product-add-cart {
     flex: 1;
+    min-width: 200px;
 }
 
 .product-secondary-actions {
     display: flex;
     gap: var(--space-3);
+    flex-wrap: wrap;
 }
 
 .product-trust {
@@ -260,6 +268,9 @@
     display: flex;
     border-bottom: 2px solid var(--gray-200);
     gap: var(--space-1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
 }
 
 .tab-btn {
@@ -273,6 +284,8 @@
     margin-bottom: -2px;
     cursor: pointer;
     transition: all var(--transition-fast);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .tab-btn:hover {
@@ -345,9 +358,114 @@
     }
 }
 
+@media (max-width: 768px) {
+    .product-detail-grid {
+        gap: var(--space-6);
+        padding: var(--space-6) 0;
+    }
+
+    .product-main-image {
+        border-radius: var(--radius-lg);
+    }
+
+    .product-thumbnails {
+        gap: var(--space-2);
+    }
+
+    .thumbnail {
+        width: 70px;
+        height: 70px;
+    }
+
+    .product-info-name {
+        font-size: 1.75rem;
+    }
+
+    .product-info-price {
+        padding: var(--space-3) 0;
+    }
+
+    .product-actions {
+        gap: var(--space-3);
+    }
+
+    .qty-selector .qty-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .qty-selector .qty-value {
+        min-width: 40px;
+    }
+
+    .product-add-cart {
+        min-width: 100%;
+    }
+
+    .product-secondary-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .product-secondary-actions .btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    .product-trust {
+        padding: var(--space-3);
+    }
+
+    .trust-mini {
+        font-size: 0.8125rem;
+    }
+}
+
 @media (max-width: 640px) {
     .product-info-name {
         font-size: 1.5rem;
+    }
+
+    .product-info-amharic {
+        font-size: 1rem;
+    }
+
+    .product-merchant-badge {
+        font-size: 0.875rem;
+    }
+
+    .product-info-rating {
+        gap: var(--space-1-5);
+    }
+
+    .rating-star {
+        size: 16px;
+    }
+
+    .rating-value {
+        font-size: 1rem;
+    }
+
+    .rating-count {
+        font-size: 0.75rem;
+    }
+
+    .product-quick-details {
+        gap: var(--space-3);
+    }
+
+    .quick-detail {
+        flex: 1;
+        min-width: calc(50% - var(--space-3));
+    }
+
+    .quick-detail-label {
+        font-size: 0.6875rem;
+    }
+
+    .quick-detail span:last-child {
+        font-size: 0.875rem;
     }
 
     .product-actions {
@@ -356,5 +474,75 @@
 
     .product-add-cart {
         width: 100%;
+    }
+
+    .qty-selector {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .product-secondary-actions {
+        width: 100%;
+    }
+
+    .tabs-nav {
+        gap: 0;
+    }
+
+    .tab-btn {
+        padding: var(--space-2-5) var(--space-4);
+        font-size: 0.875rem;
+    }
+
+    .tab-content {
+        padding: var(--space-6) 0;
+    }
+
+    .review-form-section .form-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .review-form .input,
+    .review-form select,
+    .review-form textarea {
+        font-size: 0.9375rem;
+    }
+
+    .rating-bars {
+        font-size: 0.75rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-thumbnails {
+        gap: var(--space-1-5);
+    }
+
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+
+    .product-info-name {
+        font-size: 1.25rem;
+    }
+
+    .quick-detail {
+        min-width: 100%;
+    }
+
+    .product-secondary-actions .btn {
+        padding: var(--space-2-5) var(--space-3);
+        font-size: 0.875rem;
+    }
+
+    .trust-mini {
+        font-size: 0.75rem;
+    }
+
+    .rating-breakdown .rating-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
     }
 }

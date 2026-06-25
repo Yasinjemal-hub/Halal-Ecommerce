@@ -107,6 +107,7 @@
 
 .checkout-form textarea.input {
     resize: vertical;
+    min-height: 100px;
 }
 
 .payment-methods {
@@ -246,17 +247,196 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    .checkout-page {
+        padding: var(--space-6) 0 var(--space-12);
+    }
+
+    .checkout-steps {
+        gap: var(--space-4);
+    }
+
+    .checkout-steps::before {
+        left: 12%;
+        right: 12%;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .step-label {
+        font-size: 0.75rem;
+    }
+
+    .checkout-section {
+        padding: var(--space-6);
+    }
+
     .checkout-form .form-row {
         grid-template-columns: 1fr;
+        gap: var(--space-3);
     }
 
     .checkout-nav {
         flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .checkout-nav .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .payment-method-card {
+        padding: var(--space-3);
+        gap: var(--space-3);
+    }
+
+    .payment-method-icon {
+        font-size: 1.25rem;
+    }
+
+    .payment-method-name {
+        font-size: 0.875rem;
+    }
+
+    .payment-method-desc {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .checkout-steps {
+        gap: var(--space-2);
+    }
+
+    .checkout-steps::before {
+        left: 8%;
+        right: 8%;
+    }
+
+    .step-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 0.6875rem;
+    }
+
+    .step-label {
+        font-size: 0.6875rem;
+    }
+
+    .checkout-section {
+        padding: var(--space-4);
+    }
+
+    .checkout-section h2 {
+        font-size: 1.125rem;
     }
 
     .confirmation-actions {
         flex-direction: column;
         align-items: center;
+    }
+
+    .confirmation-actions .btn {
+        width: 100%;
+    }
+
+    .checkout-items-list {
+        gap: var(--space-2);
+    }
+
+    .checkout-item {
+        gap: var(--space-2);
+    }
+
+    .checkout-item img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .checkout-item-name {
+        font-size: 0.75rem;
+    }
+
+    .checkout-item-qty {
+        font-size: 0.6875rem;
+    }
+
+    .checkout-item span:last-child {
+        font-size: 0.8125rem;
+    }
+
+    .summary-row {
+        font-size: 0.8125rem;
+    }
+
+    .summary-total span {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-page {
+        padding: var(--space-4) 0 var(--space-10);
+    }
+
+    .checkout-steps {
+        flex-wrap: wrap;
+        gap: var(--space-3);
+    }
+
+    .checkout-steps::before {
+        display: none;
+    }
+
+    .step-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.75rem;
+    }
+
+    .step-label {
+        font-size: 0.625rem;
+    }
+
+    .checkout-section {
+        padding: var(--space-4);
+    }
+
+    .checkout-form {
+        gap: var(--space-4);
+    }
+
+    .input {
+        padding: var(--space-2-5) var(--space-3);
+        font-size: 0.875rem;
+    }
+
+    .input-label {
+        font-size: 0.8125rem;
+    }
+
+    .payment-method-card {
+        padding: var(--space-2-5);
+    }
+
+    .payment-method-name {
+        font-size: 0.8125rem;
+    }
+
+    .payment-method-desc {
+        font-size: 0.6875rem;
+    }
+
+    .checkout-summary-card {
+        padding: var(--space-4);
+    }
+
+    .checkout-summary-card h3 {
+        font-size: 1rem;
     }
 }
