@@ -165,7 +165,7 @@ const ProductDetails = () => {
         }
         dispatch(addToCart({ product: displayProduct, quantity }));
         dispatch(openCart());
-        toast.success(`${displayProduct.name} added to cart!`, { icon: '🛒' });
+        toast.success(`${displayProduct.name} added to cart!`);
     };
 
     const handleToggleWishlist = () => {
@@ -205,7 +205,7 @@ const ProductDetails = () => {
                                 alt={displayProduct.images?.[selectedImage]?.alt || displayProduct.name}
                             />
                             {displayProduct.halalCertified && (
-                                <span className="badge badge-halal product-detail-badge">☪ Halal Certified</span>
+                                <span className="badge badge-halal product-detail-badge">Halal Certified</span>
                             )}
                             {discountPercent > 0 && (
                                 <span className="badge badge-sale product-detail-sale">-{discountPercent}% OFF</span>
@@ -278,12 +278,12 @@ const ProductDetails = () => {
                             )}
                             <div className="quick-detail">
                                 <span className="quick-detail-label">Origin</span>
-                                <span>🇪🇹 {displayProduct.originCountry || 'Ethiopia'}</span>
+                                <span>{displayProduct.originCountry || 'Ethiopia'}</span>
                             </div>
                             <div className="quick-detail">
                                 <span className="quick-detail-label">Stock</span>
                                 <span className={displayProduct.isInStock ? 'in-stock' : 'out-stock'}>
-                                    {displayProduct.isInStock ? `✓ In Stock (${displayProduct.stock})` : '✕ Out of Stock'}
+                                    {displayProduct.isInStock ? `In Stock (${displayProduct.stock})` : 'Out of Stock'}
                                 </span>
                             </div>
                         </div>

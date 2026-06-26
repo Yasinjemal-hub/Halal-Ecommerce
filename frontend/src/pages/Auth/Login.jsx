@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight, FiShield } from 'react-icons/fi';
 import { login, clearError } from '../../redux/slices/authSlice';
 import toast from 'react-hot-toast';
 import './Auth.css';
@@ -40,16 +40,16 @@ const Login = () => {
                     <div className="auth-left-pattern pattern-overlay" />
                     <div className="auth-left-inner">
                         <Link to="/" className="auth-logo">
-                            <div className="auth-logo-icon">☪</div>
+                            <div className="auth-logo-icon"><FiShield /></div>
                             <span>Halal<span className="logo-accent">Market</span></span>
                         </Link>
                         <h2>Welcome Back!</h2>
                         <p className="text-ethiopic" style={{ fontSize: '1.5rem', marginBottom: '8px' }}>እንኳን ደህና መጡ!</p>
                         <p>Sign in to access your account, track orders, and discover authentic halal products from verified Ethiopian merchants.</p>
                         <div className="auth-left-features">
-                            <div className="auth-feature">✓ Majlis Verified Merchants</div>
-                            <div className="auth-feature">✓ Secure Ethiopian Payments</div>
-                            <div className="auth-feature">✓ Order Tracking & History</div>
+                            <div className="auth-feature">Majlis Verified Merchants</div>
+                            <div className="auth-feature">Secure Ethiopian Payments</div>
+                            <div className="auth-feature">Order Tracking & History</div>
                         </div>
                     </div>
                 </div>

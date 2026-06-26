@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiMapPin, FiPhone, FiStar, FiShoppingBag, FiPackage, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { Utensils, ShoppingBag, Drumstick, Croissant, Package, Sparkle, Shirt, Flame, Store, Tag } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import merchantService from '../services/merchantService';
 import './Merchants.css';
@@ -17,16 +18,16 @@ const BUSINESS_TYPES = [
 ];
 
 const TYPE_EMOJIS = {
-    restaurant: '🍽️',
-    grocery: '🛒',
-    butcher: '🥩',
-    bakery: '🍞',
-    wholesale: '📦',
-    cosmetics: '✨',
-    clothing: '👗',
-    spice_shop: '🌶️',
-    supermarket: '🏪',
-    other: '🏢',
+    restaurant: <Utensils size={14} />,
+    grocery: <ShoppingBag size={14} />,
+    butcher: <Drumstick size={14} />,
+    bakery: <Croissant size={14} />,
+    wholesale: <Package size={14} />,
+    cosmetics: <Sparkle size={14} />,
+    clothing: <Shirt size={14} />,
+    spice_shop: <Flame size={14} />,
+    supermarket: <Store size={14} />,
+    other: <Tag size={14} />,
 };
 
 // Demo merchants for display when backend is not connected
@@ -211,7 +212,7 @@ const Merchants = () => {
                     </div>
                 ) : filteredMerchants.length === 0 ? (
                     <div className="merchants-empty">
-                        <div className="merchants-empty-icon">🔍</div>
+                        <div className="merchants-empty-icon"><FiSearch size={48} /></div>
                         <h3>{t('merchants_no_results')}</h3>
                     </div>
                 ) : (
@@ -233,7 +234,7 @@ const Merchants = () => {
                                         </span>
                                     )}
                                     <span className="merchant-type-badge">
-                                        {TYPE_EMOJIS[merchant.businessType] || '🏢'} {merchant.businessType?.replace('_', ' ')}
+                                        {TYPE_EMOJIS[merchant.businessType] || 'Other'} {merchant.businessType?.replace('_', ' ')}
                                     </span>
                                 </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiArrowRight, FiShield, FiTruck, FiCreditCard, FiHeadphones, FiStar, FiAward, FiGlobe } from 'react-icons/fi';
+import { Drumstick, Milk, Flame, Croissant, Droplet, Wheat, Shirt, Sparkle, Flower2, Book, Sofa, CupSoda } from 'lucide-react';
 import { fetchFeaturedProducts } from '../redux/slices/productSlice';
 import ProductCard from '../components/common/ProductCard';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -86,25 +87,25 @@ const Home = () => {
     }, [dispatch]);
 
     const CATEGORIES = [
-        { slug: 'meat', key: 'cat_meat', nameAm: 'ስጋ', emoji: '🥩', color: '#dc2626' },
-        { slug: 'dairy', key: 'cat_dairy', nameAm: 'ወተት', emoji: '🥛', color: '#2563eb' },
-        { slug: 'spices', key: 'cat_spices', nameAm: 'ቅመም', emoji: '🌶️', color: '#d97706' },
-        { slug: 'bakery', key: 'cat_bakery', nameAm: 'ዳቦ', emoji: '🍞', color: '#c2410c' },
-        { slug: 'honey', key: 'cat_honey', nameAm: 'ማር', emoji: '🍯', color: '#ca8a04' },
-        { slug: 'grains', key: 'cat_grains', nameAm: 'ጤፍ', emoji: '🌾', color: '#65a30d' },
-        { slug: 'clothing', key: 'cat_clothing', nameAm: 'ልብስ', emoji: '👗', color: '#7c3aed' },
-        { slug: 'cosmetics', key: 'cat_cosmetics', nameAm: 'ሰው ቅባት', emoji: '✨', color: '#db2777' },
-        { slug: 'perfume', key: 'cat_perfume', nameAm: 'ሽቱ', emoji: '🌸', color: '#be185d' },
-        { slug: 'books', key: 'cat_books', nameAm: 'መጻሕፍት', emoji: '📚', color: '#0d9488' },
-        { slug: 'home_decor', key: 'cat_home_decor', nameAm: 'ቤት ማስዋብ', emoji: '🏠', color: '#4f46e5' },
-        { slug: 'beverages', key: 'cat_beverages', nameAm: 'መጠጥ', emoji: '☕', color: '#78350f' },
+        { slug: 'meat', key: 'cat_meat', nameAm: 'ስጋ', emoji: <Drumstick size={20} />, color: '#dc2626' },
+        { slug: 'dairy', key: 'cat_dairy', nameAm: 'ወተት', emoji: <Milk size={20} />, color: '#2563eb' },
+        { slug: 'spices', key: 'cat_spices', nameAm: 'ቅመም', emoji: <Flame size={20} />, color: '#d97706' },
+        { slug: 'bakery', key: 'cat_bakery', nameAm: 'ዳቦ', emoji: <Croissant size={20} />, color: '#c2410c' },
+        { slug: 'honey', key: 'cat_honey', nameAm: 'ማር', emoji: <Droplet size={20} />, color: '#ca8a04' },
+        { slug: 'grains', key: 'cat_grains', nameAm: 'ጤፍ', emoji: <Wheat size={20} />, color: '#65a30d' },
+        { slug: 'clothing', key: 'cat_clothing', nameAm: 'ልብስ', emoji: <Shirt size={20} />, color: '#7c3aed' },
+        { slug: 'cosmetics', key: 'cat_cosmetics', nameAm: 'ሰው ቅባት', emoji: <Sparkle size={20} />, color: '#db2777' },
+        { slug: 'perfume', key: 'cat_perfume', nameAm: 'ሽቱ', emoji: <Flower2 size={20} />, color: '#be185d' },
+        { slug: 'books', key: 'cat_books', nameAm: 'መጻሕፍት', emoji: <Book size={20} />, color: '#0d9488' },
+        { slug: 'home_decor', key: 'cat_home_decor', nameAm: 'ቤት ማስዋብ', emoji: <Sofa size={20} />, color: '#4f46e5' },
+        { slug: 'beverages', key: 'cat_beverages', nameAm: 'መጠጥ', emoji: <CupSoda size={20} />, color: '#78350f' },
     ];
 
     const STATS = [
-        { value: '5000', suffix: '+', labelKey: 'hero_stat_products', icon: '📦' },
-        { value: '500', suffix: '+', labelKey: 'hero_stat_merchants', icon: '🏪' },
-        { value: '50000', suffix: '+', labelKey: 'hero_stat_customers', icon: '👥' },
-        { value: '13', suffix: '', labelKey: 'hero_stat_regions', icon: '🇪🇹' },
+        { value: '5000', suffix: '+', labelKey: 'hero_stat_products', icon: 'Products' },
+        { value: '500', suffix: '+', labelKey: 'hero_stat_merchants', icon: 'Merchants' },
+        { value: '50000', suffix: '+', labelKey: 'hero_stat_customers', icon: 'Customers' },
+        { value: '13', suffix: '', labelKey: 'hero_stat_regions', icon: 'Regions' },
     ];
 
     const testimonials = [
@@ -183,7 +184,7 @@ const Home = () => {
                     <div className="hero-visual animate-fade-in" style={{ animationDelay: '400ms' }}>
                         <div className="hero-visual-glow" />
                         <div className="hero-card hero-card-1">
-                            <div className="hero-card-emoji">🥩</div>
+                            <div className="hero-card-emoji"><Drumstick size={24} /></div>
                             <div className="hero-card-info">
                                 <p className="hero-card-title">{t('cat_meat')}</p>
                                 <p className="hero-card-detail">From 650 ETB</p>
@@ -191,15 +192,15 @@ const Home = () => {
                             <span className="badge badge-halal">{t('product_halal')}</span>
                         </div>
                         <div className="hero-card hero-card-2">
-                            <div className="hero-card-emoji">🌶️</div>
+                            <div className="hero-card-emoji"><Flame size={24} /></div>
                             <div className="hero-card-info">
                                 <p className="hero-card-title">{t('cat_spices')}</p>
                                 <p className="hero-card-detail">Berbere, Mitmita & more</p>
                             </div>
-                            <span className="badge badge-verified">✓ {t('verified')}</span>
+                            <span className="badge badge-verified">{t('verified')}</span>
                         </div>
                         <div className="hero-card hero-card-3">
-                            <div className="hero-card-emoji">🍯</div>
+                            <div className="hero-card-emoji"><Droplet size={24} /></div>
                             <div className="hero-card-info">
                                 <p className="hero-card-title">{t('cat_honey')}</p>
                                 <p className="hero-card-detail">100% Natural</p>
@@ -338,22 +339,22 @@ const Home = () => {
                                 <div className="why-visual-pattern pattern-overlay" />
                                 <div className="why-stats-grid">
                                     <div className="why-stat-card">
-                                        <span className="why-stat-icon">🕌</span>
+                                        <FiShield className="why-stat-icon" />
                                         <span className="why-stat-value">100%</span>
                                         <span className="why-stat-label">{t('why_halal_verified')}</span>
                                     </div>
                                     <div className="why-stat-card">
-                                        <span className="why-stat-icon">🇪🇹</span>
+                                        <FiGlobe className="why-stat-icon" />
                                         <span className="why-stat-value">13</span>
                                         <span className="why-stat-label">{t('why_regions')}</span>
                                     </div>
                                     <div className="why-stat-card">
-                                        <span className="why-stat-icon">⭐</span>
+                                        <FiStar className="why-stat-icon" />
                                         <span className="why-stat-value">4.8</span>
                                         <span className="why-stat-label">{t('why_avg_rating')}</span>
                                     </div>
                                     <div className="why-stat-card">
-                                        <span className="why-stat-icon">🛡️</span>
+                                        <FiShield className="why-stat-icon" />
                                         <span className="why-stat-value">24/7</span>
                                         <span className="why-stat-label">{t('why_support')}</span>
                                     </div>

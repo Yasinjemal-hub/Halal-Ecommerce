@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiSearch, FiAlertCircle, FiCheckCircle, FiPower, FiMail, FiPhone, FiCalendar, FiDownload } from 'react-icons/fi';
+import { FiSearch, FiAlertCircle, FiCheckCircle, FiPower, FiMail, FiPhone, FiCalendar, FiDownload, FiUsers, FiClock, FiUser, FiX } from 'react-icons/fi';
 import adminService from '../../services/adminService';
 import { toast } from 'react-hot-toast';
 import './Dashboard.css';
@@ -92,7 +92,7 @@ const AdminConsumers = () => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#3498db15', color: '#3498db' }}>
-            👥
+            <FiUsers size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{totalConsumers}</span>
@@ -101,7 +101,7 @@ const AdminConsumers = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#27ae6015', color: '#27ae60' }}>
-            ✓
+            <FiCheckCircle size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{consumers.filter(c => c.isActive).length}</span>
@@ -110,7 +110,7 @@ const AdminConsumers = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#e7434315', color: '#e74343' }}>
-            ✗
+            <FiX size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{consumers.filter(c => !c.isActive).length}</span>
@@ -119,7 +119,7 @@ const AdminConsumers = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#f39c1215', color: '#f39c12' }}>
-            ⏳
+            <FiClock size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{pendingUpdates}</span>
@@ -192,12 +192,12 @@ const AdminConsumers = () => {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
-            <div style={{ fontSize: '24px', marginBottom: '12px' }}>⏳</div>
+            <div style={{ fontSize: '24px', marginBottom: '12px', color: '#f39c12' }}><FiClock size={24} /></div>
             Loading consumers...
           </div>
         ) : filteredConsumers.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>👤</div>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}><FiUser size={32} /></div>
             No consumers found
           </div>
         ) : (

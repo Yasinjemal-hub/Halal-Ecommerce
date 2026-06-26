@@ -11,19 +11,19 @@ import './Shop.css';
 
 const CATEGORIES = [
     { value: '', label: 'All Categories' },
-    { value: 'meat', label: '🥩 Meat & Poultry' },
-    { value: 'poultry', label: '🍗 Poultry' },
-    { value: 'dairy', label: '🥛 Dairy' },
-    { value: 'spices', label: '🌶️ Spices' },
-    { value: 'bakery', label: '🍞 Bakery' },
-    { value: 'honey', label: '🍯 Honey' },
-    { value: 'grains', label: '🌾 Grains' },
-    { value: 'clothing', label: '👗 Clothing' },
-    { value: 'cosmetics', label: '✨ Cosmetics' },
-    { value: 'perfume', label: '🌸 Perfume' },
-    { value: 'books', label: '📚 Books' },
-    { value: 'home_decor', label: '🏠 Home Décor' },
-    { value: 'beverages', label: '☕ Beverages' },
+    { value: 'meat', label: 'Meat & Poultry' },
+    { value: 'poultry', label: 'Poultry' },
+    { value: 'dairy', label: 'Dairy' },
+    { value: 'spices', label: 'Spices' },
+    { value: 'bakery', label: 'Bakery' },
+    { value: 'honey', label: 'Honey' },
+    { value: 'grains', label: 'Grains' },
+    { value: 'clothing', label: 'Clothing' },
+    { value: 'cosmetics', label: 'Cosmetics' },
+    { value: 'perfume', label: 'Perfume' },
+    { value: 'books', label: 'Books' },
+    { value: 'home_decor', label: 'Home Décor' },
+    { value: 'beverages', label: 'Beverages' },
 ];
 
 const SORT_OPTIONS = [
@@ -275,7 +275,7 @@ const Shop = () => {
                                 onChange={(e) => handleFilterChange('halalCertified', e.target.checked)}
                             />
                             <span className="filter-checkbox-custom" />
-                            <span>☪ Halal Certified Only</span>
+                            <span>Halal Certified Only</span>
                         </label>
                     </div>
 
@@ -357,7 +357,7 @@ const Shop = () => {
                         <Loader text="Loading halal products..." />
                     ) : errorMessage ? (
                         <div className="shop-error">
-                            <p>😔 {errorMessage}</p>
+                            <p>{errorMessage}</p>
                             <button className="btn btn-primary" onClick={() => {
                                 if (isMerchantUser) {
                                     setMerchantPage(merchantPage);
@@ -376,7 +376,7 @@ const Shop = () => {
 
                             {displayProducts.length === 0 && (
                                 <div className="shop-empty">
-                                    <div className="shop-empty-icon">🔍</div>
+                                    <div className="shop-empty-icon"><FiSearch size={48} /></div>
                                     <h3>No products found</h3>
                                     <p>Try adjusting your filters or search terms</p>
                                     <button className="btn btn-primary" onClick={handleClearFilters}>Clear Filters</button>

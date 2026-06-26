@@ -33,7 +33,7 @@ const CartDrawer = () => {
                 <div className="cart-drawer-items">
                     {items.length === 0 ? (
                         <div className="cart-empty">
-                            <div className="cart-empty-icon">🛒</div>
+                            <div className="cart-empty-icon"><FiShoppingBag size={48} /></div>
                             <h4>Your cart is empty</h4>
                             <p>Browse our halal-certified products and start shopping!</p>
                             <Link to="/shop" className="btn btn-primary" onClick={() => dispatch(closeCart())}>

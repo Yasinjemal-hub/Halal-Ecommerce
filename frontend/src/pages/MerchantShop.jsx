@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FiMapPin, FiPhone, FiStar, FiShoppingBag, FiPackage, FiCheckCircle, FiClock, FiArrowLeft, FiMail, FiShield } from 'react-icons/fi';
+import { Utensils, ShoppingBag, Drumstick, Croissant, Package, Sparkle, Shirt, Flame, Store, Tag } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import merchantService from '../services/merchantService';
 import ProductCard from '../components/common/ProductCard';
@@ -149,9 +150,9 @@ const DEMO_PRODUCTS = {
 };
 
 const TYPE_EMOJIS = {
-    restaurant: '🍽️', grocery: '🛒', butcher: '🥩', bakery: '🍞',
-    wholesale: '📦', cosmetics: '✨', clothing: '👗', spice_shop: '🌶️',
-    supermarket: '🏪', other: '🏢',
+    restaurant: <Utensils size={14} />, grocery: <ShoppingBag size={14} />, butcher: <Drumstick size={14} />, bakery: <Croissant size={14} />,
+    wholesale: <Package size={14} />, cosmetics: <Sparkle size={14} />, clothing: <Shirt size={14} />, spice_shop: <Flame size={14} />,
+    supermarket: <Store size={14} />, other: <Tag size={14} />,
 };
 
 const MerchantShop = () => {
@@ -220,7 +221,7 @@ const MerchantShop = () => {
         return (
             <div className="merchant-shop-page">
                 <div className="merchant-shop-error">
-                    <div className="merchant-shop-error-icon">🏪</div>
+                    <div className="merchant-shop-error-icon"><FiShoppingBag size={48} /></div>
                     <h2>{t('error')}</h2>
                     <p>{error || 'This merchant could not be found.'}</p>
                     <Link to="/merchants" className="btn btn-primary btn-lg">
@@ -261,7 +262,7 @@ const MerchantShop = () => {
                                 </span>
                             )}
                             <span className="merchant-shop-type-badge">
-                                {TYPE_EMOJIS[merchant.businessType] || '🏢'} {merchant.businessType?.replace('_', ' ')}
+                                {TYPE_EMOJIS[merchant.businessType] || 'Other'} {merchant.businessType?.replace('_', ' ')}
                             </span>
                         </div>
                         <h1 className="merchant-shop-name">{merchant.businessName}</h1>
@@ -292,22 +293,22 @@ const MerchantShop = () => {
             <div className="container merchant-shop-stats">
                 <div className="merchant-shop-stats-grid stagger-children">
                     <div className="merchant-stat-card animate-fade-in-up">
-                        <span className="merchant-stat-card-icon">⭐</span>
+                        <span className="merchant-stat-card-icon"><FiStar /></span>
                         <span className="merchant-stat-card-value">{merchant.ratingsAverage || '0.0'}</span>
                         <span className="merchant-stat-card-label">{t('merchants_rating', { rating: '' }).trim() || 'Rating'}</span>
                     </div>
                     <div className="merchant-stat-card animate-fade-in-up">
-                        <span className="merchant-stat-card-icon">📦</span>
+                        <span className="merchant-stat-card-icon"><FiPackage /></span>
                         <span className="merchant-stat-card-value">{merchant.totalProducts || products.length}</span>
                         <span className="merchant-stat-card-label">{t('merchant_shop_products') || 'Products'}</span>
                     </div>
                     <div className="merchant-stat-card animate-fade-in-up">
-                        <span className="merchant-stat-card-icon">🛒</span>
+                        <span className="merchant-stat-card-icon"><FiShoppingBag /></span>
                         <span className="merchant-stat-card-value">{(merchant.totalOrders || 0).toLocaleString()}</span>
                         <span className="merchant-stat-card-label">{t('merchant_shop_orders') || 'Orders'}</span>
                     </div>
                     <div className="merchant-stat-card animate-fade-in-up">
-                        <span className="merchant-stat-card-icon">🛡️</span>
+                        <span className="merchant-stat-card-icon"><FiShield /></span>
                         <span className="merchant-stat-card-value">{merchant.verificationStatus === 'approved' ? '✓' : '—'}</span>
                         <span className="merchant-stat-card-label">{t('merchant_shop_halal_status') || 'Halal Verified'}</span>
                     </div>
@@ -353,7 +354,7 @@ const MerchantShop = () => {
                             </div>
                         ) : (
                             <div className="merchant-no-products">
-                                <div className="merchant-no-products-icon">📭</div>
+                                <div className="merchant-no-products-icon"><FiMail size={48} /></div>
                                 <h3>{t('shop_no_products') || 'No products found'}</h3>
                                 <p>{t('shop_no_products_desc') || 'Try adjusting your filters'}</p>
                             </div>

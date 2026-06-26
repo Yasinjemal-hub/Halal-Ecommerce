@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiX, FiAlertCircle, FiUser, FiMail, FiPhone } from 'react-icons/fi';
+import { FiCheckCircle, FiX, FiAlertCircle, FiUser, FiMail, FiPhone, FiClock } from 'react-icons/fi';
 import adminService from '../../services/adminService';
 import { toast } from 'react-hot-toast';
 import './Dashboard.css';
@@ -87,7 +87,7 @@ const AdminProfileApprovals = () => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#f39c1215', color: '#f39c12' }}>
-            ⏳
+            <FiClock size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{pendingUpdates.length}</span>

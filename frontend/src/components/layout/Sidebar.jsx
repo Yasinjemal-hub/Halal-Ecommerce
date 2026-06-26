@@ -45,7 +45,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         <div className="sidebar-user-info">
                             <p className="sidebar-user-name">{user?.firstName} {user?.lastName}</p>
                             <span className={`sidebar-role-badge ${isAdmin ? 'role-admin' : 'role-merchant'}`}>
-                                {isAdmin ? '👑 Admin' : '🏪 Merchant'}
+                                {isAdmin ? 'Admin' : 'Merchant'}
                             </span>
                         </div>
                     </div>

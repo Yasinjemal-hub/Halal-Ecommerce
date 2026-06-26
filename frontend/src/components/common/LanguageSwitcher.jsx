@@ -50,7 +50,7 @@ const LanguageSwitcher = () => {
                         >
                             <span className="lang-option-flag">{lang.flag}</span>
                             <span className="lang-option-name">{lang.nativeName}</span>
-                            {language === lang.code && <span className="lang-option-check">✓</span>}
+                            {language === lang.code && <span className="lang-option-check">active</span>}
                         </button>
                     ))}
                 </div>

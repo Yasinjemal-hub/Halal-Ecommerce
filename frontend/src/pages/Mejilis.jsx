@@ -13,16 +13,16 @@ import './Mejilis.css';
 
 // ── Business Types ──────────────────────────────────────
 const BUSINESS_TYPES = [
-    { value: 'restaurant', label: 'Restaurant', emoji: '🍽️' },
-    { value: 'grocery', label: 'Grocery', emoji: '🛒' },
-    { value: 'butcher', label: 'Butcher', emoji: '🥩' },
-    { value: 'bakery', label: 'Bakery', emoji: '🍞' },
-    { value: 'wholesale', label: 'Wholesale', emoji: '📦' },
-    { value: 'cosmetics', label: 'Cosmetics', emoji: '✨' },
-    { value: 'clothing', label: 'Clothing', emoji: '👗' },
-    { value: 'spice_shop', label: 'Spice Shop', emoji: '🌶️' },
-    { value: 'supermarket', label: 'Supermarket', emoji: '🏪' },
-    { value: 'other', label: 'Other', emoji: '🏢' },
+    { value: 'restaurant', label: 'Restaurant' },
+    { value: 'grocery', label: 'Grocery' },
+    { value: 'butcher', label: 'Butcher' },
+    { value: 'bakery', label: 'Bakery' },
+    { value: 'wholesale', label: 'Wholesale' },
+    { value: 'cosmetics', label: 'Cosmetics' },
+    { value: 'clothing', label: 'Clothing' },
+    { value: 'spice_shop', label: 'Spice Shop' },
+    { value: 'supermarket', label: 'Supermarket' },
+    { value: 'other', label: 'Other' },
 ];
 
 const REGIONS = [
@@ -32,14 +32,14 @@ const REGIONS = [
 ];
 
 const COMPLAINT_CATEGORIES = [
-    { value: 'halal_violation', label: '🚫 Halal Violation' },
-    { value: 'quality_issue', label: '📉 Quality Issue' },
-    { value: 'false_advertising', label: '📢 False Advertising' },
-    { value: 'hygiene_concern', label: '🧹 Hygiene Concern' },
-    { value: 'pricing_dispute', label: '💰 Pricing Dispute' },
-    { value: 'delivery_issue', label: '📦 Delivery Issue' },
-    { value: 'customer_service', label: '📞 Customer Service' },
-    { value: 'other', label: '📝 Other' },
+    { value: 'halal_violation', label: 'Halal Violation' },
+    { value: 'quality_issue', label: 'Quality Issue' },
+    { value: 'false_advertising', label: 'False Advertising' },
+    { value: 'hygiene_concern', label: 'Hygiene Concern' },
+    { value: 'pricing_dispute', label: 'Pricing Dispute' },
+    { value: 'delivery_issue', label: 'Delivery Issue' },
+    { value: 'customer_service', label: 'Customer Service' },
+    { value: 'other', label: 'Other' },
 ];
 const MAX_IMAGE_SIZE_MB = 5;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -476,10 +476,10 @@ const Mejilis = () => {
                             </div>
                             <h3>
                                 {regStatus.merchant?.verificationStatus === 'approved'
-                                    ? '✅ Your Business is Verified!'
+                                    ? 'Your Business is Verified!'
                                     : regStatus.merchant?.verificationStatus === 'rejected'
-                                        ? '❌ Registration Rejected'
-                                        : '⏳ Registration Under Review'}
+                                        ? 'Registration Rejected'
+                                        : 'Registration Under Review'}
                             </h3>
                             <p>
                                 {regStatus.merchant?.verificationStatus === 'approved'
@@ -574,7 +574,7 @@ const Mejilis = () => {
                         <div className="mejilis-register-layout">
                             {/* Left - Info */}
                             <div className="mejilis-register-info">
-                                <h2>Become a Verified<br />Halal Merchant 🕌</h2>
+                                <h2>Become a Verified<br />Halal Merchant</h2>
                                 <p>
                                     Join Ethiopia's trusted Halal marketplace. Register your business with the
                                     Mejilis Council for official verification and reach thousands of conscious consumers.
@@ -609,7 +609,7 @@ const Mejilis = () => {
 
                             {/* Right - Registration Form */}
                             <div className="mejilis-register-form-card">
-                                <h3>📋 Merchant Application Form</h3>
+                                <h3>Merchant Application Form</h3>
                                 <p>Please fill out all required fields carefully to submit your business for official verification.</p>
                                 <form className="mejilis-form" onSubmit={handleRegister}>
                                     
@@ -658,7 +658,7 @@ const Mejilis = () => {
                                                 <option value="">Select business type...</option>
                                                 {BUSINESS_TYPES.map((type) => (
                                                     <option key={type.value} value={type.value}>
-                                                        {type.emoji} {type.label}
+                                                        {type.label}
                                                     </option>
                                                 ))}
                                             </select>
@@ -1036,14 +1036,14 @@ const Mejilis = () => {
                     ) : dashboardStats ? (
                         <>
                             <div className="mejilis-section-header">
-                                <h2>📊 Mejilis Dashboard</h2>
+                                <h2>Mejilis Dashboard</h2>
                             </div>
 
                             {/* Pending Merchants Table */}
                             {dashboardStats.pendingMerchantsList?.length > 0 && (
                                 <>
                                     <h3 style={{ marginBottom: 16, fontSize: '1.125rem' }}>
-                                        ⏳ Pending Merchant Applications ({dashboardStats.pendingMerchantsList.length})
+                                        Pending Merchant Applications ({dashboardStats.pendingMerchantsList.length})
                                     </h3>
                                     <div className="mejilis-table-container" style={{ marginBottom: 32 }}>
                                         <table className="mejilis-table">
@@ -1084,14 +1084,14 @@ const Mejilis = () => {
                                                                     onClick={() => handleVerifyMerchant(m._id, 'approved')}
                                                                     id={`approve-${m._id}`}
                                                                 >
-                                                                    ✓ Approve
+                                                                    Approve
                                                                 </button>
                                                                 <button
                                                                     className="mejilis-action-btn reject"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'rejected')}
                                                                     id={`reject-${m._id}`}
                                                                 >
-                                                                    ✕ Reject
+                                                                    Reject
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -1105,7 +1105,7 @@ const Mejilis = () => {
 
                             {/* Recent Merchants */}
                             <h3 style={{ marginBottom: 16, fontSize: '1.125rem' }}>
-                                🕐 Recent Registrations
+                                Recent Registrations
                             </h3>
                             <div className="mejilis-table-container">
                                 <table className="mejilis-table">
@@ -1150,7 +1150,7 @@ const Mejilis = () => {
                         </>
                     ) : (
                         <div className="mejilis-empty">
-                            <div className="mejilis-empty-icon">📊</div>
+                            <div className="mejilis-empty-icon"><FiFileText size={48} /></div>
                             <h3>No data available</h3>
                             <p>Dashboard data will appear when merchants register.</p>
                         </div>
@@ -1170,7 +1170,7 @@ const Mejilis = () => {
                     ) : (
                         <>
                             <div className="mejilis-section-header">
-                                <h2>👥 All Merchants</h2>
+                                <h2>All Merchants</h2>
                                 <div className="mejilis-filters">
                                     {['', 'pending', 'approved', 'rejected', 'suspended'].map((f) => (
                                         <button
@@ -1244,7 +1244,7 @@ const Mejilis = () => {
                                                                     className="mejilis-action-btn approve"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'approved')}
                                                                 >
-                                                                    ✓ Approve
+                                                                    Approve
                                                                 </button>
                                                             )}
                                                             {m.verificationStatus !== 'rejected' && (
@@ -1252,7 +1252,7 @@ const Mejilis = () => {
                                                                     className="mejilis-action-btn reject"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'rejected')}
                                                                 >
-                                                                    ✕ Reject
+                                                                    Reject
                                                                 </button>
                                                             )}
                                                             {m.verificationStatus !== 'suspended' && m.verificationStatus === 'approved' && (
@@ -1260,7 +1260,7 @@ const Mejilis = () => {
                                                                     className="mejilis-action-btn review"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'suspended')}
                                                                 >
-                                                                    ⏸ Suspend
+                                                                    Suspend
                                                                 </button>
                                                             )}
                                                         </div>
@@ -1272,7 +1272,7 @@ const Mejilis = () => {
                                 </div>
                             ) : (
                                 <div className="mejilis-empty">
-                                    <div className="mejilis-empty-icon">👥</div>
+                                    <div className="mejilis-empty-icon"><FiSearch size={48} /></div>
                                     <h3>No merchants found</h3>
                                     <p>No merchants match the selected filter.</p>
                                 </div>

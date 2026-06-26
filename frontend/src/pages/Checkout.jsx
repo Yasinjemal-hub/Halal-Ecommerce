@@ -9,11 +9,11 @@ import { getThumbnailFallbackImage } from '../lib/utils';
 import './Checkout.css';
 
 const PAYMENT_METHODS = [
-    { id: 'telebirr', name: 'TeleBirr', icon: '📱', description: 'Pay via TeleBirr mobile money' },
-    { id: 'cbe_birr', name: 'CBE Birr', icon: '🏦', description: 'Commercial Bank of Ethiopia' },
-    { id: 'amole', name: 'Amole', icon: '💳', description: 'Dashen Bank digital wallet' },
-    { id: 'bank_transfer', name: 'Bank Transfer', icon: '🏛️', description: 'Direct bank transfer' },
-    { id: 'cash_on_delivery', name: 'Cash on Delivery', icon: '💵', description: 'Pay when you receive' },
+    { id: 'telebirr', name: 'TeleBirr', icon: 'Mobile', description: 'Pay via TeleBirr mobile money' },
+    { id: 'cbe_birr', name: 'CBE Birr', icon: 'Bank', description: 'Commercial Bank of Ethiopia' },
+    { id: 'amole', name: 'Amole', icon: 'Wallet', description: 'Dashen Bank digital wallet' },
+    { id: 'bank_transfer', name: 'Bank Transfer', icon: 'Transfer', description: 'Direct bank transfer' },
+    { id: 'cash_on_delivery', name: 'Cash on Delivery', icon: 'Cash', description: 'Pay when you receive' },
 ];
 
 const REGIONS = ['Addis Ababa', 'Afar', 'Amhara', 'Benishangul-Gumuz', 'Dire Dawa', 'Gambella', 'Harari', 'Oromia', 'Sidama', 'Somali', 'South West Ethiopia', 'Southern Nations', 'Tigray'];
@@ -91,7 +91,7 @@ const Checkout = () => {
             };
             await orderService.create(orderData);
             dispatch(clearCart());
-            toast.success('Order placed successfully! 🎉', { duration: 4000 });
+            toast.success('Order placed successfully!', { duration: 4000 });
             setStep(3);
         } catch (error) {
             const msg = error.response?.data?.message || 'Failed to place order. Please try again.';
@@ -200,7 +200,7 @@ const Checkout = () => {
                         {/* Step 3: Confirmation */}
                         {step === 3 && (
                             <div className="checkout-section checkout-confirmation animate-scale-in">
-                                <div className="confirmation-icon">✅</div>
+                                <div className="confirmation-icon"><FiCheck size={48} /></div>
                                 <h2>Order Placed Successfully!</h2>
                                 <p>Thank you for shopping with Halal Market Ethiopia! Your order has been received and is being processed.</p>
                                 <p className="text-ethiopic" style={{ fontSize: '1.25rem', color: 'var(--primary-500)' }}>አመሰግናለሁ!</p>

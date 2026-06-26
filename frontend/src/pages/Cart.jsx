@@ -20,7 +20,7 @@ const Cart = () => {
             <div className="cart-page">
                 <div className="container cart-empty-page">
                     <div className="cart-empty-content">
-                        <div className="cart-empty-illustration">🛒</div>
+                        <div className="cart-empty-illustration"><FiShoppingBag size={64} /></div>
                         <h2>Your cart is empty</h2>
                         <p>Looks like you haven't added any halal products yet!</p>
                         <Link to="/shop" className="btn btn-primary btn-lg">
@@ -51,7 +51,7 @@ const Cart = () => {
                                     <img src={imageUrl} alt={item.name} className="cart-page-item-image" />
                                     <div className="cart-page-item-info">
                                         <h3>{item.name}</h3>
-                                        {item.halalCertified && <span className="badge badge-halal" style={{ fontSize: '0.65rem' }}>☪ Halal</span>}
+                                        {item.halalCertified && <span className="badge badge-halal" style={{ fontSize: '0.65rem' }}>Halal</span>}
                                         <p className="cart-page-item-merchant">{item.merchant?.businessName}</p>
                                     </div>
                                     <div className="cart-page-item-qty">
@@ -95,7 +95,7 @@ const Cart = () => {
                                 <span>{tax.toLocaleString()} ETB</span>
                             </div>
                             {deliveryFee > 0 && (
-                                <p className="summary-note">🚛 Free delivery on orders above 5,000 ETB</p>
+                                <p className="summary-note">Free delivery on orders above 5,000 ETB</p>
                             )}
                             <div className="summary-divider" />
                             <div className="summary-row summary-total">

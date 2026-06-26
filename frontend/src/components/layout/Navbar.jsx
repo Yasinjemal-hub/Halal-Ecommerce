@@ -12,8 +12,8 @@ import {
   FiLogOut,
   FiGrid,
   FiHeart,
-  FiShield,
   FiSettings,
+  FiUsers,
 } from "react-icons/fi";
 import { selectCartCount, toggleCart } from "../../redux/slices/cartSlice";
 import { logout } from "../../redux/slices/authSlice";
@@ -95,19 +95,19 @@ const Navbar = () => {
     { path: "/", label: t("nav_home") },
     { path: "/shop", label: t("nav_shop") },
     { path: "/merchants", label: t("nav_merchants") },
-    { path: "/mejilis", label: "🕌 Mejilis" },
+    { path: "/mejilis", label: "Mejilis" },
     { path: "/about", label: t("nav_about") },
   ];
 
   const categories = [
-    { slug: "meat", label: `🥩 ${t("cat_meat")}`, icon: "🥩" },
-    { slug: "dairy", label: `🥛 ${t("cat_dairy")}`, icon: "🥛" },
-    { slug: "spices", label: `🌶️ ${t("cat_spices")}`, icon: "🌶️" },
-    { slug: "bakery", label: `🍞 ${t("cat_bakery")}`, icon: "🍞" },
-    { slug: "honey", label: `🍯 ${t("cat_honey")}`, icon: "🍯" },
-    { slug: "clothing", label: `👗 ${t("cat_clothing")}`, icon: "👗" },
-    { slug: "cosmetics", label: `✨ ${t("cat_cosmetics")}`, icon: "✨" },
-    { slug: "books", label: `📚 ${t("cat_books")}`, icon: "📚" },
+    { slug: "meat", label: t("cat_meat"), icon: "Meat" },
+    { slug: "dairy", label: t("cat_dairy"), icon: "Dairy" },
+    { slug: "spices", label: t("cat_spices"), icon: "Spices" },
+    { slug: "bakery", label: t("cat_bakery"), icon: "Bakery" },
+    { slug: "honey", label: t("cat_honey"), icon: "Honey" },
+    { slug: "clothing", label: t("cat_clothing"), icon: "Clothing" },
+    { slug: "cosmetics", label: t("cat_cosmetics"), icon: "Cosmetics" },
+    { slug: "books", label: t("cat_books"), icon: "Books" },
   ];
 
   return (
@@ -297,10 +297,10 @@ const Navbar = () => {
                           }}
                         >
                           {user?.role === "admin"
-                            ? "👑 Admin"
+                            ? "Admin"
                             : user?.role === "merchant"
-                              ? "🏪 Merchant"
-                              : "👤 Consumer"}
+                              ? "Merchant"
+                              : "Consumer"}
                         </span>
                       </div>
                       <p className="user-dropdown-email">{user?.email}</p>
@@ -320,21 +320,21 @@ const Navbar = () => {
                           className="user-dropdown-item"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
-                          👥 Consumers
+                          <FiUsers size={16} /> Consumers
                         </Link>
                         <Link
                           to="/admin/merchants"
                           className="user-dropdown-item"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
-                          🏪 Merchants
+                           Merchants
                         </Link>
                         <Link
                           to="/admin/profile-approvals"
                           className="user-dropdown-item"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
-                          ✓ Approvals
+                           Approvals
                         </Link>
                       </>
                     ) : (

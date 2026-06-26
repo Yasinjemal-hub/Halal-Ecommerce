@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiSearch, FiChevronDown, FiPackage, FiAlertCircle, FiCheckCircle, FiPower, FiTrendingUp, FiCalendar, FiMapPin } from 'react-icons/fi';
+import { FiSearch, FiChevronDown, FiPackage, FiAlertCircle, FiCheckCircle, FiPower, FiTrendingUp, FiCalendar, FiMapPin, FiClock, FiX, FiMail, FiPhone, FiShoppingBag } from 'react-icons/fi';
 import adminService from '../../services/adminService';
 import merchantService from '../../services/merchantService';
 import { toast } from 'react-hot-toast';
@@ -164,7 +164,7 @@ const AdminMerchants = () => {
       <div className="dashboard-stats">
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#2ecc7115', color: '#2ecc71' }}>
-            🏪
+            <FiShoppingBag size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{merchants.length}</span>
@@ -173,7 +173,7 @@ const AdminMerchants = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#3498db15', color: '#3498db' }}>
-            ✓
+            <FiCheckCircle size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{merchants.filter(m => m.verificationStatus === 'approved').length}</span>
@@ -182,7 +182,7 @@ const AdminMerchants = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#f39c1215', color: '#f39c12' }}>
-            ⏳
+            <FiClock size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{merchants.filter(m => m.verificationStatus === 'pending').length}</span>
@@ -191,7 +191,7 @@ const AdminMerchants = () => {
         </div>
         <div className="stat-card">
           <div className="stat-icon" style={{ background: '#e7434315', color: '#e74343' }}>
-            ✗
+            <FiX size={24} />
           </div>
           <div className="stat-info">
             <span className="stat-value">{inactiveMerchants}</span>
@@ -282,12 +282,12 @@ const AdminMerchants = () => {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
-            <div style={{ fontSize: '24px', marginBottom: '12px' }}>⏳</div>
+            <div style={{ fontSize: '24px', marginBottom: '12px', color: '#f39c12' }}><FiClock size={24} /></div>
             Loading merchants...
           </div>
         ) : filteredMerchants.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-tertiary)' }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🏪</div>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}><FiShoppingBag size={32} /></div>
             No merchants found
           </div>
         ) : (
@@ -345,8 +345,8 @@ const AdminMerchants = () => {
                         </span>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', fontSize: '13px', color: '#666' }}>
-                        <div>📧 {merchant.businessEmail || merchant.user?.email || 'Not provided'}</div>
-                        <div>📞 {merchant.businessPhone || merchant.user?.phone || 'Not provided'}</div>
+                        <div><FiMail size={13} style={{marginRight:4}} /> {merchant.businessEmail || merchant.user?.email || 'Not provided'}</div>
+                        <div><FiPhone size={13} style={{marginRight:4}} /> {merchant.businessPhone || merchant.user?.phone || 'Not provided'}</div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <FiMapPin size={13} /> {merchant.businessAddress?.city || 'Not provided'}
                         </div>
@@ -470,7 +470,7 @@ const AdminMerchants = () => {
                       {/* Products Section */}
                       {loadingProducts[merchant._id] ? (
                         <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-tertiary)' }}>
-                          ⏳ Loading products...
+                          <FiClock size={16} style={{marginRight:4}} /> Loading products...
                         </div>
                       ) : (merchantProducts[merchant._id] || []).length > 0 ? (
                         <div>

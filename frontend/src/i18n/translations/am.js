@@ -18,7 +18,7 @@ const am = {
     nav_wishlist: 'ምኞት ዝርዝር',
     nav_logout: 'ውጣ',
     nav_categories: 'ምድቦች',
-    top_bar_text: '🕌 ታማኝ የሐላል ገበያ — በመጅሊስ የተረጋገጠ',
+    top_bar_text: 'ታማኝ የሐላል ገበያ — በመጅሊስ የተረጋገጠ',
 
     // ─── Hero Section ─────────────────────────────
     hero_badge: 'በመጅሊስ — የኢትዮጵያ እስላማዊ ጉዳዮች ከፍተኛ ምክር ቤት የተረጋገጠ',
@@ -43,7 +43,7 @@ const am = {
     trust_support_desc: 'ሁልጊዜ ለመርዳት ዝግጁ ነን',
 
     // ─── Categories Section ───────────────────────
-    cat_browse: '☪ በምድብ ያስሱ',
+    cat_browse: 'በምድብ ያስሱ',
     cat_title: 'የሐላል ምድቦችን ይግዙ',
     cat_description: 'ሰፊ የሐላል የተረጋገጡ ምርቶች ምድቦቻችንን ያስሱ',
     cat_meat: 'ስጋ',
@@ -60,13 +60,13 @@ const am = {
     cat_beverages: 'መጠጥ',
 
     // ─── Featured Section ─────────────────────────
-    featured_subtitle: '⭐ ለእርስዎ የተመረጡ',
+    featured_subtitle: 'ለእርስዎ የተመረጡ',
     featured_title: 'ተመራጭ ምርቶች',
     featured_description: 'ከኢትዮጵያ ታማኝ ነጋዴዎች ከፍተኛ ደረጃ ያላቸው ሐላል ምርቶች',
     featured_view_all: 'ሁሉንም ምርቶች ይመልከቱ',
 
     // ─── Why Section ──────────────────────────────
-    why_subtitle: '🕌 ለምን ሐላል ማርኬት ኢትዮጵያ',
+    why_subtitle: 'ለምን ሐላል ማርኬት ኢትዮጵያ',
     why_title_1: 'በእምነት የተገነባ፣',
     why_title_2: 'በ',
     why_title_3: 'ግልጽነት የተጎለበት',
@@ -85,7 +85,7 @@ const am = {
     why_support: 'ድጋፍ',
 
     // ─── Testimonials Section ─────────────────────
-    testimonials_subtitle: '💬 ማህበረሰባችን ያለው',
+    testimonials_subtitle: 'ማህበረሰባችን ያለው',
     testimonials_title: 'በሺዎች የታመነ',
 
     // ─── CTA Section ──────────────────────────────
@@ -114,7 +114,7 @@ const am = {
     footer_pricing: 'የዋጋ እቅዶች',
     footer_contact: 'ያግኙን',
     footer_we_accept: 'እንቀበላለን',
-    footer_copyright: '© {year} ሐላል ማርኬት ኢትዮጵያ። ሁሉም መብቶች የተጠበቁ ናቸው። ❤️ ለኢትዮጵያ ሐላል ማህበረሰብ የተገነባ',
+    footer_copyright: '© {year} ሐላል ማርኬት ኢትዮጵያ። ሁሉም መብቶች የተጠበቁ ናቸው። ለኢትዮጵያ ሐላል ማህበረሰብ የተገነባ',
     footer_privacy: 'የግላዊነት ፖሊሲ',
     footer_terms: 'የአገልግሎት ውል',
     footer_faq: 'ተደጋጋሚ ጥያቄዎች',
@@ -143,12 +143,12 @@ const am = {
     auth_sign_in_link: 'ይግቡ',
     auth_consumer: 'ሸማች',
     auth_merchant: 'ነጋዴ',
-    auth_feature_1: '✓ በመጅሊስ የተረጋገጡ ነጋዴዎች',
-    auth_feature_2: '✓ ደህንነቱ የተጠበቀ የኢትዮጵያ ክፍያ',
-    auth_feature_3: '✓ ትዕዛዝ ክትትል እና ታሪክ',
-    auth_register_feature_1: '✓ ነፃ የሸማች መለያ',
-    auth_register_feature_2: '✓ የነጋዴ ምዝገባ ይገኛል',
-    auth_register_feature_3: '✓ ደህንነቱ የተጠበቀ እና ግላዊ',
+    auth_feature_1: 'በመጅሊስ የተረጋገጡ ነጋዴዎች',
+    auth_feature_2: 'ደህንነቱ የተጠበቀ የኢትዮጵያ ክፍያ',
+    auth_feature_3: 'ትዕዛዝ ክትትል እና ታሪክ',
+    auth_register_feature_1: 'ነፃ የሸማች መለያ',
+    auth_register_feature_2: 'የነጋዴ ምዝገባ ይገኛል',
+    auth_register_feature_3: 'ደህንነቱ የተጠበቀ እና ግላዊ',
 
     // ─── Cart ─────────────────────────────────────
     cart_title: 'የግዢ ጋሪ',
@@ -162,14 +162,14 @@ const am = {
     cart_delivery: 'የማድረሻ ክፍያ',
     cart_free: 'ነፃ',
     cart_vat: 'ተ.ጨ.ግ (15%)',
-    cart_free_delivery_note: '🚛 ከ5,000 ብር በላይ ለሆኑ ትዕዛዞች ነፃ ማድረስ',
+    cart_free_delivery_note: 'ከ5,000 ብር በላይ ለሆኑ ትዕዛዞች ነፃ ማድረስ',
     cart_total: 'ጠቅላላ',
     cart_checkout: 'ወደ ክፍያ ይሂዱ',
     cart_items: '{count} ዕቃ(ዎች) በጋሪዎ ውስጥ',
 
     // ─── Product Card ─────────────────────────────
-    product_halal: '☪ ሐላል',
-    product_featured: '★ ተመራጭ',
+    product_halal: 'ሐላል',
+    product_featured: 'ተመራጭ',
     product_out_of_stock: 'አልቋል',
     product_add_to_cart: 'ወደ ጋሪ ጨምር',
     product_added: '{name} ወደ ጋሪ ተጨምሯል!',
@@ -183,7 +183,7 @@ const am = {
     shop_category: 'ምድብ',
     shop_all_categories: 'ሁሉም ምድቦች',
     shop_price_range: 'የዋጋ ክልል (ብር)',
-    shop_halal_only: '☪ ሐላል የተረጋገጠ ብቻ',
+    shop_halal_only: 'ሐላል የተረጋገጠ ብቻ',
     shop_clear_filters: 'ሁሉንም ማጣሪያዎች ያጽዱ',
     shop_sort_newest: 'አዲስ መጀመሪያ',
     shop_sort_price_asc: 'ዋጋ: ዝቅተኛ ወደ ከፍተኛ',
@@ -232,14 +232,14 @@ const am = {
     merchants_products: '{count} ምርቶች',
     merchants_orders: '{count} ትዕዛዞች',
     merchants_rating: '{rating} ደረጃ',
-    merchants_verified: '✓ በመጅሊስ የተረጋገጠ',
+    merchants_verified: 'በመጅሊስ የተረጋገጠ',
     merchants_view_shop: 'ሱቅ ይመልከቱ',
     merchants_location: 'ቦታ',
     merchants_contact: 'ያግኙ',
     merchants_no_results: 'ከፍለጋዎ ጋር የሚዛመት ነጋዴ አልተገኘም።',
     merchants_become: 'ነጋዴ ይሁኑ',
     merchants_become_desc: 'በመድረኛችን ላይ ከመቶዎች የተረጋገጡ ሐላል ንግዶች ጋር ይቀላቀሉ።',
-    merchants_featured: '★ ተመራጭ ነጋዴዎች',
+    merchants_featured: 'ተመራጭ ነጋዴዎች',
 
     // ─── About Page ──────────────────────────────
     about_title: 'ስለ ሐላል ማርኬት ኢትዮጵያ',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiShield, FiUsers, FiZap, FiGlobe, FiCheckCircle } from 'react-icons/fi';
+import { FiArrowRight, FiShield, FiUsers, FiZap, FiGlobe, FiCheckCircle, FiStar } from 'react-icons/fi';
 import { useLanguage } from '../i18n/LanguageContext';
 import './About.css';
 
@@ -32,12 +32,12 @@ const About = () => {
                 <div className="container">
                     <div className="about-grid">
                         <div className="about-card about-card-mission">
-                            <div className="about-card-icon" style={{ background: '#0D7C3D15', color: '#0D7C3D' }}>🕌</div>
+                            <div className="about-card-icon" style={{ background: '#0D7C3D15', color: '#0D7C3D' }}><FiShield /></div>
                             <h2>{t('about_mission_title')}</h2>
                             <p>{t('about_mission_text')}</p>
                         </div>
                         <div className="about-card about-card-vision">
-                            <div className="about-card-icon" style={{ background: '#2563eb15', color: '#2563eb' }}>🌍</div>
+                            <div className="about-card-icon" style={{ background: '#2563eb15', color: '#2563eb' }}><FiGlobe /></div>
                             <h2>{t('about_vision_title')}</h2>
                             <p>{t('about_vision_text')}</p>
                         </div>
@@ -72,10 +72,10 @@ const About = () => {
                         <div className="about-team-visual">
                             <div className="about-team-pattern pattern-overlay" />
                             <div className="about-team-stats">
-                                <div className="about-team-stat"><span className="about-team-stat-emoji">🇪🇹</span><span className="about-team-stat-val">13</span><span>Regions</span></div>
-                                <div className="about-team-stat"><span className="about-team-stat-emoji">🕌</span><span className="about-team-stat-val">500+</span><span>Merchants</span></div>
-                                <div className="about-team-stat"><span className="about-team-stat-emoji">🌍</span><span className="about-team-stat-val">4</span><span>Languages</span></div>
-                                <div className="about-team-stat"><span className="about-team-stat-emoji">⭐</span><span className="about-team-stat-val">50K+</span><span>Customers</span></div>
+                                <div className="about-team-stat"><FiGlobe className="about-team-stat-emoji" /><span className="about-team-stat-val">13</span><span>Regions</span></div>
+                                <div className="about-team-stat"><FiShield className="about-team-stat-emoji" /><span className="about-team-stat-val">500+</span><span>Merchants</span></div>
+                                <div className="about-team-stat"><FiGlobe className="about-team-stat-emoji" /><span className="about-team-stat-val">4</span><span>Languages</span></div>
+                                <div className="about-team-stat"><FiStar className="about-team-stat-emoji" /><span className="about-team-stat-val">50K+</span><span>Customers</span></div>
                             </div>
                         </div>
                         <div className="about-team-text">

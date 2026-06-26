@@ -18,7 +18,7 @@ const ar = {
     nav_wishlist: 'قائمة الأمنيات',
     nav_logout: 'تسجيل الخروج',
     nav_categories: 'الفئات',
-    top_bar_text: '🕌 سوق حلال موثوق — معتمد من المجلس',
+    top_bar_text: 'سوق حلال موثوق — معتمد من المجلس',
 
     // ─── Hero Section ─────────────────────────────
     hero_badge: 'معتمد من المجلس — المجلس الأعلى للشؤون الإسلامية الإثيوبي',
@@ -43,7 +43,7 @@ const ar = {
     trust_support_desc: 'دائماً هنا للمساعدة',
 
     // ─── Categories Section ───────────────────────
-    cat_browse: '☪ تصفح حسب الفئة',
+    cat_browse: 'تصفح حسب الفئة',
     cat_title: 'تسوق فئات الحلال',
     cat_description: 'استكشف مجموعة واسعة من فئات المنتجات الحلال المعتمدة',
     cat_meat: 'لحوم ودواجن',
@@ -60,13 +60,13 @@ const ar = {
     cat_beverages: 'مشروبات',
 
     // ─── Featured Section ─────────────────────────
-    featured_subtitle: '⭐ مختارة لك',
+    featured_subtitle: 'مختارة لك',
     featured_title: 'المنتجات المميزة',
     featured_description: 'أفضل المنتجات الحلال تقييماً من أكثر التجار الإثيوبيين ثقة',
     featured_view_all: 'عرض جميع المنتجات',
 
     // ─── Why Section ──────────────────────────────
-    why_subtitle: '🕌 لماذا سوق حلال إثيوبيا',
+    why_subtitle: 'لماذا سوق حلال إثيوبيا',
     why_title_1: 'مبني على الثقة،',
     why_title_2: 'مدعوم بـ',
     why_title_3: 'الشفافية',
@@ -85,7 +85,7 @@ const ar = {
     why_support: 'الدعم',
 
     // ─── Testimonials Section ─────────────────────
-    testimonials_subtitle: '💬 ماذا يقول مجتمعنا',
+    testimonials_subtitle: 'ماذا يقول مجتمعنا',
     testimonials_title: 'موثوق من الآلاف',
 
     // ─── CTA Section ──────────────────────────────
@@ -114,7 +114,7 @@ const ar = {
     footer_pricing: 'خطط الأسعار',
     footer_contact: 'اتصل بنا',
     footer_we_accept: 'نقبل',
-    footer_copyright: '© {year} سوق حلال إثيوبيا. جميع الحقوق محفوظة. ❤️ صنع لمجتمع الحلال في إثيوبيا',
+    footer_copyright: '© {year} سوق حلال إثيوبيا. جميع الحقوق محفوظة. صنع لمجتمع الحلال في إثيوبيا',
     footer_privacy: 'سياسة الخصوصية',
     footer_terms: 'شروط الخدمة',
     footer_faq: 'الأسئلة الشائعة',
@@ -143,12 +143,12 @@ const ar = {
     auth_sign_in_link: 'تسجيل الدخول',
     auth_consumer: 'مستهلك',
     auth_merchant: 'تاجر',
-    auth_feature_1: '✓ تجار معتمدون من المجلس',
-    auth_feature_2: '✓ مدفوعات إثيوبية آمنة',
-    auth_feature_3: '✓ تتبع الطلبات والسجل',
-    auth_register_feature_1: '✓ حساب مستهلك مجاني',
-    auth_register_feature_2: '✓ تسجيل التجار متاح',
-    auth_register_feature_3: '✓ آمن وخاص',
+    auth_feature_1: 'تجار معتمدون من المجلس',
+    auth_feature_2: 'مدفوعات إثيوبية آمنة',
+    auth_feature_3: 'تتبع الطلبات والسجل',
+    auth_register_feature_1: 'حساب مستهلك مجاني',
+    auth_register_feature_2: 'تسجيل التجار متاح',
+    auth_register_feature_3: 'آمن وخاص',
 
     // ─── Cart ─────────────────────────────────────
     cart_title: 'سلة التسوق',
@@ -162,14 +162,14 @@ const ar = {
     cart_delivery: 'رسوم التوصيل',
     cart_free: 'مجاني',
     cart_vat: 'ضريبة القيمة المضافة (15%)',
-    cart_free_delivery_note: '🚛 توصيل مجاني للطلبات أعلى من 5,000 بر',
+    cart_free_delivery_note: 'توصيل مجاني للطلبات أعلى من 5,000 بر',
     cart_total: 'المجموع',
     cart_checkout: 'متابعة الدفع',
     cart_items: '{count} عنصر في سلتك',
 
     // ─── Product Card ─────────────────────────────
-    product_halal: '☪ حلال',
-    product_featured: '★ مميز',
+    product_halal: 'حلال',
+    product_featured: 'مميز',
     product_out_of_stock: 'غير متوفر',
     product_add_to_cart: 'أضف إلى السلة',
     product_added: 'تمت إضافة {name} إلى السلة!',
@@ -183,7 +183,7 @@ const ar = {
     shop_category: 'الفئة',
     shop_all_categories: 'جميع الفئات',
     shop_price_range: 'نطاق السعر (بر)',
-    shop_halal_only: '☪ حلال معتمد فقط',
+    shop_halal_only: 'حلال معتمد فقط',
     shop_clear_filters: 'مسح جميع عوامل التصفية',
     shop_sort_newest: 'الأحدث أولاً',
     shop_sort_price_asc: 'السعر: من الأقل إلى الأعلى',
@@ -232,14 +232,14 @@ const ar = {
     merchants_products: '{count} منتج',
     merchants_orders: '{count} طلب',
     merchants_rating: '{rating} تقييم',
-    merchants_verified: '✓ معتمد من المجلس',
+    merchants_verified: 'معتمد من المجلس',
     merchants_view_shop: 'عرض المتجر',
     merchants_location: 'الموقع',
     merchants_contact: 'اتصل',
     merchants_no_results: 'لم يتم العثور على تجار مطابقين.',
     merchants_become: 'كن تاجراً',
     merchants_become_desc: 'انضم إلى مئات الأعمال الحلال المعتمدة على منصتنا.',
-    merchants_featured: '★ التجار المميزون',
+    merchants_featured: 'التجار المميزون',
 
     // ─── About Page ──────────────────────────────
     about_title: 'عن سوق حلال إثيوبيا',

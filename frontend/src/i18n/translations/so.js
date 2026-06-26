@@ -19,7 +19,7 @@ const so = {
     nav_wishlist: 'Liiska Rajaynta',
     nav_logout: 'Ka Bax',
     nav_categories: 'Qaybaha',
-    top_bar_text: '🕌 Suuqa Xalaasha ee La Aamino — Majliska Waa Xaqiijiyay',
+    top_bar_text: 'Suuqa Xalaasha ee La Aamino — Majliska Waa Xaqiijiyay',
 
     // ─── Hero Section ─────────────────────────────
     hero_badge: 'Majliska Waa Xaqiijiyay — Golaha Sare ee Arrimaha Islaamka Itoobiya',
@@ -44,7 +44,7 @@ const so = {
     trust_support_desc: 'Mar walba halkan waxaan u joogna inaan ku caawino',
 
     // ─── Categories Section ───────────────────────
-    cat_browse: '☪ Ku Raadi Qaybaha',
+    cat_browse: 'Ku Raadi Qaybaha',
     cat_title: 'Iibso Qaybaha Xalaasha',
     cat_description: 'Baadh qaybaha badeecada xalaal ee ballaaran ee la xaqiijiyay',
     cat_meat: 'Hilib',
@@ -61,13 +61,13 @@ const so = {
     cat_beverages: 'Cabbitaanka',
 
     // ─── Featured Section ─────────────────────────
-    featured_subtitle: '⭐ Kuu La Soo Doortay',
+    featured_subtitle: 'Kuu La Soo Doortay',
     featured_title: 'Badeecada La Doorbiday',
     featured_description: 'Badeecada xalaasha ee ugu qiimaha sarreeya ee ganacsatada Itoobiya ugu aamminsan',
     featured_view_all: 'Arag Dhammaan Badeecada',
 
     // ─── Why Section ──────────────────────────────
-    why_subtitle: '🕌 Maxaa Suuqa Xalaasha Itoobiya',
+    why_subtitle: 'Maxaa Suuqa Xalaasha Itoobiya',
     why_title_1: 'Ku Dhisan Kalsoonida,',
     why_title_2: 'Ku Taageeran',
     why_title_3: 'Daahfurnaan',
@@ -86,7 +86,7 @@ const so = {
     why_support: 'Taageerada',
 
     // ─── Testimonials Section ─────────────────────
-    testimonials_subtitle: '💬 Bulshadeenna Maxay Tiraahdaa',
+    testimonials_subtitle: 'Bulshadeenna Maxay Tiraahdaa',
     testimonials_title: 'Kumanaan Ayaa Ku Kalsoon',
 
     // ─── CTA Section ──────────────────────────────
@@ -115,7 +115,7 @@ const so = {
     footer_pricing: 'Qorshayaasha Qiimaha',
     footer_contact: 'Nala Soo Xiriir',
     footer_we_accept: 'Waan Aqbalnaa',
-    footer_copyright: '© {year} Suuqa Xalaasha Itoobiya. Dhammaan xuquuqda waa la ilaaliyay. ❤️ Loo dhisay Bulshada Xalaasha ee Itoobiya',
+    footer_copyright: '© {year} Suuqa Xalaasha Itoobiya. Dhammaan xuquuqda waa la ilaaliyay. Loo dhisay Bulshada Xalaasha ee Itoobiya',
     footer_privacy: 'Siyaasadda Asturnaanta',
     footer_terms: 'Shuruudaha Adeegga',
     footer_faq: 'Su\'aalaha Badanaa La Isweydiiyo',
@@ -144,12 +144,12 @@ const so = {
     auth_sign_in_link: 'Soo Gal',
     auth_consumer: 'Macaamiil',
     auth_merchant: 'Ganacside',
-    auth_feature_1: '✓ Ganacsatada Majliska Xaqiijiyay',
-    auth_feature_2: '✓ Lacag Bixin Itoobiyaan Ammaan ah',
-    auth_feature_3: '✓ La Socodka Dalabka & Taariikhda',
-    auth_register_feature_1: '✓ Akoon Macaamiil Bilaash ah',
-    auth_register_feature_2: '✓ Diiwaangelinta Ganacsadaha Waa La Heli Karaa',
-    auth_register_feature_3: '✓ Ammaan & Gaar ah',
+    auth_feature_1: 'Ganacsatada Majliska Xaqiijiyay',
+    auth_feature_2: 'Lacag Bixin Itoobiyaan Ammaan ah',
+    auth_feature_3: 'La Socodka Dalabka & Taariikhda',
+    auth_register_feature_1: 'Akoon Macaamiil Bilaash ah',
+    auth_register_feature_2: 'Diiwaangelinta Ganacsadaha Waa La Heli Karaa',
+    auth_register_feature_3: 'Ammaan & Gaar ah',
 
     // ─── Cart ─────────────────────────────────────
     cart_title: 'Baaskiilka Iibsashada',
@@ -163,14 +163,14 @@ const so = {
     cart_delivery: 'Lacagta Gaadista',
     cart_free: 'BILAASH',
     cart_vat: 'CBG (15%)',
-    cart_free_delivery_note: '🚛 Gaadis bilaash ah dalabyo ka sarreeya 5,000 ETB',
+    cart_free_delivery_note: 'Gaadis bilaash ah dalabyo ka sarreeya 5,000 ETB',
     cart_total: 'Wadarta',
     cart_checkout: 'U Gudub Lacag Bixinta',
     cart_items: '{count} shay baaskiilkaaga ku jira',
 
     // ─── Product Card ─────────────────────────────
-    product_halal: '☪ Xalaal',
-    product_featured: '★ La Doorbiday',
+    product_halal: 'Xalaal',
+    product_featured: 'La Doorbiday',
     product_out_of_stock: 'Kaydka Ka Dhamaaday',
     product_add_to_cart: 'Ku Dar Baaskiilka',
     product_added: '{name} baaskiilka waa lagu daray!',
@@ -184,7 +184,7 @@ const so = {
     shop_category: 'Qaybta',
     shop_all_categories: 'Dhammaan Qaybaha',
     shop_price_range: 'Xadka Qiimaha (ETB)',
-    shop_halal_only: '☪ Xalaal La Xaqiijiyay Oo Keliya',
+    shop_halal_only: 'Xalaal La Xaqiijiyay Oo Keliya',
     shop_clear_filters: 'Nadiifi Dhammaan Shaandhaynta',
     shop_sort_newest: 'Ugu Cusub Marka Hore',
     shop_sort_price_asc: 'Qiimaha: Hoose ilaa Sare',
@@ -233,14 +233,14 @@ const so = {
     merchants_products: '{count} Badeeco',
     merchants_orders: '{count} Dalbo',
     merchants_rating: '{rating} Qiimayn',
-    merchants_verified: '✓ Majliska Waa Xaqiijiyay',
+    merchants_verified: 'Majliska Waa Xaqiijiyay',
     merchants_view_shop: 'Arag Dukaanka',
     merchants_location: 'Goobta',
     merchants_contact: 'Xiriirka',
     merchants_no_results: 'Ganacsato waafaqsan raadintaada lama helin.',
     merchants_become: 'Ganacside Noqo',
     merchants_become_desc: 'Ku biir boqolaal ganacsiyo xalaal ah oo la xaqiijiyay oo ku jira madaltayada.',
-    merchants_featured: '★ Ganacsatada La Doorbiday',
+    merchants_featured: 'Ganacsatada La Doorbiday',
 
     // ─── About Page ──────────────────────────────
     about_title: 'Ku Saabsan Suuqa Xalaasha Itoobiya',

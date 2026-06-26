@@ -19,7 +19,7 @@ const en = {
     nav_wishlist: 'Wishlist',
     nav_logout: 'Logout',
     nav_categories: 'Categories',
-    top_bar_text: '🕌 Trusted Halal Marketplace — Verified by Majlis',
+    top_bar_text: 'Trusted Halal Marketplace — Verified by Majlis',
 
     // ─── Hero Section ─────────────────────────────
     hero_badge: 'Verified by Majlis — Ethiopian Islamic Affairs Supreme Council',
@@ -44,7 +44,7 @@ const en = {
     trust_support_desc: 'Always here to help',
 
     // ─── Categories Section ───────────────────────
-    cat_browse: '☪ Browse By Category',
+    cat_browse: 'Browse By Category',
     cat_title: 'Shop Halal Categories',
     cat_description: 'Explore our wide range of halal-certified product categories',
     cat_meat: 'Meat & Poultry',
@@ -61,13 +61,13 @@ const en = {
     cat_beverages: 'Beverages',
 
     // ─── Featured Section ─────────────────────────
-    featured_subtitle: '⭐ Handpicked For You',
+    featured_subtitle: 'Handpicked For You',
     featured_title: 'Featured Products',
     featured_description: "Top-rated halal products from Ethiopia's most trusted merchants",
     featured_view_all: 'View All Products',
 
     // ─── Why Section ──────────────────────────────
-    why_subtitle: '🕌 Why Halal Market Ethiopia',
+    why_subtitle: 'Why Halal Market Ethiopia',
     why_title_1: 'Built on Trust,',
     why_title_2: 'Powered by',
     why_title_3: 'Transparency',
@@ -86,7 +86,7 @@ const en = {
     why_support: 'Support',
 
     // ─── Testimonials Section ─────────────────────
-    testimonials_subtitle: '💬 What Our Community Says',
+    testimonials_subtitle: 'What Our Community Says',
     testimonials_title: 'Trusted by Thousands',
 
     // ─── CTA Section ──────────────────────────────
@@ -115,7 +115,7 @@ const en = {
     footer_pricing: 'Pricing Plans',
     footer_contact: 'Contact Us',
     footer_we_accept: 'We Accept',
-    footer_copyright: '© {year} Halal Market Ethiopia. All rights reserved. ❤️ Built for Ethiopia\'s Halal Community',
+    footer_copyright: '© {year} Halal Market Ethiopia. All rights reserved. Built for Ethiopia\'s Halal Community',
     footer_privacy: 'Privacy Policy',
     footer_terms: 'Terms of Service',
     footer_faq: 'FAQ',
@@ -144,12 +144,12 @@ const en = {
     auth_sign_in_link: 'Sign In',
     auth_consumer: 'Consumer',
     auth_merchant: 'Merchant',
-    auth_feature_1: '✓ Majlis Verified Merchants',
-    auth_feature_2: '✓ Secure Ethiopian Payments',
-    auth_feature_3: '✓ Order Tracking & History',
-    auth_register_feature_1: '✓ Free Consumer Account',
-    auth_register_feature_2: '✓ Merchant Registration Available',
-    auth_register_feature_3: '✓ Secure & Private',
+    auth_feature_1: 'Majlis Verified Merchants',
+    auth_feature_2: 'Secure Ethiopian Payments',
+    auth_feature_3: 'Order Tracking & History',
+    auth_register_feature_1: 'Free Consumer Account',
+    auth_register_feature_2: 'Merchant Registration Available',
+    auth_register_feature_3: 'Secure & Private',
 
     // ─── Cart ─────────────────────────────────────
     cart_title: 'Shopping Cart',
@@ -163,14 +163,14 @@ const en = {
     cart_delivery: 'Delivery Fee',
     cart_free: 'FREE',
     cart_vat: 'VAT (15%)',
-    cart_free_delivery_note: '🚛 Free delivery on orders above 5,000 ETB',
+    cart_free_delivery_note: 'Free delivery on orders above 5,000 ETB',
     cart_total: 'Total',
     cart_checkout: 'Proceed to Checkout',
     cart_items: '{count} item(s) in your cart',
 
     // ─── Product Card ─────────────────────────────
-    product_halal: '☪ Halal',
-    product_featured: '★ Featured',
+    product_halal: 'Halal',
+    product_featured: 'Featured',
     product_out_of_stock: 'Out of Stock',
     product_add_to_cart: 'Add to cart',
     product_added: '{name} added to cart!',
@@ -184,7 +184,7 @@ const en = {
     shop_category: 'Category',
     shop_all_categories: 'All Categories',
     shop_price_range: 'Price Range (ETB)',
-    shop_halal_only: '☪ Halal Certified Only',
+    shop_halal_only: 'Halal Certified Only',
     shop_clear_filters: 'Clear All Filters',
     shop_sort_newest: 'Newest First',
     shop_sort_price_asc: 'Price: Low to High',
@@ -233,14 +233,14 @@ const en = {
     merchants_products: '{count} Products',
     merchants_orders: '{count} Orders',
     merchants_rating: '{rating} Rating',
-    merchants_verified: '✓ Majlis Verified',
+    merchants_verified: 'Majlis Verified',
     merchants_view_shop: 'View Shop',
     merchants_location: 'Location',
     merchants_contact: 'Contact',
     merchants_no_results: 'No merchants found matching your search.',
     merchants_become: 'Become a Merchant',
     merchants_become_desc: 'Join hundreds of verified halal businesses on our platform.',
-    merchants_featured: '★ Featured Merchants',
+    merchants_featured: 'Featured Merchants',
 
     // ─── About Page ──────────────────────────────
     about_title: 'About Halal Market Ethiopia',

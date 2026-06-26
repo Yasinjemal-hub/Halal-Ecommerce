@@ -18,7 +18,7 @@ const om = {
     nav_wishlist: 'Tarree Hawwii',
     nav_logout: "Ba'i",
     nav_categories: 'Ramaddii',
-    top_bar_text: "🕌 Gabaa Halaalaa Amanamaa — Majlisiin Mirkanaa'e",
+    top_bar_text: "Gabaa Halaalaa Amanamaa — Majlisiin Mirkanaa'e",
 
     // ─── Hero Section ─────────────────────────────
     hero_badge: "Majlisiin — Gumii Ol'aanaa Dhimma Islaamaa Itoophiyaatiin Mirkanaa'e",
@@ -43,7 +43,7 @@ const om = {
     trust_support_desc: 'Yeroo hundaa gargaaruuf qophii',
 
     // ─── Categories Section ───────────────────────
-    cat_browse: '☪ Ramaddiidhaan Barbaadi',
+    cat_browse: 'Ramaddiidhaan Barbaadi',
     cat_title: 'Ramaddii Halaalaa Bitadhaa',
     cat_description: "Ramaddii oomisha halaalaa mirkanaa'an bal'inaa keenya sakatta'aa",
     cat_meat: 'Foon',
@@ -60,13 +60,13 @@ const om = {
     cat_beverages: 'Dhugaatii',
 
     // ─── Featured Section ─────────────────────────
-    featured_subtitle: '⭐ Siif Filataman',
+    featured_subtitle: 'Siif Filataman',
     featured_title: 'Oomisha Filatamoo',
     featured_description: "Oomisha halaalaa sadarkaa ol'aanaa daldaltoota Itoophiyaa amanamoo irraa",
     featured_view_all: 'Oomisha Hundaa Ilaalaa',
 
     // ─── Why Section ──────────────────────────────
-    why_subtitle: '🕌 Maaliif Gabaa Halaalaa Itoophiyaa',
+    why_subtitle: 'Maaliif Gabaa Halaalaa Itoophiyaa',
     why_title_1: "Amantaadhaan Ijaarame,",
     why_title_2: 'Humnaafi',
     why_title_3: 'Iftoomina',
@@ -85,7 +85,7 @@ const om = {
     why_support: 'Deeggarsa',
 
     // ─── Testimonials Section ─────────────────────
-    testimonials_subtitle: '💬 Hawaasni Keenya Maal Jedha',
+    testimonials_subtitle: 'Hawaasni Keenya Maal Jedha',
     testimonials_title: "Kumootaan Amaname",
 
     // ─── CTA Section ──────────────────────────────
@@ -114,7 +114,7 @@ const om = {
     footer_pricing: 'Karoora Gatii',
     footer_contact: 'Nu Quunnamaa',
     footer_we_accept: 'Ni Fudhanna',
-    footer_copyright: "© {year} Gabaa Halaalaa Itoophiyaa. Mirgi hunduu eegame. ❤️ Hawaasa Halaalaa Itoophiyaaf ijaarame",
+    footer_copyright: "© {year} Gabaa Halaalaa Itoophiyaa. Mirgi hunduu eegame. Hawaasa Halaalaa Itoophiyaaf ijaarame",
     footer_privacy: 'Imaammata Dhuunfaa',
     footer_terms: 'Haala Tajaajilaa',
     footer_faq: "Gaaffilee Yeroo Baay'ee Gaafataman",
@@ -143,12 +143,12 @@ const om = {
     auth_sign_in_link: 'Seeni',
     auth_consumer: 'Fayyadamaa',
     auth_merchant: 'Daldaltuu',
-    auth_feature_1: "✓ Daldaltoota Majlisiin Mirkanaa'an",
-    auth_feature_2: '✓ Kaffaltii Itoophiyaa Nageenya',
-    auth_feature_3: '✓ Hordoffii Ajajaa fi Seenaa',
-    auth_register_feature_1: '✓ Herrega Fayyadamaa Bilisaa',
-    auth_register_feature_2: '✓ Galmeessi Daldaltuu Ni Jira',
-    auth_register_feature_3: '✓ Nageenya fi Dhuunfaa',
+    auth_feature_1: "Daldaltoota Majlisiin Mirkanaa'an",
+    auth_feature_2: 'Kaffaltii Itoophiyaa Nageenya',
+    auth_feature_3: 'Hordoffii Ajajaa fi Seenaa',
+    auth_register_feature_1: 'Herrega Fayyadamaa Bilisaa',
+    auth_register_feature_2: 'Galmeessi Daldaltuu Ni Jira',
+    auth_register_feature_3: 'Nageenya fi Dhuunfaa',
 
     // ─── Cart ─────────────────────────────────────
     cart_title: 'Gaarii Bitachuu',
@@ -162,14 +162,14 @@ const om = {
     cart_delivery: 'Gatii Geejjibaa',
     cart_free: 'BILISAA',
     cart_vat: 'TAT (15%)',
-    cart_free_delivery_note: "🚛 Ajaja 5,000 ETB ol'aanuuf geejjiba bilisaa",
+    cart_free_delivery_note: "Ajaja 5,000 ETB ol'aanuuf geejjiba bilisaa",
     cart_total: "Ida'ama",
     cart_checkout: 'Gara Kaffaltii Deemaa',
     cart_items: "Meeshaa {count} gaarii keessan keessa",
 
     // ─── Product Card ─────────────────────────────
-    product_halal: '☪ Halaalaa',
-    product_featured: '★ Filatamaa',
+    product_halal: 'Halaalaa',
+    product_featured: 'Filatamaa',
     product_out_of_stock: 'Dhumee Jira',
     product_add_to_cart: 'Gara gaariitti dabali',
     product_added: '{name} gara gaariitti dabalame!',
@@ -183,7 +183,7 @@ const om = {
     shop_category: 'Ramaddii',
     shop_all_categories: 'Ramaddii Hundaa',
     shop_price_range: 'Hanga Gatii (ETB)',
-    shop_halal_only: "☪ Halaalaa Mirkanaa'e Qofa",
+    shop_halal_only: "Halaalaa Mirkanaa'e Qofa",
     shop_clear_filters: 'Calaltoo Hundaa Haqi',
     shop_sort_newest: 'Haaraa Dursa',
     shop_sort_price_asc: 'Gatii: Gadi irraa Ol',
@@ -232,14 +232,14 @@ const om = {
     merchants_products: 'Oomisha {count}',
     merchants_orders: 'Ajaja {count}',
     merchants_rating: 'Sadarkaa {rating}',
-    merchants_verified: "✓ Majlisiin Mirkanaa'e",
+    merchants_verified: "Majlisiin Mirkanaa'e",
     merchants_view_shop: 'Suuqii Ilaali',
     merchants_location: 'Bakka',
     merchants_contact: 'Quunnamaa',
     merchants_no_results: "Barbaachaa keessaniin daldaltoonni wal simu hin argamne.",
     merchants_become: "Daldaltuu Ta'i",
     merchants_become_desc: "Ardaa keenya irratti daldaltoota halaalaa mirkanaa'an dhibbaatama waliin makkalaa.",
-    merchants_featured: '★ Daldaltoota Filatamoo',
+    merchants_featured: 'Daldaltoota Filatamoo',
 
     // ─── About Page ──────────────────────────────
     about_title: "Waa'ee Gabaa Halaalaa Itoophiyaa",
