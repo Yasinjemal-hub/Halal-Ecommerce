@@ -15,7 +15,7 @@ import {
 const router = Router();
 
 // All admin routes require authentication + admin role
-router.use(protect, authorize('admin'));
+router.use(protect, authorize('admin', 'superadmin'));
 
 // ── Dashboard ───────────────────────────────────────────
 router.get('/dashboard', getDashboardStats);

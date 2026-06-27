@@ -50,7 +50,7 @@ router.post(
 router.put(
     '/:id',
     protect,
-    authorize('merchant', 'admin'),
+    authorize('merchant', 'admin', 'superadmin'),
     updateMerchant
 );
 

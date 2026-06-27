@@ -123,14 +123,14 @@ router.post(
 router.get('/my-orders', getMyOrders);
 
 // Merchant route must come before /:id wildcard
-router.get('/merchant/orders', authorize('merchant', 'admin'), getMerchantOrders);
+router.get('/merchant/orders', authorize('merchant', 'admin', 'superadmin'), getMerchantOrders);
 router.get('/:id', getOrder);
 router.put('/:id/cancel', cancelOrder);
 
 // ── Admin / Merchant Status Update ──────────────────────
 router.put(
     '/:id/status',
-    authorize('merchant', 'admin'),
+    authorize('merchant', 'admin', 'superadmin'),
     [
         body('status')
             .isIn([

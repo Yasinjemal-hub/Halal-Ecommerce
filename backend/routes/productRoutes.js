@@ -30,7 +30,7 @@ router.get('/:id', getProduct);  // Wildcard - must be last
 router.post(
     '/',
     protect,
-    authorize('merchant', 'admin'),
+    authorize('merchant', 'admin', 'superadmin'),
     uploadSingle('image', 'halal-ecommerce/products'),
     [
         body('name').trim().notEmpty().withMessage('Product name is required'),
@@ -50,7 +50,7 @@ router.post(
 router.put(
     '/:id',
     protect,
-    authorize('merchant', 'admin'),
+    authorize('merchant', 'admin', 'superadmin'),
     uploadSingle('image', 'halal-ecommerce/products'),
     updateProduct
 );
@@ -58,7 +58,7 @@ router.put(
 router.delete(
     '/:id',
     protect,
-    authorize('merchant', 'admin'),
+    authorize('merchant', 'admin', 'superadmin'),
     deleteProduct
 );
 
@@ -66,7 +66,7 @@ router.delete(
 router.put(
     '/:id/approve',
     protect,
-    authorize('admin'),
+    authorize('admin', 'superadmin'),
     approveProduct
 );
 
