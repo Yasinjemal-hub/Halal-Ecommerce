@@ -11,6 +11,7 @@ node_modules/
 !.env.production.example
 !backend/.env.production.example
 !frontend/.env.production.example
+!backend/.env.e2e.example
 
 # logs
 npm-debug.log*
@@ -40,3 +41,7 @@ config/secrets/
 
 # misc
 .DS_Store
+
+# e2e test artifacts
+e2e/test-results/
+e2e/auth-*.json
