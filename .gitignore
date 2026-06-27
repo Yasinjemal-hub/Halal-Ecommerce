@@ -45,6 +45,7 @@ config/secrets/
 # e2e test artifacts
 e2e/test-results/
 e2e/auth-*.json
+e2e/playwright-report/
 
 # image generation progress (auto-generated, machine-local)
 backend/.product-image-progress.json
