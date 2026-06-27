@@ -1,255 +1,733 @@
-import 'dotenv/config';
-import mongoose from 'mongoose';
-import connectDB from './config/db.js';
-import User from './models/User.js';
-import Merchant from './models/Merchant.js';
-import Product from './models/Product.js';
+import "./config/env.js";
+import mongoose from "mongoose";
+import connectDB from "./config/db.js";
+import User from "./models/User.js";
+import Merchant from "./models/Merchant.js";
+import Product from "./models/Product.js";
 
-// Support custom image base URL for different environments
-// Defaults to placehold.co which works in all environments (public CDN)
-const IMAGE_BASE_URL = process.env.IMAGE_BASE_URL || 'https://placehold.co/800x800';
+const isDryRun = process.argv.includes("--dry-run");
+const isReset = process.argv.includes("--reset");
+const isProductsOnly = process.argv.includes("--products-only");
 
-const buildImageUrl = (text, bgColor = '0D7C3D', textColor = 'FFFFFF', width = 800, height = 800) => {
-    // Handle different base URL formats:
-    // - placehold.co: https://placehold.co/800x800/bg/text?text=...
-    // - Custom service: https://your-service.com/images/{width}x{height}/{bg}/{text}?text=...
-    // - Simple CDN: https://cdn.example.com/{width}x{height}/{bg}/{text}?text=...
-    if (IMAGE_BASE_URL.includes('placehold.co')) {
-        return `${IMAGE_BASE_URL}/${width}x${height}/${bgColor}/${textColor}/png?text=${encodeURIComponent(text)}`;
-    }
-    // Generic format for other services
-    return `${IMAGE_BASE_URL.replace(/\/$/, '')}/${width}x${height}/${bgColor}/${textColor}?text=${encodeURIComponent(text)}`;
+const categories = [
+  "meat",
+  "poultry",
+  "spices",
+  "grains",
+  "honey",
+  "clothing",
+  "bakery",
+  "other",
+  "perfume",
+  "snacks",
+];
+const cities = [
+  "Addis Ababa",
+  "Harar",
+  "Dire Dawa",
+  "Mekelle",
+  "Bahir Dar",
+  "Hawassa",
+  "Jimma",
+];
+const cityToRegion = {
+  "Addis Ababa": "Addis Ababa",
+  Harar: "Harari",
+  "Dire Dawa": "Dire Dawa",
+  Mekelle: "Tigray",
+  "Bahir Dar": "Amhara",
+  Hawassa: "Sidama",
+  Jimma: "Oromia",
+};
+const types = [
+  "butcher",
+  "spice_shop",
+  "grocery",
+  "clothing",
+  "bakery",
+  "restaurant",
+];
+
+const categoryProducts = {
+  meat: [
+    {
+      name: "Fresh Beef for Tibs (ጥብስ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582057/products/products/fresh-beef-for-tibs.jpg",
+      nameAmharic: "የጥብስ ስጋ",
+      desc: "Premium cubed beef cuts prepared for sizzling Ethiopian tibs, sourced from local highland cattle.",
+      price: 850,
+      category: "meat",
+    },
+    {
+      name: "Minced Beef for Kitfo (ክትፎ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582060/products/products/minced-beef-for-kitfo.jpg",
+      nameAmharic: "የክትፎ ስጋ",
+      desc: "Lean finely minced raw beef essential for authentic Ethiopian kitfo, halal certified.",
+      price: 950,
+      category: "meat",
+    },
+    {
+      name: "Premium Goat Meat (የፍየል ስጋ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582064/products/products/premium-goat-meat.jpg",
+      nameAmharic: "የፍየል ስጋ",
+      desc: "Tender, locally sourced goat meat perfect for slow-cooked wot.",
+      price: 1200,
+      category: "meat",
+    },
+    {
+      name: "Lamb Chops (የበግ ስጋ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582067/products/products/lamb-chops.jpg",
+      nameAmharic: "የበግ አንጀት ስጋ",
+      desc: "Succulent lamb chops, ideal for grilling or traditional yebeg tibs.",
+      price: 1400,
+      category: "meat",
+    },
+  ],
+  poultry: [
+    {
+      name: "Whole Doro (ዶሮ) Chicken",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582071/products/products/whole-doro-chicken.jpg",
+      nameAmharic: "ሙሉ ዶሮ",
+      desc: "Farm-raised whole local chicken, dressed and ready for classic doro wot.",
+      price: 650,
+      category: "poultry",
+    },
+    {
+      name: "Free-Range Eggs (እንቁላል)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582077/products/products/free-range-eggs.jpg",
+      nameAmharic: "የቤት እንቁላል",
+      desc: "Pack of 30 organic free-range eggs from highland farms.",
+      price: 250,
+      category: "poultry",
+    },
+    {
+      name: "Chicken Drumsticks",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582080/products/products/chicken-drumsticks.jpg",
+      nameAmharic: "የዶሮ እግር",
+      desc: "Fresh chicken drumsticks, perfect for grilled or fried dishes.",
+      price: 450,
+      category: "poultry",
+    },
+  ],
+  spices: [
+    {
+      name: "Berbere Spice Blend (በርበሬ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582089/products/products/berbere-spice-blend.jpg",
+      nameAmharic: "በርበሬ",
+      desc: "Vibrant red Ethiopian berbere blend with chili, fenugreek, and cardamom.",
+      price: 350,
+      category: "spices",
+    },
+    {
+      name: "Mitmita Hot Pepper (ሚጥሚጣ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582093/products/products/mitmita-hot-pepper.jpg",
+      nameAmharic: "ሚጥሚጣ",
+      desc: "Fiery orange-red mitmita made from bird's-eye chili peppers, perfect for kitfo.",
+      price: 280,
+      category: "spices",
+    },
+    {
+      name: "Shiro Powder (ሽሮ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582096/products/products/shiro-powder.jpg",
+      nameAmharic: "የሽሮ ዱቄት",
+      desc: "Finely milled roasted chickpea and spice blend for classic Ethiopian shiro wot.",
+      price: 250,
+      category: "spices",
+    },
+    {
+      name: "Korerima (Ethiopian Cardamom)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582103/products/products/korerima-ethiopian-cardamom.jpg",
+      nameAmharic: "ኮረሪማ",
+      desc: "Aromatic Ethiopian cardamom pods, essential for traditional coffee and stew recipes.",
+      price: 400,
+      category: "spices",
+    },
+    {
+      name: "Turmeric Powder (ዕርድ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582106/products/products/turmeric-powder.jpg",
+      nameAmharic: "ዕርድ",
+      desc: "Pure golden turmeric powder used in Ethiopian cooking and natural health remedies.",
+      price: 200,
+      category: "spices",
+    },
+  ],
+  grains: [
+    {
+      name: "White Teff Grain (ነጭ ጤፍ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582110/products/products/white-teff-grain.jpg",
+      nameAmharic: "ነጭ ጤፍ",
+      desc: "Premium white teff grain from Ethiopian highlands, produces the finest soft injera.",
+      price: 4500,
+      category: "grains",
+    },
+    {
+      name: "Red Teff Grain (ቀይ ጤፍ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582113/products/products/red-teff-grain.jpg",
+      nameAmharic: "ቀይ ጤፍ",
+      desc: "Nutrient-rich red teff grain, slightly nutty and nutrient-dense for dark injera.",
+      price: 4000,
+      category: "grains",
+    },
+    {
+      name: "Wheat Flour (የስንዴ ዱቄት)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582116/products/products/wheat-flour.jpg",
+      nameAmharic: "የስንዴ ዱቄት",
+      desc: "All-purpose wheat flour for making dabo, himbasha and pastries.",
+      price: 1800,
+      category: "grains",
+    },
+    {
+      name: "Lentils (ምስር)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582119/products/products/lentils.jpg",
+      nameAmharic: "ምስር",
+      desc: "Red split lentils ideal for misir wot, a staple Ethiopian stew.",
+      price: 300,
+      category: "grains",
+    },
+  ],
+  honey: [
+    {
+      name: "Pure Lalibela Honey (ማር)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582124/products/products/pure-lalibela-honey.jpg",
+      nameAmharic: "የላሊበላ ንጹህ ማር",
+      desc: "100% raw, unfiltered highland honey from Lalibela region.",
+      price: 850,
+      category: "honey",
+    },
+    {
+      name: "White Gojjam Honey (ነጭ ማር)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582126/products/products/white-gojjam-honey.jpg",
+      nameAmharic: "የጎጃም ነጭ ማር",
+      desc: "Rare Ethiopian white honey with thick creamy texture and mild sweet taste.",
+      price: 1200,
+      category: "honey",
+    },
+    {
+      name: "Tigray Mountain Honey",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582129/products/products/tigray-mountain-honey.jpg",
+      nameAmharic: "የትግራይ ተራራ ማር",
+      desc: "Dark amber wildflower honey from the mountains of Tigray, intensely rich.",
+      price: 950,
+      category: "honey",
+    },
+  ],
+  clothing: [
+    {
+      name: "Habesha Kemis (የሀበሻ ቀሚስ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582132/products/products/habesha-kemis.jpg",
+      nameAmharic: "የሀበሻ ቀሚስ",
+      desc: "Elegant handwoven Ethiopian traditional dress with intricate tilet cross-stitch embroidery.",
+      price: 3500,
+      category: "clothing",
+    },
+    {
+      name: "Elegant Abaya (አባያ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582136/products/products/elegant-abaya.jpg",
+      nameAmharic: "አባያ",
+      desc: "Modest, premium-quality abaya with lacework detailing.",
+      price: 2200,
+      category: "clothing",
+    },
+    {
+      name: "Gabi Cotton Wrap (ጋቢ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582139/products/products/gabi-cotton-wrap.jpg",
+      nameAmharic: "ጋቢ",
+      desc: "Warm handwoven Ethiopian cotton wrap with thick weave for cold highland evenings.",
+      price: 1500,
+      category: "clothing",
+    },
+    {
+      name: "Men's Jelebiya (ጀለቢያ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582141/products/products/men-s-jelebiya.jpg",
+      nameAmharic: "ጀለቢያ",
+      desc: "Traditional flowing men's garment, lightweight and comfortable for prayer and gatherings.",
+      price: 1800,
+      category: "clothing",
+    },
+  ],
+  bakery: [
+    {
+      name: "Fresh Injera (እንጀራ) - 10 Rolls",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582143/products/products/fresh-injera-10-rolls.jpg",
+      nameAmharic: "እንጀራ",
+      desc: "Soft, spongy, and tangy teff injera freshly made daily.",
+      price: 200,
+      category: "bakery",
+    },
+    {
+      name: "Ambasha Bread (አምባሻ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582146/products/products/ambasha-bread.jpg",
+      nameAmharic: "አምባሻ",
+      desc: "Sweet festive Ethiopian bread decorated with traditional cross patterns.",
+      price: 120,
+      category: "bakery",
+    },
+    {
+      name: "Defo Dabo (ድፎ ዳቦ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582150/products/products/defo-dabo.jpg",
+      nameAmharic: "ድፎ ዳቦ",
+      desc: "Dense traditional spiced celebration bread baked in banana leaves.",
+      price: 350,
+      category: "bakery",
+    },
+    {
+      name: "Himbasha (ህንባሻ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582162/products/products/himbasha.jpg",
+      nameAmharic: "ህንባሻ",
+      desc: "Slightly sweet cardamom-spiced celebratory bread.",
+      price: 150,
+      category: "bakery",
+    },
+  ],
+  perfume: [
+    {
+      name: "Luxury Oud Perfume (ዑድ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582165/products/products/luxury-oud-perfume.jpg",
+      nameAmharic: "የዑድ ሽቶ",
+      desc: "Long-lasting alcohol-free Arabian oud fragrance.",
+      price: 2500,
+      category: "perfume",
+    },
+    {
+      name: "Bakhur Incense (ባኩር)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582168/products/products/bakhur-incense.jpg",
+      nameAmharic: "ባኩር",
+      desc: "Aromatic incense chips that fill the home with warm, inviting woodsy fragrance.",
+      price: 450,
+      category: "perfume",
+    },
+    {
+      name: "Musk Attar Oil (ሙስክ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582181/products/products/musk-attar-oil.jpg",
+      nameAmharic: "ሙስክ ዘይት",
+      desc: "Pure concentrated musk attar perfume oil.",
+      price: 800,
+      category: "perfume",
+    },
+  ],
+  snacks: [
+    {
+      name: "Medjool Dates (ተምር)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582186/products/products/medjool-dates.jpg",
+      nameAmharic: "ተምር",
+      desc: "Premium large medjool dates, sweet and soft.",
+      price: 500,
+      category: "snacks",
+    },
+    {
+      name: "Sambusa (ሳምቡሳ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582189/products/products/sambusa.jpg",
+      nameAmharic: "ሳምቡሳ",
+      desc: "Crispy golden fried pastry triangles filled with seasoned lentils and vegetables.",
+      price: 80,
+      category: "snacks",
+    },
+    {
+      name: "Roasted Kolo (ቆሎ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582193/products/products/roasted-kolo.jpg",
+      nameAmharic: "ቆሎ",
+      desc: "Freshly roasted barley, chickpeas, and peanut mix — Ethiopia's favorite crunchy snack.",
+      price: 150,
+      category: "snacks",
+    },
+    {
+      name: "Beso Flour (በሶ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582196/products/products/beso-flour.jpg",
+      nameAmharic: "በሶ",
+      desc: "Traditional energy-rich toasted barley flour.",
+      price: 180,
+      category: "snacks",
+    },
+  ],
+  other: [
+    {
+      name: "Ethiopian Buna Coffee (ቡና)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582203/products/products/ethiopian-buna-coffee.jpg",
+      nameAmharic: "ቡና",
+      desc: "Fresh roasted premium Ethiopian Yirgacheffe coffee beans.",
+      price: 550,
+      category: "other",
+    },
+    {
+      name: "Jebena Coffee Pot (ጀበና)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582210/products/products/jebena-coffee-pot.jpg",
+      nameAmharic: "ጀበና",
+      desc: "Traditional black clay jebena pot, essential for the Ethiopian buna ceremony.",
+      price: 350,
+      category: "other",
+    },
+    {
+      name: "Frankincense Resin (ዕጣን)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582214/products/products/frankincense-resin.jpg",
+      nameAmharic: "ዕጣን",
+      desc: "Pure natural frankincense resin from Tigray.",
+      price: 200,
+      category: "other",
+    },
+    {
+      name: "Niter Kibbeh (ንጥር ቅቤ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582218/products/products/niter-kibbeh.jpg",
+      nameAmharic: "ንጥር ቅቤ",
+      desc: "Spiced clarified butter infused with rosemary, garlic, ginger, and turmeric.",
+      price: 480,
+      category: "other",
+    },
+    {
+      name: "Mesob Basket (መሶብ)",
+      image: "https://res.cloudinary.com/dmocghbal/image/upload/v1782582222/products/products/mesob-basket.jpg",
+      nameAmharic: "መሶብ",
+      desc: "Colorful handwoven Ethiopian serving basket used to present injera.",
+      price: 2500,
+      category: "other",
+    },
+  ],
+};
+
+const adjectives = [
+  "Premium",
+  "Authentic",
+  "Fresh",
+  "Organic",
+  "Royal",
+  "Crown",
+  "Golden",
+  "Elite",
+  "Prime",
+  "Green",
+  "Pure",
+  "Sunrise",
+  "Pioneer",
+  "Highland",
+  "Savannah",
+];
+const nouns = [
+  "Foods",
+  "Market",
+  "Bazaar",
+  "Spices",
+  "Harvest",
+  "Oasis",
+  "Farms",
+  "Traders",
+  "Boutique",
+  "Organics",
+  "Meats",
+  "Valley",
+  "Goods",
+];
+
+const buildProductDocument = (
+  merchantId,
+  selectedProduct,
+  category,
+  isFeatured = false,
+) => {
+  const image = selectedProduct.image;
+  return {
+    merchant: merchantId,
+    name: selectedProduct.name,
+    nameAmharic: selectedProduct.nameAmharic || "",
+    description: selectedProduct.desc,
+    price: selectedProduct.price,
+    discountPrice:
+      Math.random() > 0.5 ? Math.floor(selectedProduct.price * 0.8) : null,
+    category: category || selectedProduct.category || "other",
+    stock: Math.floor(Math.random() * 200) + 10,
+    halalCertified: true,
+    isFeatured,
+    isApproved: true,
+    image,
+    images: [{ url: image, isDefault: true }],
+    ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)),
+    ratingsCount: Math.floor(Math.random() * 300) + 5,
+  };
 };
 
 const seedData = async () => {
-    try {
-        console.log('🌱 Connecting to DB...');
-        await connectDB();
-        console.log('🌱 DB Connected. Wiping existing data...');
+  try {
+    console.log("🌱 Connecting to MongoDB...");
+    const conn = await connectDB();
+    const dbName = conn?.connection?.name || "unknown";
+    const dbHost = conn?.connection?.host || "unknown";
+    console.log(`🌱 Connected to: ${dbHost} (database: ${dbName})`);
 
-        // Wipe existing data to prevent duplicates when running multiple times
-        await User.deleteMany({ email: { $regex: '@demo.com' } });
-        console.log('🌱 Users deleted');
-        await Merchant.deleteMany({});
-        console.log('🌱 Merchants deleted');
-        await Product.deleteMany({});
-        console.log('🌱 Products deleted');
-
-        const categories = ['meat', 'poultry', 'spices', 'grains', 'honey', 'clothing', 'bakery', 'other', 'perfume', 'snacks'];
-        const cities = ['Addis Ababa', 'Harar', 'Dire Dawa', 'Mekelle', 'Bahir Dar', 'Hawassa', 'Jimma'];
-        const cityToRegion = {
-            'Addis Ababa': 'Addis Ababa',
-            'Harar': 'Harari',
-            'Dire Dawa': 'Dire Dawa',
-            'Mekelle': 'Tigray',
-            'Bahir Dar': 'Amhara',
-            'Hawassa': 'Sidama',
-            'Jimma': 'Oromia',
-        };
-        const types = ['butcher', 'spice_shop', 'grocery', 'clothing', 'bakery', 'restaurant'];
-
-        const categoryProducts = {
-            // ============ MEAT - Raw cuts, butcher shop imagery ============
-            meat: [
-                { name: 'Fresh Beef for Tibs (ጥብስ)', nameAmharic: 'የጥብስ ስጋ', desc: 'Premium cubed beef cuts prepared for sizzling Ethiopian tibs, sourced from local highland cattle.', image: 'https://placehold.co/800x800/E74C3C/FFFFFF/png?text=Premium+Tibs+Beef', price: 850, category: 'meat' },
-                { name: 'Minced Beef for Kitfo (ክትፎ)', nameAmharic: 'የክትፎ ስጋ', desc: 'Lean finely minced raw beef essential for authentic Ethiopian kitfo, halal certified.', image: 'https://placehold.co/800x800/C0392B/FFFFFF/png?text=Minced+Beef+for+Kitfo', price: 950, category: 'meat' },
-                { name: 'Premium Goat Meat (የፍየል ስጋ)', nameAmharic: 'የፍየል ስጋ', desc: 'Tender, locally sourced goat meat perfect for slow-cooked yebeg wot.', image: 'https://placehold.co/800x800/A93226/FFFFFF/png?text=Premium+Goat+Meat', price: 1200, category: 'meat' },
-                { name: 'Lamb Chops (የበግ ስጋ)', nameAmharic: 'የበግ አንጀት ስጋ', desc: 'Succulent lamb chops, ideal for grilling or traditional Ethiopian yebeg tibs.', image: 'https://placehold.co/800x800/922B21/FFFFFF/png?text=Fresh+Lamb+Chops', price: 1400, category: 'meat' }
-            ],
-            // ============ POULTRY - Whole chicken, eggs ============
-            poultry: [
-                { name: 'Whole Doro (ዶሮ) Chicken', nameAmharic: 'ሙሉ ዶሮ', desc: 'Farm-raised whole local chicken, dressed and ready for classic doro wot.', image: 'https://placehold.co/800x800/F39C12/FFFFFF/png?text=Whole+Doro+Chicken', price: 650, category: 'poultry' },
-                { name: 'Free-Range Eggs (እንቁላል)', nameAmharic: 'የቤት እንቁላል', desc: 'Pack of 30 organic free-range eggs from highland farms.', image: 'https://placehold.co/800x800/F1C40F/FFFFFF/png?text=Free-Range+Eggs', price: 250, category: 'poultry' },
-                { name: 'Chicken Drumsticks', nameAmharic: 'የዶሮ እግር', desc: 'Fresh chicken drumsticks, perfect for grilled or fried dishes.', image: 'https://placehold.co/800x800/D4AC0D/FFFFFF/png?text=Chicken+Drumsticks', price: 450, category: 'poultry' }
-            ],
-            // ============ SPICES - Red powders, whole spices, bowls ============
-            spices: [
-                { name: 'Berbere Spice Blend (በርበሬ)', nameAmharic: 'በርበሬ', desc: 'Vibrant red Ethiopian berbere blend with chili, fenugreek, garlic, and cardamom. The soul of every wot.', image: 'https://placehold.co/800x800/CB4335/FFFFFF/png?text=Berbere+Spice+Blend', price: 350, category: 'spices' },
-                { name: 'Mitmita Hot Pepper (ሚጥሚጣ)', nameAmharic: 'ሚጥሚጣ', desc: 'Fiery orange-red mitmita made from bird\'s-eye chili peppers, perfect for kitfo.', image: 'https://placehold.co/800x800/E74C3C/FFFFFF/png?text=Mitmita+Hot+Pepper', price: 280, category: 'spices' },
-                { name: 'Shiro Powder (ሽሮ)', nameAmharic: 'የሽሮ ዱቄት', desc: 'Finely milled roasted chickpea and spice blend for classic Ethiopian shiro wot.', image: 'https://placehold.co/800x800/D68910/FFFFFF/png?text=Shiro+Powder', price: 250, category: 'spices' },
-                { name: 'Korerima (Ethiopian Cardamom)', nameAmharic: 'ኮረሪማ', desc: 'Aromatic Ethiopian cardamom pods, essential for traditional coffee and stew recipes.', image: 'https://placehold.co/800x800/873600/FFFFFF/png?text=Korerima+Cardamom', price: 400, category: 'spices' },
-                { name: 'Turmeric Powder (ዕርድ)', nameAmharic: 'ዕርድ', desc: 'Pure golden turmeric powder used in Ethiopian cooking and natural health remedies.', image: 'https://placehold.co/800x800/F1C40F/FFFFFF/png?text=Turmeric+Powder', price: 200, category: 'spices' }
-            ],
-            // ============ GRAINS - Whole grains, flour, seeds ============
-            grains: [
-                { name: 'White Teff Grain (ነጭ ጤፍ)', nameAmharic: 'ነጭ ጤፍ', desc: 'Premium white teff grain from Ethiopian highlands, produces the finest soft injera.', image: 'https://placehold.co/800x800/F5CBA7/FFFFFF/png?text=White+Teff+Grain', price: 4500, category: 'grains' },
-                { name: 'Red Teff Grain (ቀይ ጤፍ)', nameAmharic: 'ቀይ ጤፍ', desc: 'Nutrient-rich red teff grain, slightly nutty and nutrient-dense for dark injera.', image: 'https://placehold.co/800x800/A04000/FFFFFF/png?text=Red+Teff+Grain', price: 4000, category: 'grains' },
-                { name: 'Wheat Flour (የስንዴ ዱቄት)', nameAmharic: 'የስንዴ ዱቄት', desc: 'All-purpose wheat flour for making dabo, himbasha and pastries.', image: 'https://placehold.co/800x800/FDEBD0/FFFFFF/png?text=Wheat+Flour', price: 1800, category: 'grains' },
-                { name: 'Lentils (ምስር)', nameAmharic: 'ምስር', desc: 'Red split lentils ideal for misir wot, a staple Ethiopian stew.', image: 'https://placehold.co/800x800/DC7633/FFFFFF/png?text=Red+Split+Lentils', price: 300, category: 'grains' }
-            ],
-            // ============ HONEY - Jars, golden liquid, natural ============
-            honey: [
-                { name: 'Pure Lalibela Honey (ማር)', nameAmharic: 'የላሊበላ ንጹህ ማር', desc: '100% raw, unfiltered highland honey from Lalibela region, rich golden color and deep floral aroma.', image: 'https://placehold.co/800x800/F39C12/FFFFFF/png?text=Pure+Lalibela+Honey', price: 850, category: 'honey' },
-                { name: 'White Gojjam Honey (ነጭ ማር)', nameAmharic: 'የጎጃም ነጭ ማር', desc: 'Rare Ethiopian white honey with thick creamy texture and mild sweet taste.', image: 'https://placehold.co/800x800/F9E79F/FFFFFF/png?text=White+Gojjam+Honey', price: 1200, category: 'honey' },
-                { name: 'Tigray Mountain Honey', nameAmharic: 'የትግራይ ተራራ ማር', desc: 'Dark amber wildflower honey from the mountains of Tigray, intensely rich.', image: 'https://placehold.co/800x800/B9770E/FFFFFF/png?text=Tigray+Mountain+Honey', price: 950, category: 'honey' }
-            ],
-            // ============ CLOTHING - Traditional Ethiopian garments ============
-            clothing: [
-                { name: 'Habesha Kemis (የሀበሻ ቀሚስ)', nameAmharic: 'የሀበሻ ቀሚስ', desc: 'Elegant handwoven Ethiopian traditional dress with intricate tilet cross-stitch embroidery.', image: 'https://placehold.co/800x800/FFFFFF/000000/png?text=Habesha+Kemis', price: 3500, category: 'clothing' },
-                { name: 'Elegant Abaya (አባያ)', nameAmharic: 'አባያ', desc: 'Modest, premium-quality abaya with lacework detailing, perfect for daily and special occasions.', image: 'https://placehold.co/800x800/17202A/FFFFFF/png?text=Elegant+Abaya', price: 2200, category: 'clothing' },
-                { name: 'Gabi Cotton Wrap (ጋቢ)', nameAmharic: 'ጋቢ', desc: 'Warm handwoven Ethiopian cotton wrap/blanket with thick weave for cold highland evenings.', image: 'https://placehold.co/800x800/FDFEFE/000000/png?text=Gabi+Cotton+Wrap', price: 1500, category: 'clothing' },
-                { name: 'Men\'s Jelebiya (ጀለቢያ)', nameAmharic: 'ጀለቢያ', desc: 'Traditional flowing men\'s garment, lightweight and comfortable for prayer and gatherings.', image: 'https://placehold.co/800x800/E5E8E8/000000/png?text=Men%27s+Jelebiya', price: 1800, category: 'clothing' }
-            ],
-            // ============ BAKERY - Breads, flatbreads, pastries ============
-            bakery: [
-                { name: 'Fresh Injera (እንጀራ) - 10 Rolls', nameAmharic: 'እንጀራ', desc: 'Soft, spongy, and tangy teff injera freshly made daily. The heart of every Ethiopian meal.', image: 'https://placehold.co/800x800/E6C29F/FFFFFF/png?text=Fresh+Injera', price: 200, category: 'bakery' },
-                { name: 'Ambasha Bread (አምባሻ)', nameAmharic: 'አምባሻ', desc: 'Sweet festive Ethiopian bread decorated with traditional cross patterns, soft and fragrant.', image: 'https://placehold.co/800x800/D35400/FFFFFF/png?text=Ambasha+Bread', price: 120, category: 'bakery' },
-                { name: 'Defo Dabo (ድፎ ዳቦ)', nameAmharic: 'ድፎ ዳቦ', desc: 'Dense traditional spiced celebration bread baked in banana leaves for holidays.', image: 'https://placehold.co/800x800/A04000/FFFFFF/png?text=Defo+Dabo', price: 350, category: 'bakery' },
-                { name: 'Himbasha (ህንባሻ)', nameAmharic: 'ህንባሻ', desc: 'Slightly sweet cardamom-spiced celebratory bread, often shared during holidays.', image: 'https://placehold.co/800x800/CA6F1E/FFFFFF/png?text=Himbasha+Bread', price: 150, category: 'bakery' }
-            ],
-            // ============ PERFUME - Fragrances, oud, incense ============
-            perfume: [
-                { name: 'Luxury Oud Perfume (ዑድ)', nameAmharic: 'የዑድ ሽቶ', desc: 'Long-lasting alcohol-free Arabian oud fragrance, deep and captivating.', image: 'https://placehold.co/800x800/D4AF37/FFFFFF/png?text=Luxury+Oud+Perfume', price: 2500, category: 'perfume' },
-                { name: 'Bakhur Incense (ባኩር)', nameAmharic: 'ባኩር', desc: 'Aromatic incense chips that fill the home with warm, inviting woodsy fragrance.', image: 'https://placehold.co/800x800/8B4513/FFFFFF/png?text=Bakhur+Incense', price: 450, category: 'perfume' },
-                { name: 'Musk Attar Oil (ሙስክ)', nameAmharic: 'ሙስክ ዘይት', desc: 'Pure concentrated musk attar perfume oil, applied on pulse points for lasting scent.', image: 'https://placehold.co/800x800/F5DEB3/000000/png?text=Musk+Attar+Oil', price: 800, category: 'perfume' }
-            ],
-            // ============ SNACKS - Dates, sambusa, kolo ============
-            snacks: [
-                { name: 'Medjool Dates (ተምር)', nameAmharic: 'ተምር', desc: 'Premium large medjool dates, sweet and soft, perfect for Iftar and daily snacking.', image: 'https://placehold.co/800x800/5C4033/FFFFFF/png?text=Medjool+Dates', price: 500, category: 'snacks' },
-                { name: 'Sambusa (ሳምቡሳ)', nameAmharic: 'ሳምቡሳ', desc: 'Crispy golden fried pastry triangles filled with seasoned lentils and vegetables.', image: 'https://placehold.co/800x800/D4AC0D/FFFFFF/png?text=Sambusa', price: 80, category: 'snacks' },
-                { name: 'Roasted Kolo (ቆሎ)', nameAmharic: 'ቆሎ', desc: 'Freshly roasted barley, chickpeas, and peanut mix — Ethiopia\'s favorite crunchy snack.', image: 'https://placehold.co/800x800/A04000/FFFFFF/png?text=Roasted+Kolo', price: 150, category: 'snacks' },
-                { name: 'Beso Flour (በሶ)', nameAmharic: 'በሶ', desc: 'Traditional energy-rich toasted barley flour, mixed with water or honey for quick nutrition.', image: 'https://placehold.co/800x800/DEB887/000000/png?text=Beso+Flour', price: 180, category: 'snacks' }
-            ],
-            // ============ OTHER - Coffee, jebena, household, accessories ============
-            other: [
-                { name: 'Ethiopian Buna Coffee (ቡና)', nameAmharic: 'ቡና', desc: 'Fresh roasted premium Ethiopian Yirgacheffe coffee beans with bold floral aroma.', image: 'https://placehold.co/800x800/3E2723/FFFFFF/png?text=Ethiopian+Buna+Coffee', price: 550, category: 'other' },
-                { name: 'Jebena Coffee Pot (ጀበና)', nameAmharic: 'ጀበና', desc: 'Traditional black clay jebena pot, essential for the Ethiopian buna ceremony.', image: 'https://placehold.co/800x800/1B1210/FFFFFF/png?text=Jebena+Coffee+Pot', price: 350, category: 'other' },
-                { name: 'Frankincense Resin (ዕጣን)', nameAmharic: 'ዕጣን', desc: 'Pure natural frankincense resin from Tigray, burned for calming aroma and spiritual cleansing.', image: 'https://placehold.co/800x800/D2B48C/000000/png?text=Frankincense+Resin', price: 200, category: 'other' },
-                { name: 'Niter Kibbeh (ንጥር ቅቤ)', nameAmharic: 'ንጥር ቅቤ', desc: 'Spiced clarified butter infused with rosemary, garlic, ginger, turmeric — base of every wot.', image: 'https://placehold.co/800x800/F1C40F/FFFFFF/png?text=Niter+Kibbeh', price: 480, category: 'other' },
-                { name: 'Mesob Basket (መሶብ)', nameAmharic: 'መሶብ', desc: 'Colorful handwoven Ethiopian serving basket used to present injera, a cultural icon.', image: 'https://placehold.co/800x800/E67E22/FFFFFF/png?text=Mesob+Basket', price: 2500, category: 'other' }
-            ]
-        };
-
-        const adjectives = ['Premium', 'Authentic', 'Fresh', 'Organic', 'Royal', 'Crown', 'Golden', 'Elite', 'Prime', 'Green', 'Pure', 'Sunrise', 'Pioneer', 'Highland', 'Savannah'];
-        const nouns = ['Foods', 'Market', 'Bazaar', 'Spices', 'Harvest', 'Oasis', 'Farms', 'Traders', 'Boutique', 'Organics', 'Meats', 'Valley', 'Goods'];
-
-        console.log('Generating 30 Merchants...');
-        const createdUsers = [];
-        const createdMerchants = [];
-
-        for (let i = 1; i <= 30; i++) {
-            // Create user
-            const user = await User.create({
-                firstName: `Merchant${i}`,
-                lastName: `Demo`,
-                email: `merchant${i}@demo.com`,
-                password: 'Demo1234!',
-                phone: `+251911${String(i).padStart(6, '0')}`,
-                role: 'merchant'
-            });
-            createdUsers.push(user);
-
-            // Create merchant
-            const city = cities[i % cities.length];
-            const type = types[i % types.length];
-            const name = `${adjectives[i % adjectives.length]} ${nouns[(i * 2) % nouns.length]} ${city}`;
-
-            const merchant = await Merchant.create({
-                user: user._id,
-                businessName: name,
-                businessNameAmharic: `የ${name} የንግድ ድርጅት`,
-                description: `Discover the best quality products from ${name}. We are committed to providing top-tier, halal-certified goods directly to your doorstep in ${city}. Trusted by thousands of happy customers.`,
-                businessType: type,
-                businessPhone: `+251911${String(i).padStart(6, '0')}`,
-                businessEmail: `contact@merchant${i}.com`,
-                businessAddress: { street: `Main Ave ${i}`, city: city, region: cityToRegion[city] || 'Addis Ababa' },
-                verificationStatus: 'approved',
-                verifiedAt: new Date(),
-                ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)), // 4.0 to 5.0
-                ratingsCount: Math.floor(Math.random() * 500) + 10,
-                totalProducts: 0,
-                totalOrders: 0,
-                totalRevenue: 0,
-                isFeatured: i <= 8,
-                isActive: true,
-                logo: { url: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200` },
-                socialMedia: { telegram: `t.me/merchant${i}`, instagram: `@merchant${i}` }
-            });
-            createdMerchants.push(merchant);
-
-            // Generate Products for this merchant
-            const numProducts = Math.floor(Math.random() * 4) + 3; // 3 to 6 products
-            for (let p = 0; p < numProducts; p++) {
-                const category = categories[(i + p) % categories.length];
-                const productsPool = categoryProducts[category] || categoryProducts.other;
-                const selectedProduct = productsPool[p % productsPool.length];
-
-                await Product.create({
-                    merchant: merchant._id,
-                    name: selectedProduct.name,
-                    nameAmharic: selectedProduct.nameAmharic,
-                    description: selectedProduct.desc,
-                    price: selectedProduct.price,
-                    discountPrice: Math.random() > 0.5 ? Math.floor(selectedProduct.price * 0.8) : null,
-                    category: category,
-                    stock: Math.floor(Math.random() * 200) + 10,
-                    halalCertified: true,
-                    isFeatured: Math.random() > 0.7,
-                    isApproved: true,
-                    image: selectedProduct.image,
-                    images: [{ url: selectedProduct.image, isDefault: true }],
-                    ratingsAverage: parseFloat((Math.random() * (5 - 4) + 4).toFixed(1)),
-                    ratingsCount: Math.floor(Math.random() * 300) + 5
-                });
-            }
-            // Keep merchant.totalProducts accurate (reflect actual products created)
-            await Merchant.findByIdAndUpdate(merchant._id, { totalProducts: numProducts });
-        }
-
-        // Add a few recognizable featured products to the first merchant
-        if (createdMerchants.length > 0) {
-            const featuredMerchant = createdMerchants[0];
-            const featuredItems = [
-                categoryProducts.spices[0],    // Berbere
-                categoryProducts.meat[0],      // Beef Tibs
-                categoryProducts.grains[0],    // White Teff
-                categoryProducts.honey[0],     // Lalibela Honey
-                categoryProducts.clothing[0],  // Habesha Kemis
-                categoryProducts.bakery[0],    // Injera
-                categoryProducts.snacks[0],    // Dates
-                categoryProducts.perfume[0],   // Oud
-                categoryProducts.other[0],     // Buna Coffee
-                categoryProducts.poultry[0]    // Doro Chicken
-            ];
-
-            let featuredCount = 0;
-            for (const item of featuredItems) {
-                if (!item) continue;
-                await Product.create({
-                    merchant: featuredMerchant._id,
-                    name: item.name,
-                    nameAmharic: item.nameAmharic,
-                    description: item.desc,
-                    price: item.price,
-                    category: item.category || 'other',
-                    stock: Math.floor(Math.random() * 150) + 30,
-                    halalCertified: true,
-                    isFeatured: true,
-                    isApproved: true,
-                    image: item.image,
-                    images: [{ url: item.image, isDefault: true }],
-                    ratingsAverage: parseFloat((Math.random() * (5 - 4.2) + 4.2).toFixed(1)),
-                    ratingsCount: Math.floor(Math.random() * 250) + 20,
-                });
-                featuredCount++;
-            }
-            if (featuredCount > 0) {
-                await Merchant.findByIdAndUpdate(featuredMerchant._id, { $inc: { totalProducts: featuredCount } });
-            }
-        }
-
-        console.log(`\n🎉 Seed completed! 30 Merchants and over 100 products created with real images.\n`);
-        process.exit(0);
-    } catch (error) {
-        console.error('❌ Seed failed:', error.message);
-        if (error.errors) {
-            Object.keys(error.errors).forEach(key => {
-                console.error(`  Field "${key}": ${error.errors[key].message}`);
-            });
-        }
-        console.error(error.stack);
-        process.exit(1);
+    if (isDryRun) {
+      console.log("⚠️  DRY RUN — No data will be written.\n");
     }
+
+    if (dbName === "test" || dbName === "admin") {
+      console.warn(
+        `⚠️  WARNING: Connected to database "${dbName}". Your Atlas URI may be missing a database name.`,
+      );
+      console.warn(
+        "   Add /halal-ecommerce at the end of MONGO_ATLAS_URI before the query string.",
+      );
+      console.warn(
+        "   Example: ...mongodb.net/halal-ecommerce?appName=Cluster0\n",
+      );
+    }
+
+    // ── Reset Phase (optional, off by default) ────────────
+    if (isReset) {
+      console.log("⚙️  --reset mode: Wiping existing data...");
+      if (!isDryRun) {
+        const userDel = await User.deleteMany({
+          email: { $regex: "@demo.com" },
+        });
+        console.log(`   Users deleted: ${userDel.deletedCount}`);
+        const merchDel = await Merchant.deleteMany({});
+        console.log(`   Merchants deleted: ${merchDel.deletedCount}`);
+        const prodDel = await Product.deleteMany({});
+        console.log(`   Products deleted: ${prodDel.deletedCount}`);
+      } else {
+        console.log(
+          "   Would delete users (@demo.com), merchants, and products",
+        );
+      }
+    } else {
+      console.log(
+        "ℹ️  Skipping data wipe (use --reset to clear existing data before reseeding)",
+      );
+    }
+
+    let createdUsers = 0;
+    let createdMerchants = 0;
+    let createdProducts = 0;
+    let errors = [];
+
+    // ── Helper: seed products for a given merchant ─────────
+    const seedProductsForMerchant = async (merchantId, merchantIndex) => {
+      const numProducts = Math.floor(Math.random() * 4) + 3;
+      let count = 0;
+
+      for (let p = 0; p < numProducts; p++) {
+        try {
+          const cat = categories[(merchantIndex + p) % categories.length];
+          const pool = categoryProducts[cat] || categoryProducts.other;
+          const selected = pool[p % pool.length];
+          const doc = buildProductDocument(merchantId, selected, cat, false);
+
+          if (!isDryRun) {
+            await Product.create(doc);
+          }
+          count++;
+        } catch (prodErr) {
+          errors.push(
+            `Merchant ${merchantIndex} product ${p}: ${prodErr.message}`,
+          );
+        }
+      }
+
+      if (!isDryRun) {
+        await Merchant.findByIdAndUpdate(merchantId, { totalProducts: count });
+      }
+      return count;
+    };
+
+    // ── Mode: Products Only ───────────────────────────────
+    if (isProductsOnly) {
+      console.log("\n🔄 --products-only mode: Fetching existing merchants...");
+
+      if (!isDryRun) {
+        const prodDel = await Product.deleteMany({});
+        console.log(`   Old products deleted: ${prodDel.deletedCount}`);
+      } else {
+        console.log("   Would delete all existing products");
+      }
+
+      const existing = isDryRun ? [] : await Merchant.find().lean();
+
+      if (existing.length === 0) {
+        console.log(
+          "   No merchants found. Run 'node seed.js' (without --products-only) first.",
+        );
+      } else {
+        console.log(
+          `   Found ${existing.length} merchants. Seeding products...`,
+        );
+        for (let m = 0; m < existing.length; m++) {
+          const count = await seedProductsForMerchant(existing[m]._id, m);
+          createdProducts += count;
+        }
+        console.log(`   Products seeded: ${createdProducts}`);
+      }
+    }
+
+    // ── Mode: Full Seed (Users + Merchants + Products) ───
+    if (!isProductsOnly) {
+      console.log("\n👤 Seeding 30 merchants with users...");
+      for (let i = 1; i <= 30; i++) {
+        const city = cities[i % cities.length];
+        const type = types[i % types.length];
+        const name = `${adjectives[i % adjectives.length]} ${nouns[(i * 2) % nouns.length]} ${city}`;
+
+        try {
+          let user;
+          if (isDryRun) {
+            user = { _id: `DRY_USER_${i}` };
+          } else {
+            user = await User.create({
+              firstName: `Merchant${i}`,
+              lastName: "Demo",
+              email: `merchant${i}@demo.com`,
+              password: "Demo1234!",
+              phone: `+251911${String(i).padStart(6, "0")}`,
+              role: "merchant",
+            });
+          }
+          createdUsers++;
+
+          let merchant;
+          if (isDryRun) {
+            merchant = { _id: `DRY_MERCHANT_${i}` };
+          } else {
+            merchant = await Merchant.create({
+              user: user._id,
+              businessName: name,
+              businessNameAmharic: `የ${name} የንግድ ድርጅት`,
+              description: `Discover the best quality products from ${name}. We are committed to providing top-tier, halal-certified goods directly to your doorstep in ${city}. Trusted by thousands of happy customers.`,
+              businessType: type,
+              businessPhone: `+251911${String(i).padStart(6, "0")}`,
+              businessEmail: `contact@merchant${i}.com`,
+              businessAddress: {
+                street: `Main Ave ${i}`,
+                city,
+                region: cityToRegion[city] || "Addis Ababa",
+              },
+              verificationStatus: "approved",
+              verifiedAt: new Date(),
+              ratingsAverage: parseFloat(
+                (Math.random() * (5 - 4) + 4).toFixed(1),
+              ),
+              ratingsCount: Math.floor(Math.random() * 500) + 10,
+              totalProducts: 0,
+              totalOrders: 0,
+              totalRevenue: 0,
+              isFeatured: i <= 8,
+              isActive: true,
+              logo: {
+                url: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200`,
+              },
+              socialMedia: {
+                telegram: `t.me/merchant${i}`,
+                instagram: `@merchant${i}`,
+              },
+            });
+          }
+          createdMerchants++;
+
+          const prodCount = await seedProductsForMerchant(merchant._id, i);
+          createdProducts += prodCount;
+        } catch (merchantErr) {
+          errors.push(`Merchant ${i}: ${merchantErr.message}`);
+        }
+      }
+    }
+
+    // ── Featured Products (always, even in products-only) ─
+    console.log("\n⭐ Seeding featured products...");
+    const featuredMerchant = isDryRun
+      ? { _id: "DRY_MERCHANT_1" }
+      : await Merchant.findOne().sort({ createdAt: 1 }).lean();
+
+    if (featuredMerchant) {
+      const featuredItems = [
+        categoryProducts.spices[0],
+        categoryProducts.meat[0],
+        categoryProducts.grains[0],
+        categoryProducts.honey[0],
+        categoryProducts.clothing[0],
+        categoryProducts.bakery[0],
+        categoryProducts.snacks[0],
+        categoryProducts.perfume[0],
+        categoryProducts.other[0],
+        categoryProducts.poultry[0],
+      ];
+      let featuredCount = 0;
+      for (const item of featuredItems) {
+        try {
+          const doc = buildProductDocument(
+            featuredMerchant._id,
+            item,
+            item.category || "other",
+            true,
+          );
+          if (!isDryRun) {
+            await Product.create(doc);
+          }
+          featuredCount++;
+          createdProducts++;
+        } catch (featErr) {
+          errors.push(`Featured product "${item?.name}": ${featErr.message}`);
+        }
+      }
+      if (!isDryRun && featuredCount > 0) {
+        await Merchant.findByIdAndUpdate(featuredMerchant._id, {
+          $inc: { totalProducts: featuredCount },
+        });
+      }
+    }
+
+    // ── Summary ──────────────────────────────────────────
+    console.log("\n" + "=".repeat(50));
+    console.log("📊 SEED SUMMARY");
+    console.log("=".repeat(50));
+    if (!isProductsOnly) {
+      console.log(`   Users created:     ${createdUsers}`);
+      console.log(`   Merchants created: ${createdMerchants}`);
+    }
+    console.log(`   Products created:  ${createdProducts}`);
+
+    if (errors.length > 0) {
+      console.log(`\n⚠️  Errors (${errors.length}):`);
+      errors.slice(0, 10).forEach((e) => console.log(`   • ${e}`));
+      if (errors.length > 10)
+        console.log(`   ... and ${errors.length - 10} more`);
+    }
+
+    if (isDryRun) {
+      console.log("\n⚠️  DRY RUN — No data was written to the database.");
+    }
+
+    // ── Safety Verification ─────────────────────────────
+    if (!isDryRun) {
+      try {
+        const unsplashProducts = await Product.find({
+          image: /images\.unsplash\.com/i,
+        }).lean();
+
+        if (unsplashProducts.length > 0) {
+          console.warn(
+            `\n⚠️  ${unsplashProducts.length} product(s) still have Unsplash URLs!`,
+          );
+          unsplashProducts.forEach((p) =>
+            console.warn(`   • ${p.name} → ${p.image}`),
+          );
+        } else {
+          console.log("\n✅ All product images verified — zero Unsplash URLs.");
+        }
+      } catch (verifyErr) {
+        console.warn(`\n⚠️  Safety verification failed: ${verifyErr.message}`);
+      }
+    }
+
+    console.log(`\n🎉 Seed completed!\n`);
+    process.exit(0);
+  } catch (error) {
+    console.error("\n❌ Seed failed:", error.message);
+    if (error.errors) {
+      Object.keys(error.errors).forEach((key) => {
+        console.error(`   Field "${key}": ${error.errors[key].message}`);
+      });
+    }
+    if (error.code === 11000) {
+      console.error(
+        "   Duplicate key error. Run with --reset to clear existing data.",
+      );
+    }
+    console.error(error.stack);
+    process.exit(1);
+  }
 };
 
 seedData();
