@@ -247,7 +247,7 @@ function App() {
           path="/admin"
           element={
             <MainLayout>
-              <RequireAuth allowedRoles={["admin"]}>
+              <RequireAuth allowedRoles={["admin", "superadmin"]}>
               <AdminDashboard />
               </RequireAuth>
             </MainLayout>
@@ -257,7 +257,7 @@ function App() {
           path="/admin/consumers"
           element={
             <MainLayout>
-              <RequireAuth allowedRoles={["admin"]}>
+              <RequireAuth allowedRoles={["admin", "superadmin"]}>
               <AdminConsumers />
               </RequireAuth>
             </MainLayout>
@@ -267,7 +267,7 @@ function App() {
           path="/admin/merchants"
           element={
             <MainLayout>
-              <RequireAuth allowedRoles={["admin"]}>
+              <RequireAuth allowedRoles={["admin", "superadmin"]}>
               <AdminMerchants />
               </RequireAuth>
             </MainLayout>
@@ -277,7 +277,7 @@ function App() {
           path="/admin/profile-approvals"
           element={
             <MainLayout>
-              <RequireAuth allowedRoles={["admin"]}>
+              <RequireAuth allowedRoles={["admin", "superadmin"]}>
               <AdminProfileApprovals />
               </RequireAuth>
             </MainLayout>

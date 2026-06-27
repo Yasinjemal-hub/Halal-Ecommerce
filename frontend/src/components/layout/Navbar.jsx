@@ -39,7 +39,7 @@ const Navbar = () => {
   const cartCount = useSelector(selectCartCount);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const isMerchantUser = user?.role === "merchant";
-  const isAdminUser = user?.role === "admin";
+  const isAdminUser = user?.role === "admin" || user?.role === "superadmin";
   const searchPlaceholder = isAdminUser
     ? t("Search merchant or consumer...")
     : isMerchantUser
@@ -283,21 +283,21 @@ const Navbar = () => {
                             textTransform: "uppercase",
                             letterSpacing: "0.5px",
                             backgroundColor:
-                              user?.role === "admin"
+                              user?.role === "admin" || user?.role === "superadmin"
                                 ? "rgba(230, 126, 34, 0.15)"
                                 : user?.role === "merchant"
                                   ? "rgba(46, 204, 113, 0.15)"
                                   : "rgba(52, 152, 219, 0.15)",
                             color:
-                              user?.role === "admin"
+                              user?.role === "admin" || user?.role === "superadmin"
                                 ? "#e67e22"
                                 : user?.role === "merchant"
                                   ? "#27ae60"
                                   : "#3498db",
                           }}
                         >
-                          {user?.role === "admin"
-                            ? "Admin"
+                          {user?.role === "admin" || user?.role === "superadmin"
+                            ? user?.role === "superadmin" ? "Super Admin" : "Admin"
                             : user?.role === "merchant"
                               ? "Merchant"
                               : "Consumer"}
@@ -306,7 +306,7 @@ const Navbar = () => {
                       <p className="user-dropdown-email">{user?.email}</p>
                     </div>
                     <div className="user-dropdown-divider" />
-                    {user?.role === "admin" ? (
+                    {isAdminUser ? (
                       <>
                         <Link
                           to="/admin"
@@ -348,7 +348,7 @@ const Navbar = () => {
                         </Link>
                       </>
                     )}
-                    {user?.role !== "admin" && (
+                    {!isAdminUser && (
                       <Link
                         to="/dashboard/settings"
                         className="user-dropdown-item"
@@ -357,7 +357,7 @@ const Navbar = () => {
                         <FiSettings size={16} /> {t("Settings") || "Settings"}
                       </Link>
                     )}
-                    {user?.role !== "merchant" && user?.role !== "admin" && (
+                    {user?.role !== "merchant" && !isAdminUser && (
                       <>
                         <Link
                           to="/orders"

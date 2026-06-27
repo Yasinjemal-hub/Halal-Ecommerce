@@ -9,7 +9,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     const { user } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const isMerchant = user?.role === 'merchant';
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
     const merchantLinks = [
         { path: '/dashboard', label: 'Overview', icon: <FiGrid /> },
@@ -44,8 +44,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </div>
                         <div className="sidebar-user-info">
                             <p className="sidebar-user-name">{user?.firstName} {user?.lastName}</p>
-                            <span className={`sidebar-role-badge ${isAdmin ? 'role-admin' : 'role-merchant'}`}>
-                                {isAdmin ? 'Admin' : 'Merchant'}
+                            <span className={`sidebar-role-badge ${isAdmin ? (user?.role === 'superadmin' ? 'role-superadmin' : 'role-admin') : 'role-merchant'}`}>
+                                {isAdmin ? (user?.role === 'superadmin' ? 'Super Admin' : 'Admin') : 'Merchant'}
                             </span>
                         </div>
                     </div>

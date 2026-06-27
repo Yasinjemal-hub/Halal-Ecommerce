@@ -11,11 +11,17 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
+    const { isLoading, error, isAuthenticated, user } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        if (isAuthenticated) navigate('/');
-    }, [isAuthenticated, navigate]);
+        if (isAuthenticated) {
+            if (user?.role === 'admin' || user?.role === 'superadmin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
+        }
+    }, [isAuthenticated, user, navigate]);
 
     useEffect(() => {
         if (error) {

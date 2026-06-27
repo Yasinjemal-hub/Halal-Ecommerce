@@ -103,7 +103,7 @@ const Settings = () => {
     const hasPending =
         pending?.status === 'pending' &&
         pendingChangeFields.some((field) => Boolean(pending[field]));
-    const roleLabel = profile?.role === 'admin' ? 'Admin' : profile?.role === 'merchant' ? 'Merchant' : 'Consumer';
+    const roleLabel = profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'admin' ? 'Admin' : profile?.role === 'merchant' ? 'Merchant' : 'Consumer';
 
     return (
         <div className="settings-page">
@@ -122,7 +122,7 @@ const Settings = () => {
                         <strong>{profile?.email || '—'}</strong>
                         <div className="settings-role-badge">{roleLabel}</div>
                     </div>
-                    <Link to={profile?.role === 'admin' ? '/admin' : '/dashboard'} className="btn btn-secondary btn-sm">
+                    <Link to={profile?.role === 'admin' || profile?.role === 'superadmin' ? '/admin' : '/dashboard'} className="btn btn-secondary btn-sm">
                         Back to Dashboard
                     </Link>
                 </div>
