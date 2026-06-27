@@ -26,11 +26,11 @@ const connectDB = async () => {
       );
     }
 
-    // Use recommended options for Mongoose 9+; explicit options are no longer needed.
     const conn = await mongoose.connect(uri);
 
     const dbName = conn.connection.name;
     console.log(`MongoDB Connected: ${conn.connection.host} (${dbName})`);
+    return conn;
   } catch (error) {
     console.error(`MongoDB connection error: ${error.message}`);
     process.exit(1);

@@ -45,3 +45,6 @@ config/secrets/
 # e2e test artifacts
 e2e/test-results/
 e2e/auth-*.json
+
+# image generation progress (auto-generated, machine-local)
+backend/.product-image-progress.json
