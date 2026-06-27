@@ -1,0 +1,11 @@
+module.exports = {
+  testEnvironment: 'node',
+  transform: {},
+  setupFiles: ['./tests/helpers.js'],
+  testMatch: ['**/tests/**/*.test.js'],
+  testTimeout: 30000,
+  verbose: true,
+  forceExit: true,
+  detectOpenHandles: true,
+  maxWorkers: 1,
+};
