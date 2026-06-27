@@ -668,6 +668,46 @@ const seedData = async () => {
       }
     }
 
+    // ── Super Admin ──────────────────────────────────────
+    if (isProductsOnly) {
+      console.log("ℹ️  Super Admin skipped in --products-only mode");
+    } else {
+      try {
+        if (isDryRun) {
+          console.log(
+            "\n🔐 Super Admin would be created: admin@halalecommerce.com",
+          );
+        } else {
+          const existingAdmin = await User.findOne({
+            email: "admin@halalecommerce.com",
+          }).lean();
+
+          if (existingAdmin) {
+            console.log(
+              "🔐 Super Admin already exists: admin@halalecommerce.com",
+            );
+          } else {
+            await User.create({
+              firstName: "Super",
+              lastName: "Admin",
+              email: "admin@halalecommerce.com",
+              password: "Admin1234!",
+              phone: "+251900000000",
+              role: "superadmin",
+              isEmailVerified: true,
+              isActive: true,
+            });
+            createdUsers++;
+            console.log(
+              "🔐 Super Admin account created: admin@halalecommerce.com",
+            );
+          }
+        }
+      } catch (adminErr) {
+        errors.push(`Super Admin: ${adminErr.message}`);
+      }
+    }
+
     // ── Summary ──────────────────────────────────────────
     console.log("\n" + "=".repeat(50));
     console.log("📊 SEED SUMMARY");
