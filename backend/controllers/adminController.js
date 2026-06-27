@@ -79,7 +79,7 @@ export const approveUserProfileUpdate = async (req, res, next) => {
             });
         }
 
-        if (action === 'approved') {
+        if (normalizedAction === 'approved') {
             const updateData = {};
             if (pending.firstName) updateData.firstName = pending.firstName;
             if (pending.lastName) updateData.lastName = pending.lastName;

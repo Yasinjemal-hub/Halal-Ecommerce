@@ -141,18 +141,17 @@ export const logout = (req, res) => {
         }
 
         // Clear both refresh and access tokens
-        res.cookie('refreshToken', '', {
+        const isProduction = process.env.NODE_ENV === 'production';
+        const clearCookieOptions = {
             httpOnly: true,
             expires: new Date(0),
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-        });
-        res.cookie('accessToken', '', {
-            httpOnly: true,
-            expires: new Date(0),
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-        });
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+            path: '/',
+        };
+
+        res.cookie('refreshToken', '', clearCookieOptions);
+        res.cookie('accessToken', '', clearCookieOptions);
 
         res.status(200).json({ success: true, message: 'Logged out successfully' });
     } catch (err) {
@@ -323,7 +322,7 @@ export const refreshToken = async (req, res, next) => {
         }
 
         // Verify that the refresh token matches the hashed token stored for the user
-        const hashed = require('crypto').createHash('sha256').update(token).digest('hex');
+        const hashed = crypto.createHash('sha256').update(token).digest('hex');
 
         if (!user.refreshToken || user.refreshToken !== hashed) {
             return res.status(401).json({ success: false, message: 'Refresh token revoked' });

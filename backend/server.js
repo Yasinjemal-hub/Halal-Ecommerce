@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "./config/env.js";
 import mongoose from "mongoose";
 import express from "express";
 import path from "path";
@@ -87,11 +87,13 @@ const generalLimiter = rateLimit({
 app.use("/api/", generalLimiter);
 
 // ── Connect to Database ─────────────────────────────────
-connectDB().catch((err) => {
-  console.error("❌ CRITICAL: Database connection failed:", err.message);
-  console.error("   Ensure MongoDB is running and MONGO_URI is correct");
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== 'test') {
+  connectDB().catch((err) => {
+    console.error("❌ CRITICAL: Database connection failed:", err.message);
+    console.error("   Ensure MongoDB is running and MONGO_URI is correct");
+    process.exit(1);
+  });
+}
 
 // ── Global Middleware ───────────────────────────────────
 app.use(
@@ -133,7 +135,7 @@ app.use(cookieParser());
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.use(requestLogger);
 
