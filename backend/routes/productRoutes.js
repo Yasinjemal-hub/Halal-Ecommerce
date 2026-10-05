@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import validate from '../middleware/validate.js';
-import { protect } from '../middleware/auth.js';
+import { protect, optionalAuth } from '../middleware/auth.js';
 import { authorize } from '../middleware/roleCheck.js';
 import { uploadSingle } from '../middleware/upload.js';
 import {
@@ -24,7 +24,7 @@ router.get('/search', searchProducts);  // Must come before /:id
 
 // ── Public Routes ───────────────────────────────────────
 router.get('/', getAllProducts);
-router.get('/:id', getProduct);  // Wildcard - must be last
+router.get('/:id', optionalAuth, getProduct);  // Wildcard - must be last
 
 // ── Merchant Routes ─────────────────────────────────────
 router.post(

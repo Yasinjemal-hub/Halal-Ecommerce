@@ -4,6 +4,7 @@ import express from "express";
 import path from "path";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
@@ -84,7 +85,12 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use("/api/", generalLimiter);
+// Rate limiting is disabled under test so integration suites can exercise
+// multi-step workflows without tripping the per-IP quota (production
+// behavior is unchanged).
+if (process.env.NODE_ENV !== 'test') {
+  app.use("/api/", generalLimiter);
+}
 
 // ── Connect to Database ─────────────────────────────────
 if (process.env.NODE_ENV !== 'test') {
@@ -129,6 +135,8 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
+// Compress JSON responses on the wire (threshold keeps tiny payloads untouched)
+app.use(compression({ threshold: 1024 }));
 
 // Serve uploaded images locally (fallback when Cloudinary not configured)
 // import path from 'path';

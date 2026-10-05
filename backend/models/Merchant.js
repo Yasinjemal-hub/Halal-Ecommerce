@@ -151,6 +151,10 @@ const merchantSchema = new mongoose.Schema(
             ref: 'User', // Admin / Majlis user
         },
         verificationNotes: { type: String, maxlength: 1000 },
+        // Required when verificationStatus is set to 'rejected'.
+        rejectionReason: { type: String, maxlength: 500 },
+        // Optional free-text notes submitted by the applicant at registration.
+        applicationNotes: { type: String, maxlength: 2000 },
         halalCertification: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Certification',
@@ -219,6 +223,7 @@ const merchantSchema = new mongoose.Schema(
 
 // ── Indexes ─────────────────────────────────────────────
 merchantSchema.index({ verificationStatus: 1 });
+merchantSchema.index({ verificationStatus: 1, createdAt: -1 });
 merchantSchema.index({ businessType: 1 });
 merchantSchema.index({ 'businessAddress.city': 1 });
 merchantSchema.index({ ratingsAverage: -1 });
@@ -233,7 +238,7 @@ merchantSchema.pre('save', function () {
     }
 });
 
-// ── Virtual: products ───────────────────────────────────
+// Exclude sensitive fields by default (handled by safeResponse utility, not DB-level select)
 merchantSchema.virtual('products', {
     ref: 'Product',
     localField: '_id',

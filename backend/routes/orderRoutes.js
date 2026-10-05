@@ -10,7 +10,10 @@ import {
     updateOrderStatus,
     cancelOrder,
     getMerchantOrders,
+    requestReturn,
+    processRefund,
 } from '../controllers/orderController.js';
+import { ORDER_STATUSES } from '../utils/orderTransitions.js';
 
 const router = Router();
 
@@ -127,24 +130,35 @@ router.get('/merchant/orders', authorize('merchant', 'admin', 'superadmin'), get
 router.get('/:id', getOrder);
 router.put('/:id/cancel', cancelOrder);
 
+// Consumer return request: delivered -> return_requested
+// (owner or admin/superadmin; ownership enforced in controller)
+router.put('/:id/return', requestReturn);
+
+// Admin refund: cancelled/returned/return_requested/delivered -> refunded
+router.put(
+    '/:id/refund',
+    authorize('admin', 'superadmin'),
+    [
+        body('refundAmount')
+            .optional()
+            .isFloat({ min: 0 })
+            .withMessage('Refund amount must be a positive number'),
+    ],
+    validate,
+    processRefund
+);
+
 // ── Admin / Merchant Status Update ──────────────────────
+// NOTE: consumers are intentionally excluded here — they mutate status only
+// via PUT /:id/cancel and PUT /:id/return. The controller additionally
+// enforces per-actor transitions (see utils/orderTransitions.js) and
+// verifies merchant ownership of >= 1 item on every mutation.
 router.put(
     '/:id/status',
     authorize('merchant', 'admin', 'superadmin'),
     [
         body('status')
-            .isIn([
-                'pending',
-                'confirmed',
-                'processing',
-                'shipped',
-                'out_for_delivery',
-                'delivered',
-                'cancelled',
-                'refunded',
-                'return_requested',
-                'returned',
-            ])
+            .isIn(ORDER_STATUSES)
             .withMessage('Invalid order status'),
     ],
     validate,

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { safeUserResponse } from './safeResponse.js';
 
 /**
  * Generate an access token (short-lived)
@@ -44,17 +45,11 @@ export const sendTokenResponse = (user, statusCode, res) => {
         maxAge: parseInt(process.env.ACCESS_TOKEN_MAX_AGE_MS || `${15 * 60 * 1000}`), // default 15 minutes
     };
 
-    // Remove password from output
-    const userObj = user.toObject();
-    delete userObj.password;
-
     // Persist a hashed refresh token on the user for server-side invalidation
     try {
         const hashed = crypto.createHash('sha256').update(refreshToken).digest('hex');
-        // Set fields and save silently (do not block response)
         user.refreshToken = hashed;
         user.refreshTokenExpires = new Date(Date.now() + (7 * 24 * 60 * 60 * 1000));
-        // Save without selecting password
         user.save().catch((err) => {
             console.error('Failed to save refresh token on user:', err.message);
         });
@@ -68,6 +63,6 @@ export const sendTokenResponse = (user, statusCode, res) => {
         .cookie('refreshToken', refreshToken, refreshCookieOptions)
         .json({
             success: true,
-            user: userObj,
+            user: safeUserResponse.public(user),
         });
 };

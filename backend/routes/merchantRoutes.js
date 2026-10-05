@@ -1,14 +1,13 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import validate from '../middleware/validate.js';
-import { protect } from '../middleware/auth.js';
+import { protect, optionalAuth } from '../middleware/auth.js';
 import { authorize } from '../middleware/roleCheck.js';
 import {
     createMerchant,
     getMerchant,
     updateMerchant,
     getMerchantProducts,
-    applyForCertification,
     getMyMerchantProfile,
     getAllMerchants,
     getFeaturedMerchants,
@@ -29,7 +28,7 @@ router.get('/me/profile', protect, authorize('merchant'), getMyMerchantProfile);
 router.get('/', getAllMerchants);
 
 // ── Public Routes (Wildcard - must be last) ──────────────
-router.get('/:id/products', getMerchantProducts);
+router.get('/:id/products', optionalAuth, getMerchantProducts);
 router.get('/:id', getMerchant);
 
 router.post(
@@ -54,18 +53,11 @@ router.put(
     updateMerchant
 );
 
-// ── Certification Application ───────────────────────────
-router.post(
-    '/:id/certifications',
-    protect,
-    authorize('merchant'),
-    [
-        body('certificateType')
-            .isIn(['halal_product', 'halal_establishment', 'halal_slaughter', 'halal_import'])
-            .withMessage('Invalid certificate type'),
-    ],
-    validate,
-    applyForCertification
-);
+// ── NOTE: the standalone merchant certification endpoints
+// (POST/PUT /:id/certifications) were removed in favor of the single
+// unified application: certification evidence is submitted with
+// registration or via PUT /api/mejilis/registration, and reviewed in
+// the unified Majlis review. The admin certification review queue
+// (GET/PUT /api/mejilis/certifications) still serves every record.
 
 export default router;

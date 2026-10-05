@@ -1,7 +1,7 @@
 import Product from '../models/Product.js';
 import Merchant from '../models/Merchant.js';
 import { getFileUrl } from '../middleware/upload.js';
-
+import { safeMerchantResponse } from '../utils/safeResponse.js';
 const parseImagesFromBody = (imagesField) => {
     if (!imagesField) return undefined;
     if (Array.isArray(imagesField)) return imagesField;
@@ -13,6 +13,27 @@ const parseImagesFromBody = (imagesField) => {
         }
     }
     return undefined;
+};
+
+/**
+ * Public storefronts only ever show products from currently approved
+ * (hence halal certified) merchants. Products from pending, rejected, or
+ * suspended merchants stay stored untouched — they reappear automatically
+ * if the merchant is approved later — but are never listed, searched, or
+ * served as currently available. Products without a merchant (legacy
+ * orphans) keep their existing visibility.
+ *
+ * When a specific merchant is requested and it is not approved, the filter
+ * matches nothing (empty public result, records preserved).
+ */
+export const restrictToApprovedMerchants = async (filter, requestedMerchantId) => {
+    const approvedIds = await Merchant.find({ verificationStatus: 'approved' }).distinct('_id');
+    if (requestedMerchantId) {
+        const allowed = approvedIds.some((id) => id.toString() === String(requestedMerchantId));
+        filter.merchant = allowed ? requestedMerchantId : { $in: [] };
+        return;
+    }
+    filter.merchant = { $in: [...approvedIds, null] };
 };
 
 export const createProduct = async (req, res, next) => {
@@ -36,6 +57,10 @@ export const createProduct = async (req, res, next) => {
         const productData = {
             ...req.body,
             merchant: merchant._id,
+            // One-approval rule: every product from an approved (hence halal
+            // certified) merchant is halal verified.
+            halalCertified: true,
+            halalCertification: merchant.halalCertification || req.body.halalCertification,
         };
 
         if (req.file) {
@@ -90,15 +115,14 @@ export const createProduct = async (req, res, next) => {
  */
 export const getAllProducts = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
         const skip = (page - 1) * limit;
 
         // Build filter
         const filter = { isActive: true, isApproved: true, isDeleted: { $ne: true } };
 
         if (req.query.category) filter.category = req.query.category;
-        if (req.query.merchant) filter.merchant = req.query.merchant;
         if (req.query.halalCertified) filter.halalCertified = req.query.halalCertified === 'true';
         if (req.query.isFeatured) filter.isFeatured = req.query.isFeatured === 'true';
         if (req.query.search) {
@@ -122,14 +146,23 @@ export const getAllProducts = async (req, res, next) => {
         if (req.query.sort === 'rating') sort = { ratingsAverage: -1 };
         if (req.query.sort === 'newest') sort = { createdAt: -1 };
 
+        // Storefront visibility: approved merchants only.
+        await restrictToApprovedMerchants(filter, req.query.merchant);
+
         const [products, total] = await Promise.all([
             Product.find(filter)
-                .populate('merchant', 'businessName slug logo')
+                .populate({ path: 'merchant', select: 'businessName slug logo verificationStatus halalCertification', populate: { path: 'halalCertification', select: 'certificateNumber status issueDate expiryDate' } })
                 .skip(skip)
                 .limit(limit)
                 .sort(sort),
             Product.countDocuments(filter),
         ]);
+
+        // Transform products to include safe merchant data
+        const safeProducts = products.map((product) => ({
+            ...product.toObject(),
+            merchant: product.merchant ? safeMerchantResponse.public(product.merchant) : null,
+        }));
 
         res.status(200).json({
             success: true,
@@ -137,7 +170,7 @@ export const getAllProducts = async (req, res, next) => {
             total,
             totalPages: Math.ceil(total / limit),
             currentPage: page,
-            products,
+            products: safeProducts,
         });
     } catch (error) {
         next(error);
@@ -152,19 +185,38 @@ export const getAllProducts = async (req, res, next) => {
 export const getProduct = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id)
-            .populate('merchant', 'businessName slug logo businessPhone verificationStatus')
-            .populate('halalCertification');
+            .populate('merchant', 'businessName slug logo businessPhone verificationStatus user')
+            .populate('halalCertification', 'certificateNumber issuingAuthority certificateType status issueDate expiryDate scope coveredProducts');
 
-        if (!product) {
+        if (!product || product.isDeleted) {
             return res.status(404).json({
                 success: false,
                 message: 'Product not found',
             });
         }
 
+        // Not publicly available while its merchant is not approved. Only
+        // staff may open it (authorized management); everyone else —
+        // including the merchant while non-approved — gets 404 so the
+        // product is never presented as available or halal. Records stay
+        // stored and reappear on approval.
+        const merchantStatus = product.merchant?.verificationStatus;
+        const isStaff = req.user && ['admin', 'superadmin'].includes(req.user.role);
+        if (product.merchant && merchantStatus !== 'approved' && !isStaff) {
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found',
+            });
+        }
+
+        const safeProduct = {
+            ...product.toObject(),
+            merchant: product.merchant ? safeMerchantResponse.public(product.merchant) : null,
+        };
+
         res.status(200).json({
             success: true,
-            product,
+            product: safeProduct,
         });
     } catch (error) {
         next(error);
@@ -192,6 +244,15 @@ export const updateProduct = async (req, res, next) => {
             return res.status(403).json({
                 success: false,
                 message: 'You can only update your own products',
+            });
+        }
+
+        // Only approved merchants may manage products. Records stay stored
+        // and reappear if the merchant is approved later.
+        if (merchant.verificationStatus !== 'approved') {
+            return res.status(403).json({
+                success: false,
+                message: 'Your merchant profile must be approved by Mejilis/Admin before managing products.',
             });
         }
 
@@ -259,12 +320,19 @@ export const deleteProduct = async (req, res, next) => {
         }
 
         // Verify ownership or admin
-        if (req.user.role !== 'admin') {
+        if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
             const merchant = await Merchant.findOne({ user: req.user._id });
             if (!merchant || product.merchant.toString() !== merchant._id.toString()) {
                 return res.status(403).json({
                     success: false,
                     message: 'You can only delete your own products',
+                });
+            }
+            // Only approved merchants may manage products; admins retain access.
+            if (merchant.verificationStatus !== 'approved') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Your merchant profile must be approved by Mejilis/Admin before managing products.',
                 });
             }
         }
@@ -296,8 +364,8 @@ export const deleteProduct = async (req, res, next) => {
 export const searchProducts = async (req, res, next) => {
     try {
         const { q, category, page: pageStr, limit: limitStr } = req.query;
-        const page = parseInt(pageStr) || 1;
-        const limit = parseInt(limitStr) || 20;
+        const page = Math.max(parseInt(pageStr) || 1, 1);
+        const limit = Math.min(Math.max(parseInt(limitStr) || 20, 1), 100);
         const skip = (page - 1) * limit;
 
         if (!q) {
@@ -315,14 +383,23 @@ export const searchProducts = async (req, res, next) => {
         };
         if (category) filter.category = category;
 
+        // Storefront visibility: approved merchants only.
+        await restrictToApprovedMerchants(filter);
+
         const [products, total] = await Promise.all([
             Product.find(filter, { score: { $meta: 'textScore' } })
-                .populate('merchant', 'businessName slug logo')
+                .populate({ path: 'merchant', select: 'businessName slug logo verificationStatus halalCertification', populate: { path: 'halalCertification', select: 'certificateNumber status issueDate expiryDate' } })
                 .sort({ score: { $meta: 'textScore' } })
                 .skip(skip)
                 .limit(limit),
             Product.countDocuments(filter),
         ]);
+
+        // Transform products to include safe merchant data
+        const safeProducts = products.map((product) => ({
+            ...product.toObject(),
+            merchant: product.merchant ? safeMerchantResponse.public(product.merchant) : null,
+        }));
 
         res.status(200).json({
             success: true,
@@ -330,7 +407,7 @@ export const searchProducts = async (req, res, next) => {
             total,
             totalPages: Math.ceil(total / limit),
             currentPage: page,
-            products,
+            products: safeProducts,
         });
     } catch (error) {
         next(error);

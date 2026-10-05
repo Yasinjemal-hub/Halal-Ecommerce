@@ -22,14 +22,16 @@ export const register = async (req, res, next) => {
             });
         }
 
-        // Create user
+        // Create user (empty optional phone becomes undefined so the
+        // Ethiopian phone validator only runs when a number is provided)
         const user = await User.create({
             firstName,
             lastName,
             email,
             password,
-            phone,
+            phone: phone || undefined,
             role: role === 'merchant' ? 'merchant' : 'consumer', // Only allow consumer/merchant at registration
+            accountSource: 'regular',
         });
 
         // Generate email verification token

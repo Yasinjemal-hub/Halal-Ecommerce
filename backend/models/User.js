@@ -107,7 +107,11 @@ const userSchema = new mongoose.Schema(
             status: {
                 type: String,
                 enum: ['pending', 'approved', 'rejected'],
-                default: 'pending',
+                // No default: an empty pendingProfileUpdate must NOT read as
+                // pending. Status becomes 'pending' only when an
+                // authenticated user explicitly submits ≥1 changed,
+                // reviewable field (see userController.updateProfile and
+                // utils/profileUpdates.js). Registration never creates one.
             },
             reviewedAt: Date,
             reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -116,21 +120,34 @@ const userSchema = new mongoose.Schema(
 
         // Email verification
         isEmailVerified: { type: Boolean, default: false },
-        emailVerificationToken: String,
-        emailVerificationExpires: Date,
-        emailVerificationAttempts: { type: Number, default: 0 },
+        emailVerificationToken: { type: String, select: false },
+        emailVerificationExpires: { type: Date, select: false },
+        emailVerificationAttempts: { type: Number, default: 0, select: false },
 
         // Password reset
-        passwordResetToken: String,
-        passwordResetExpires: Date,
+        passwordResetToken: { type: String, select: false },
+        passwordResetExpires: { type: Date, select: false },
 
         // Refresh token (hashed) for server-side invalidation
         refreshToken: { type: String, select: false },
-        refreshTokenExpires: Date,
+        refreshTokenExpires: { type: Date, select: false },
 
         // Account status
         isActive: { type: Boolean, default: true },
         lastLogin: Date,
+
+        // Explicit account-source marker for provenance tracking.
+        // 'regular' = real user (manual registration or operator-created).
+        // 'demo' = created by the demo seed script (seed namespace).
+        // 'test' = created by automated test fixtures (test database only).
+        // Never infer source from email patterns or names; only this
+        // explicit marker (or the database/seed namespace) is reliable.
+        accountSource: {
+            type: String,
+            enum: ['regular', 'demo', 'test'],
+            default: 'regular',
+            index: true,
+        },
     },
     {
         timestamps: true,

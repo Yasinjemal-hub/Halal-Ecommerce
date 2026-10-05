@@ -120,13 +120,15 @@ const orderSchema = new mongoose.Schema(
         estimatedDelivery: Date,
         deliveredAt: Date,
 
-        // ── Cancellation / Refund ───────────────────────────
+        // ── Cancellation / Return / Refund ────────────────────
         cancelReason: { type: String, maxlength: 500 },
         cancelledAt: Date,
         cancelledBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
         },
+        returnReason: { type: String, maxlength: 500 },
+        returnedAt: Date,
         refundAmount: { type: Number, min: 0 },
         refundedAt: Date,
 

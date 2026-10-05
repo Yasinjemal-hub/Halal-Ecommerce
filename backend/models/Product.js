@@ -191,6 +191,8 @@ productSchema.index({ slug: 1 });
 productSchema.index({ name: 'text', description: 'text' }); // Full-text search
 productSchema.index({ tags: 1 });
 productSchema.index({ isActive: 1, isApproved: 1 });
+productSchema.index({ isActive: 1, isApproved: 1, isDeleted: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, isApproved: 1, category: 1, createdAt: -1 });
 
 // ── Auto-generate slug ─────────────────────────────────
 productSchema.pre('save', function () {

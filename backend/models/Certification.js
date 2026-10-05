@@ -62,7 +62,7 @@ const certificationSchema = new mongoose.Schema(
         certificateType: {
             type: String,
             enum: ['halal_product', 'halal_establishment', 'halal_slaughter', 'halal_import'],
-            required: [true, 'Certificate type is required'],
+            default: 'halal_establishment',
         },
 
         // ── Status ──────────────────────────────────────────
@@ -118,9 +118,18 @@ const certificationSchema = new mongoose.Schema(
             ref: 'User',
         },
         reviewedAt: Date,
-        reviewNotes: { type: String, maxlength: 2000 },
-        rejectionReason: { type: String, maxlength: 1000 },
-        revocationReason: { type: String, maxlength: 1000 },
+        reviewNotes: { type: String, maxlength: 2000, select: false },
+        rejectionReason: { type: String, maxlength: 1000, select: false },
+        revocationReason: { type: String, maxlength: 1000, select: false },
+        // Append-only decision history (who decided what, when, why).
+        statusHistory: [
+            {
+                status: { type: String, required: true },
+                changedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+                changedAt: { type: Date, default: Date.now },
+                note: { type: String, maxlength: 1000 },
+            },
+        ],
 
         // ── Renewal ─────────────────────────────────────────
         isRenewal: { type: Boolean, default: false },

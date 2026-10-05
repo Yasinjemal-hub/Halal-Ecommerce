@@ -8,9 +8,10 @@ const validate = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        // Log validation errors for easier debugging in dev
+        // Log validation failures without values to avoid leaking passwords/tokens/PII
         try {
-            console.warn('Validation failed for', req.method, req.originalUrl, JSON.stringify(errors.array()));
+            const safeErrors = errors.array().map((err) => ({ field: err.path, message: err.msg }));
+            console.warn('Validation failed for', req.method, req.originalUrl, JSON.stringify(safeErrors));
         } catch (e) {
             console.warn('Validation failed (unable to stringify errors)');
         }

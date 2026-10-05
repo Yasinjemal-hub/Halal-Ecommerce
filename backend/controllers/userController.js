@@ -1,4 +1,6 @@
 import User from '../models/User.js';
+import { safeUserResponse } from '../utils/safeResponse.js';
+import { normalizeRequestedValue, validateRequestedValue } from '../utils/profileUpdates.js';
 
 /**
  * @desc    Get current user profile
@@ -11,7 +13,7 @@ export const getProfile = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            user,
+            user: safeUserResponse.public(user),
         });
     } catch (error) {
         next(error);
@@ -37,11 +39,36 @@ export const updateProfile = async (req, res, next) => {
             }
         });
 
+        // Stage a review request only for normalized values that actually
+        // differ from the current profile. Normalization (trim, lowercase
+        // email, empty → absent) keeps case-only or blank submissions from
+        // fabricating a pending request.
+        const current = {
+            firstName: req.user.firstName || '',
+            lastName: req.user.lastName || '',
+            email: (req.user.email || '').toLowerCase(),
+            phone: req.user.phone || '',
+        };
         pendingFields.forEach((field) => {
-            if (req.body[field] !== undefined && req.body[field] !== req.user[field]) {
-                pendingProfileUpdate[field] = req.body[field];
+            if (req.body[field] === undefined) return;
+            const normalized = normalizeRequestedValue(field, req.body[field]);
+            if (normalized === undefined) return;
+            if (normalized !== current[field]) {
+                pendingProfileUpdate[field] = normalized;
             }
         });
+
+        // Validate staged values now so malformed requests are rejected with
+        // a clear message instead of entering the review queue.
+        for (const field of Object.keys(pendingProfileUpdate)) {
+            const fieldError = validateRequestedValue(field, pendingProfileUpdate[field]);
+            if (fieldError) {
+                return res.status(400).json({
+                    success: false,
+                    message: fieldError,
+                });
+            }
+        }
 
         if (pendingProfileUpdate.email) {
             const existingUser = await User.findOne({
@@ -56,7 +83,11 @@ export const updateProfile = async (req, res, next) => {
             }
         }
 
-        if (Object.keys(pendingProfileUpdate).length) {
+        const hasPendingRequest = Object.keys(pendingProfileUpdate).length > 0;
+        if (hasPendingRequest) {
+            // A new submission replaces any prior request object (pending or
+            // decided): the newest request is the only reviewable one, so a
+            // stale decision can never apply twice or overwrite newer data.
             updates.pendingProfileUpdate = {
                 ...pendingProfileUpdate,
                 requestedAt: new Date(),
@@ -78,7 +109,11 @@ export const updateProfile = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            user,
+            pendingReview: hasPendingRequest,
+            message: hasPendingRequest
+                ? 'Profile update request submitted. Name, email, or phone changes require admin approval.'
+                : 'Profile updated successfully.',
+            user: safeUserResponse.public(user),
         });
     } catch (error) {
         next(error);
