@@ -1,0 +1,385 @@
+/* ═══════════════════════════════════════════════════════════
+   Merchants Management — review workspace
+   Uses project design tokens (see index.css) and reuses
+   Dashboard.css patterns (.dashboard-page, .stat-card, .btn, …).
+   ═══════════════════════════════════════════════════════════ */
+
+.mm-toolbar {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+.mm-search-wrap {
+    position: relative;
+}
+
+.mm-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+
+.mm-input,
+.mm-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+.mm-search-wrap .mm-input {
+    padding-left: 36px;
+}
+
+.mm-input:focus,
+.mm-select:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 1px;
+}
+
+.mm-result-count {
+    margin-bottom: var(--space-4);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.mm-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.mm-row {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    padding: var(--space-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.mm-row-main {
+    flex: 1;
+    min-width: 220px;
+}
+
+.mm-row-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-2);
+}
+
+.mm-row-title h4 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+
+.mm-row-meta {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.mm-row-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mm-row-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+}
+
+.mm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.mm-badge-pending { background: #fef3c7; color: #92400e; }
+.mm-badge-under_review { background: #dbeafe; color: #1e40af; }
+.mm-badge-approved { background: #d1fae5; color: #065f46; }
+.mm-badge-rejected { background: #fee2e2; color: #991b1b; }
+.mm-badge-suspended { background: #ede9fe; color: #5b21b6; }
+.mm-badge-revoked { background: #fee2e2; color: #7f1d1d; }
+.mm-badge-expired { background: #f3f4f6; color: #4b5563; }
+.mm-badge-active { background: #d1fae5; color: #065f46; }
+.mm-badge-inactive { background: #f3f4f6; color: #4b5563; }
+
+.mm-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+}
+
+.mm-state h3 {
+    margin: var(--space-3) 0 var(--space-2);
+    color: var(--text-primary);
+}
+
+.mm-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    flex-wrap: wrap;
+}
+
+/* ── Detail modal ── */
+.mm-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 32, 0.55);
+    z-index: var(--z-modal-backdrop);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: var(--space-6) var(--space-4);
+}
+
+.mm-modal {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 860px;
+    z-index: var(--z-modal);
+}
+
+.mm-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.mm-modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0 0 var(--space-2);
+}
+
+.mm-modal-body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.mm-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.mm-detail-card {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    background: var(--bg-primary);
+}
+
+.mm-detail-card.full {
+    grid-column: 1 / -1;
+}
+
+.mm-detail-card h3 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin: 0 0 var(--space-3);
+}
+
+.mm-detail-card dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: var(--space-2) var(--space-3);
+    font-size: 0.875rem;
+}
+
+.mm-detail-card dt {
+    color: var(--text-secondary);
+}
+
+.mm-detail-card dd {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.mm-docs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.mm-doc-card {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.mm-doc-card h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.mm-doc-preview {
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.mm-doc-preview img {
+    max-width: 100%;
+    max-height: 260px;
+    object-fit: contain;
+}
+
+.mm-doc-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.mm-cert-note {
+    border-left: 3px solid var(--warning);
+    background: rgba(217, 119, 6, 0.08);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.mm-decision {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.mm-decision h3 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+
+.mm-decision-row {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+}
+
+.mm-textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+    padding: 10px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.mm-field-error {
+    color: var(--error);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.mm-confirm {
+    border: 1px solid var(--warning);
+    background: rgba(217, 119, 6, 0.08);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    font-size: 0.875rem;
+}
+
+.mm-success {
+    border: 1px solid var(--success);
+    background: rgba(5, 150, 105, 0.08);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.875rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .mm-toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .mm-search-wrap {
+        grid-column: 1 / -1;
+    }
+
+    .mm-detail-grid,
+    .mm-docs {
+        grid-template-columns: 1fr;
+    }
+
+    .mm-detail-card dl {
+        grid-template-columns: 1fr;
+        gap: var(--space-1);
+    }
+
+    .mm-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mm-row-actions {
+        justify-content: flex-end;
+    }
+}

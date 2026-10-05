@@ -4,9 +4,40 @@ import { FiMapPin, FiPhone, FiStar, FiShoppingBag, FiPackage, FiCheckCircle, FiC
 import { Utensils, ShoppingBag, Drumstick, Croissant, Package, Sparkle, Shirt, Flame, Store, Tag } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import merchantService from '../services/merchantService';
+import { backendError } from '../utils/backendErrors';
+import { isMerchantHalalVerified } from '../utils/certification';
 import ProductCard from '../components/common/ProductCard';
 import Loader from '../components/common/Loader';
 import './MerchantShop.css';
+
+const SHOP_TYPE_KEYS = {
+    restaurant: 'mtype_restaurant',
+    grocery: 'mtype_grocery',
+    butcher: 'mtype_butcher',
+    bakery: 'mtype_bakery',
+    spice_shop: 'mtype_spice_shop',
+    clothing: 'mtype_clothing',
+    cosmetics: 'mtype_cosmetics',
+    wholesale: 'mtype_wholesale',
+    supermarket: 'mtype_supermarket',
+    other: 'mtype_other',
+};
+
+const SHOP_CATEGORY_KEYS = {
+    meat: 'cat_meat',
+    poultry: 'cat_poultry',
+    dairy: 'cat_dairy',
+    spices: 'cat_spices',
+    bakery: 'cat_bakery',
+    honey: 'cat_honey',
+    grains: 'cat_grains',
+    clothing: 'cat_clothing',
+    cosmetics: 'cat_cosmetics',
+    perfume: 'cat_perfume',
+    books: 'cat_books',
+    home_decor: 'cat_home_decor',
+    beverages: 'cat_beverages',
+};
 
 // Demo merchants used as fallback
 const DEMO_MERCHANTS = {
@@ -157,7 +188,7 @@ const TYPE_EMOJIS = {
 
 const MerchantShop = () => {
     const { id } = useParams();
-    const { t } = useLanguage();
+    const { t, tp, formatNumber } = useLanguage();
     const [merchant, setMerchant] = useState(null);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -169,26 +200,23 @@ const MerchantShop = () => {
             setLoading(true);
             setError(null);
             try {
-                // Try to load from backend
-                const merchantData = await merchantService.getById(id);
+                // Merchant profile and its products are independent — load
+                // them in parallel instead of waiting for one then the other.
+                const [merchantData, productsData] = await Promise.all([
+                    merchantService.getById(id),
+                    merchantService.getMerchantProducts(id, { limit: 50 }).catch(() => null),
+                ]);
                 const m = merchantData.merchant || merchantData.data || merchantData;
                 setMerchant(m);
-
-                // Load merchant products
-                try {
-                    const productsData = await merchantService.getMerchantProducts(id, { limit: 50 });
-                    const prods = productsData.products || productsData.data || [];
-                    setProducts(prods.length > 0 ? prods : (DEMO_PRODUCTS[id] || []));
-                } catch {
-                    setProducts(DEMO_PRODUCTS[id] || []);
-                }
-            } catch {
+                const prods = productsData?.products || productsData?.data || [];
+                setProducts(prods.length > 0 ? prods : (DEMO_PRODUCTS[id] || []));
+            } catch (err) {
                 // Fallback to demo data
                 if (DEMO_MERCHANTS[id]) {
                     setMerchant(DEMO_MERCHANTS[id]);
                     setProducts(DEMO_PRODUCTS[id] || []);
                 } else {
-                    setError('Merchant not found');
+                    setError(backendError(t, err, 'mshop_not_found'));
                 }
             } finally {
                 setLoading(false);
@@ -196,7 +224,7 @@ const MerchantShop = () => {
         };
         loadMerchant();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, [id]);
+    }, [id, t]);
 
     // Get unique categories from products
     const productCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
@@ -223,9 +251,9 @@ const MerchantShop = () => {
                 <div className="merchant-shop-error">
                     <div className="merchant-shop-error-icon"><FiShoppingBag size={48} /></div>
                     <h2>{t('error')}</h2>
-                    <p>{error || 'This merchant could not be found.'}</p>
+                    <p>{error || t('mshop_not_found_desc')}</p>
                     <Link to="/merchants" className="btn btn-primary btn-lg">
-                        <FiArrowLeft /> {t('merchants_title')}
+                        <FiArrowLeft /> {t('merchant_shop_back')}
                     </Link>
                 </div>
             </div>
@@ -256,13 +284,13 @@ const MerchantShop = () => {
                     </div>
                     <div className="merchant-shop-info">
                         <div className="merchant-shop-badges">
-                            {merchant.verificationStatus === 'approved' && (
+                            {isMerchantHalalVerified(merchant) && (
                                 <span className="merchant-shop-verified">
-                                    <FiCheckCircle size={14} /> {t('merchants_verified')}
+                                    <FiCheckCircle size={14} /> {t('product_halal_verified')}
                                 </span>
                             )}
                             <span className="merchant-shop-type-badge">
-                                {TYPE_EMOJIS[merchant.businessType] || 'Other'} {merchant.businessType?.replace('_', ' ')}
+                                {TYPE_EMOJIS[merchant.businessType] || 'Other'} {t(SHOP_TYPE_KEYS[merchant.businessType] || 'mtype_other')}
                             </span>
                         </div>
                         <h1 className="merchant-shop-name">{merchant.businessName}</h1>
@@ -282,7 +310,7 @@ const MerchantShop = () => {
                                 </div>
                             )}
                             <div className="merchant-shop-meta-item">
-                                <FiStar size={16} fill="var(--accent-400)" color="var(--accent-400)" /> {merchant.ratingsAverage} ({merchant.ratingsCount} reviews)
+                                <FiStar size={16} fill="var(--accent-400)" color="var(--accent-400)" /> {merchant.ratingsAverage} ({tp('pd_reviews', merchant.ratingsCount || 0)})
                             </div>
                         </div>
                     </div>
@@ -295,22 +323,22 @@ const MerchantShop = () => {
                     <div className="merchant-stat-card animate-fade-in-up">
                         <span className="merchant-stat-card-icon"><FiStar /></span>
                         <span className="merchant-stat-card-value">{merchant.ratingsAverage || '0.0'}</span>
-                        <span className="merchant-stat-card-label">{t('merchants_rating', { rating: '' }).trim() || 'Rating'}</span>
+                        <span className="merchant-stat-card-label">{t('mshop_rating')}</span>
                     </div>
                     <div className="merchant-stat-card animate-fade-in-up">
                         <span className="merchant-stat-card-icon"><FiPackage /></span>
                         <span className="merchant-stat-card-value">{merchant.totalProducts || products.length}</span>
-                        <span className="merchant-stat-card-label">{t('merchant_shop_products') || 'Products'}</span>
+                        <span className="merchant-stat-card-label">{t('merchant_shop_products')}</span>
                     </div>
                     <div className="merchant-stat-card animate-fade-in-up">
                         <span className="merchant-stat-card-icon"><FiShoppingBag /></span>
-                        <span className="merchant-stat-card-value">{(merchant.totalOrders || 0).toLocaleString()}</span>
-                        <span className="merchant-stat-card-label">{t('merchant_shop_orders') || 'Orders'}</span>
+                        <span className="merchant-stat-card-value">{formatNumber(merchant.totalOrders || 0)}</span>
+                        <span className="merchant-stat-card-label">{t('merchants_orders_label')}</span>
                     </div>
                     <div className="merchant-stat-card animate-fade-in-up">
                         <span className="merchant-stat-card-icon"><FiShield /></span>
-                        <span className="merchant-stat-card-value">{merchant.verificationStatus === 'approved' ? '✓' : '—'}</span>
-                        <span className="merchant-stat-card-label">{t('merchant_shop_halal_status') || 'Halal Verified'}</span>
+                        <span className="merchant-stat-card-value">{isMerchantHalalVerified(merchant) ? '✓' : '—'}</span>
+                        <span className="merchant-stat-card-label">{isMerchantHalalVerified(merchant) ? t('mshop_certified') : t('mshop_not_certified')}</span>
                     </div>
                 </div>
             </div>
@@ -322,7 +350,7 @@ const MerchantShop = () => {
                     <div className="merchant-shop-main">
                         <div className="merchant-shop-products-header">
                             <div className="merchant-shop-products-title">
-                                <h2>{t('merchant_shop_all_products') || 'All Products'}</h2>
+                                <h2>{t('merchant_shop_all_products')}</h2>
                                 <span className="merchant-shop-products-count">{filteredProducts.length}</span>
                             </div>
                             {productCategories.length > 1 && (
@@ -339,7 +367,7 @@ const MerchantShop = () => {
                                             className={`merchant-shop-filter-btn ${activeCategory === cat ? 'filter-active' : ''}`}
                                             onClick={() => setActiveCategory(cat)}
                                         >
-                                            {cat?.replace('_', ' ')}
+                                            {SHOP_CATEGORY_KEYS[cat] ? t(SHOP_CATEGORY_KEYS[cat]) : cat}
                                         </button>
                                     ))}
                                 </div>
@@ -365,7 +393,7 @@ const MerchantShop = () => {
                     <aside className="merchant-shop-sidebar">
                         {/* Contact Card */}
                         <div className="merchant-sidebar-card">
-                            <h3>{t('merchant_shop_contact') || 'Contact Information'}</h3>
+                            <h3>{t('merchant_shop_contact')}</h3>
                             {fullAddress && (
                                 <div className="merchant-sidebar-info-row">
                                     <FiMapPin size={16} />
@@ -385,37 +413,57 @@ const MerchantShop = () => {
                                 </div>
                             )}
                             <a href={`tel:${merchant.businessPhone}`} className="btn btn-primary merchant-sidebar-contact-btn">
-                                <FiPhone size={16} /> {t('merchant_shop_call') || 'Call Now'}
+                                <FiPhone size={16} /> {t('merchant_shop_call')}
                             </a>
                         </div>
 
                         {/* Operating Hours */}
                         {merchant.operatingHours && (
                             <div className="merchant-sidebar-card">
-                                <h3><FiClock size={16} /> {t('merchant_shop_hours') || 'Operating Hours'}</h3>
+                                <h3><FiClock size={16} /> {t('merchant_shop_hours')}</h3>
                                 <div className="merchant-sidebar-hours">
                                     <div className="merchant-sidebar-hours-row">
-                                        <span className="merchant-sidebar-hours-day">{t('merchant_shop_weekdays') || 'Mon - Fri'}</span>
+                                        <span className="merchant-sidebar-hours-day">{t('merchant_shop_weekdays')}</span>
                                         <span className="merchant-sidebar-hours-time">{merchant.operatingHours.weekdays}</span>
                                     </div>
                                     <div className="merchant-sidebar-hours-row">
-                                        <span className="merchant-sidebar-hours-day">{t('merchant_shop_saturday') || 'Saturday'}</span>
+                                        <span className="merchant-sidebar-hours-day">{t('merchant_shop_saturday')}</span>
                                         <span className="merchant-sidebar-hours-time">{merchant.operatingHours.saturday}</span>
                                     </div>
                                     <div className="merchant-sidebar-hours-row">
-                                        <span className="merchant-sidebar-hours-day">{t('merchant_shop_sunday') || 'Sunday'}</span>
+                                        <span className="merchant-sidebar-hours-day">{t('merchant_shop_sunday')}</span>
                                         <span className="merchant-sidebar-hours-time">{merchant.operatingHours.sunday}</span>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Halal Certificate */}
-                        {merchant.verificationStatus === 'approved' && (
+                        {/* Halal Certificate — issued automatically with business approval */}
+                        {isMerchantHalalVerified(merchant) ? (
                             <div className="merchant-sidebar-card" style={{ background: 'linear-gradient(135deg, var(--primary-50), var(--accent-50))', border: '1px solid var(--primary-100)' }}>
-                                <h3 style={{ color: 'var(--primary-700)' }}><FiShield size={16} /> {t('merchant_shop_halal_cert') || 'Halal Certification'}</h3>
+                                <h3 style={{ color: 'var(--primary-700)' }}><FiShield size={16} /> {t('merchant_shop_halal_cert')}</h3>
                                 <p style={{ fontSize: '0.875rem', color: 'var(--primary-600)', lineHeight: 1.6 }}>
-                                    {t('merchant_shop_halal_cert_desc') || 'This merchant has been verified by the Ethiopian Islamic Affairs Supreme Council (Majlis). All products meet strict halal compliance standards.'}
+                                    {t('mshop_cert_official')}
+                                </p>
+                                {merchant.halalCertification.certificateNumber && (
+                                    <p style={{ fontSize: '0.875rem', color: 'var(--primary-600)', lineHeight: 1.6 }}>
+                                        {t('mshop_cert_number', { number: merchant.halalCertification.certificateNumber })}
+                                    </p>
+                                )}
+                                {merchant.halalCertification.scope && (
+                                    <p style={{ fontSize: '0.875rem', color: 'var(--primary-600)', lineHeight: 1.6 }}>
+                                        {t('mshop_cert_scope', { scope: merchant.halalCertification.scope })}
+                                    </p>
+                                )}
+                                <Link to={`/verify-certificate/${merchant.halalCertification.certificateNumber}`} style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                                    {t('mshop_verify_cert')}
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="merchant-sidebar-card">
+                                <h3><FiShield size={16} /> {t('merchant_shop_halal_cert')}</h3>
+                                <p style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', lineHeight: 1.6 }}>
+                                    {t('mshop_not_certified_desc')}
                                 </p>
                             </div>
                         )}

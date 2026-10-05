@@ -18,6 +18,25 @@ const mejilisService = {
         return response.data;
     },
 
+    // Update / resubmit own application (rejected → pending; pending /
+    // under_review → in-place edit; approved / suspended → 403)
+    updateRegistration: async (applicationData) => {
+        const response = await api.put('/mejilis/registration', applicationData);
+        return response.data;
+    },
+
+    // Download own issued certificate as a server-generated PDF (blob)
+    downloadCertificatePdf: async () => {
+        const response = await api.get('/mejilis/certificate/pdf', { responseType: 'blob' });
+        return response.data;
+    },
+
+    // Public certificate verification by certificate number
+    verifyCertificate: async (certificateNumber) => {
+        const response = await api.get(`/mejilis/certifications/verify/${certificateNumber}`);
+        return response.data;
+    },
+
     // ── Complaints (Consumer) ───────────────────────────────
     fileComplaint: async (complaintData) => {
         const response = await api.post('/mejilis/complaints', complaintData);
@@ -34,15 +53,8 @@ const mejilisService = {
     getMerchants: async (params = {}) => {
         const queryString = new URLSearchParams(params).toString();
         const url = `/mejilis/merchants?${queryString}`;
-        console.log('Calling API:', url);
-        try {
-            const response = await api.get(url);
-            console.log('Merchants API response:', response);
-            return response.data;
-        } catch (error) {
-            console.error('Merchants API error:', error.response?.data || error.message);
-            throw error;
-        }
+        const response = await api.get(url);
+        return response.data;
     },
 
     verifyMerchant: async (id, data) => {
@@ -59,6 +71,13 @@ const mejilisService = {
 
     reviewCertification: async (id, data) => {
         const response = await api.put(`/mejilis/certifications/${id}/review`, data);
+        return response.data;
+    },
+
+    // Single certification application with full review detail
+    // (documents, inspections, status history) for authorized reviewers.
+    getCertificationById: async (id) => {
+        const response = await api.get(`/mejilis/certifications/${id}`);
         return response.data;
     },
 

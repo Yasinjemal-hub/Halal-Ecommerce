@@ -3,44 +3,50 @@ import { Link } from 'react-router-dom';
 import {
     FiShield, FiUsers, FiCheckCircle, FiAlertTriangle,
     FiFileText, FiCalendar, FiStar, FiArrowRight,
-    FiClock,
     FiTrendingUp, FiAward, FiSearch, FiX,
     FiAlertCircle, FiUser
 } from 'react-icons/fi';
 import mejilisService from '../services/mejilisService';
 import authService from '../services/authService';
+import MerchantApplicationForm from '../components/merchant/MerchantApplicationForm';
+import MerchantApplicationStatus from '../components/merchant/MerchantApplicationStatus';
+import { useLanguage } from '../i18n/LanguageContext';
+import { backendError } from '../utils/backendErrors';
 import './Mejilis.css';
 
-// ── Business Types ──────────────────────────────────────
-const BUSINESS_TYPES = [
-    { value: 'restaurant', label: 'Restaurant' },
-    { value: 'grocery', label: 'Grocery' },
-    { value: 'butcher', label: 'Butcher' },
-    { value: 'bakery', label: 'Bakery' },
-    { value: 'wholesale', label: 'Wholesale' },
-    { value: 'cosmetics', label: 'Cosmetics' },
-    { value: 'clothing', label: 'Clothing' },
-    { value: 'spice_shop', label: 'Spice Shop' },
-    { value: 'supermarket', label: 'Supermarket' },
-    { value: 'other', label: 'Other' },
-];
-
-const REGIONS = [
-    'Addis Ababa', 'Afar', 'Amhara', 'Benishangul-Gumuz', 'Dire Dawa',
-    'Gambella', 'Harari', 'Oromia', 'Sidama', 'Somali',
-    'South West Ethiopia', 'Southern Nations', 'Tigray',
-];
-
+// Business types / regions now live in the shared application form
+// (components/merchant/MerchantApplicationForm.jsx).
 const COMPLAINT_CATEGORIES = [
-    { value: 'halal_violation', label: 'Halal Violation' },
-    { value: 'quality_issue', label: 'Quality Issue' },
-    { value: 'false_advertising', label: 'False Advertising' },
-    { value: 'hygiene_concern', label: 'Hygiene Concern' },
-    { value: 'pricing_dispute', label: 'Pricing Dispute' },
-    { value: 'delivery_issue', label: 'Delivery Issue' },
-    { value: 'customer_service', label: 'Customer Service' },
-    { value: 'other', label: 'Other' },
+    { value: 'halal_violation', key: 'complaint_halal_violation' },
+    { value: 'quality_issue', key: 'complaint_quality_issue' },
+    { value: 'false_advertising', key: 'complaint_false_advertising' },
+    { value: 'hygiene_concern', key: 'complaint_hygiene_concern' },
+    { value: 'pricing_dispute', key: 'complaint_pricing_dispute' },
+    { value: 'delivery_issue', key: 'complaint_delivery_issue' },
+    { value: 'customer_service', key: 'complaint_customer_service' },
+    { value: 'other', key: 'complaint_other' },
 ];
+
+const VERIFY_STATUS_KEYS = {
+    pending: 'appst_st_pending',
+    under_review: 'appst_st_under_review',
+    approved: 'appst_st_approved',
+    rejected: 'appst_st_rejected',
+    suspended: 'appst_st_suspended',
+};
+
+const MERCHANT_TYPE_KEYS = {
+    restaurant: 'mtype_restaurant',
+    grocery: 'mtype_grocery',
+    butcher: 'mtype_butcher',
+    bakery: 'mtype_bakery',
+    spice_shop: 'mtype_spice_shop',
+    clothing: 'mtype_clothing',
+    cosmetics: 'mtype_cosmetics',
+    wholesale: 'mtype_wholesale',
+    supermarket: 'mtype_supermarket',
+    other: 'mtype_other',
+};
 const MAX_IMAGE_SIZE_MB = 5;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -52,6 +58,7 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
 });
 
 const Mejilis = () => {
+    const { t, formatDate } = useLanguage();
     const [activeTab, setActiveTab] = useState('register');
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
@@ -60,25 +67,12 @@ const Mejilis = () => {
     const isMerchantUser = currentUser?.role === 'merchant';
 
     // ── Registration State ─────────────────────────────────
+    // The form and status UI live in shared merchant components
+    // (components/merchant/) so this tab matches /merchant/register.
     const [regStatus, setRegStatus] = useState(null);
     const [regLoading, setRegLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [licenseFile, setLicenseFile] = useState(null);
-    const [nationalIdFile, setNationalIdFile] = useState(null);
-    const [licenseDragOver, setLicenseDragOver] = useState(false);
-    const [nationalIdDragOver, setNationalIdDragOver] = useState(false);
-    const [regForm, setRegForm] = useState({
-        businessName: '',
-        businessNameAmharic: '',
-        description: '',
-        businessType: '',
-        businessPhone: '',
-        businessEmail: '',
-        city: '',
-        region: '',
-        subcity: '',
-        street: '',
-    });
+    const [regError, setRegError] = useState('');
+    const [editingApplication, setEditingApplication] = useState(false);
 
     // ── Complaint State ────────────────────────────────────
     const [complaintForm, setComplaintForm] = useState({
@@ -99,18 +93,22 @@ const Mejilis = () => {
     const [merchantsLoading, setMerchantsLoading] = useState(false);
     const [merchantsError, setMerchantsError] = useState('');
 
+    // A request failure stays an error state — never "unregistered".
+    // The form renders only after the server confirms no application exists.
     const checkRegistrationStatus = useCallback(async () => {
         try {
             setRegLoading(true);
+            setRegError('');
             const data = await mejilisService.getRegistrationStatus();
             setRegStatus(data);
         } catch (err) {
             // Not registered yet
-            setRegStatus({ isRegistered: false });
+            setRegStatus(null);
+            setRegError(backendError(t, err, 'mreg_load_error'));
         } finally {
             setRegLoading(false);
         }
-    }, []);
+    }, [t]);
 
     const loadDashboard = useCallback(async () => {
         try {
@@ -137,14 +135,14 @@ const Mejilis = () => {
             console.log('Merchants count:', merchantsList.length);
             setMerchants(merchantsList);
         } catch (err) {
-            const errorMsg = err.response?.data?.message || err.message || 'Failed to load merchants';
+            const errorMsg = backendError(t, err, 'err_load_merchants');
             console.error('Error loading merchants:', errorMsg, err);
             setMerchantsError(errorMsg);
             setMerchants([]);
         } finally {
             setMerchantsLoading(false);
         }
-    }, [merchantFilter]);
+    }, [merchantFilter, t]);
 
     // ── Check registration status on mount ─────────────────
     useEffect(() => {
@@ -168,44 +166,13 @@ const Mejilis = () => {
         }
     }, [activeTab, currentUser?.role, loadDashboard, loadMerchants]);
 
-    // ── Register Merchant ──────────────────────────────────
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setSubmitting(true);
-        setSuccessMsg('');
-        setErrorMsg('');
-
-        try {
-            const [licenseUrl, nationalIdUrl] = await Promise.all([
-                licenseFile ? fileToBase64(licenseFile) : Promise.resolve(''),
-                nationalIdFile ? fileToBase64(nationalIdFile) : Promise.resolve(''),
-            ]);
-
-            const merchantData = {
-                businessName: regForm.businessName,
-                businessNameAmharic: regForm.businessNameAmharic,
-                description: regForm.description,
-                businessType: regForm.businessType,
-                businessPhone: regForm.businessPhone,
-                businessEmail: regForm.businessEmail,
-                businessAddress: {
-                    city: regForm.city,
-                    region: regForm.region,
-                    subcity: regForm.subcity,
-                    street: regForm.street,
-                },
-                governmentLicense: licenseUrl ? { url: licenseUrl } : undefined,
-                nationalId: nationalIdUrl ? { url: nationalIdUrl } : undefined,
-            };
-
-            const result = await mejilisService.registerMerchant(merchantData);
-            setSuccessMsg(result.message || 'Registration submitted successfully!');
-            setRegStatus({ isRegistered: true, merchant: result.merchant });
-        } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'Registration failed. Please try again.');
-        } finally {
-            setSubmitting(false);
-        }
+    // ── Register / Resubmit Merchant ───────────────────────
+    // Submission itself is owned by MerchantApplicationForm; here we only
+    // sync the resulting status into this page.
+    const handleApplicationSubmitted = (merchant, message) => {
+        setEditingApplication(false);
+        setSuccessMsg(message || t('mreg_submitted'));
+        setRegStatus({ isRegistered: true, merchant });
     };
 
     // ── File Complaint ─────────────────────────────────────
@@ -217,15 +184,15 @@ const Mejilis = () => {
 
         try {
             const evidenceUrl = complaintEvidenceFile ? await fileToBase64(complaintEvidenceFile) : '';
-            const result = await mejilisService.fileComplaint({
+            await mejilisService.fileComplaint({
                 ...complaintForm,
                 evidence: evidenceUrl ? [{ url: evidenceUrl, name: complaintEvidenceFile.name }] : [],
             });
-            setSuccessMsg(result.message || 'Complaint filed successfully!');
+            setSuccessMsg(t('mej_complaint_ok'));
             setComplaintForm({ merchantIdentifier: '', category: '', subject: '', description: '' });
             setComplaintEvidenceFile(null);
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'Failed to file complaint.');
+            setErrorMsg(backendError(t, err, 'err_complaint_failed'));
         } finally {
             setComplaintSubmitting(false);
         }
@@ -238,47 +205,25 @@ const Mejilis = () => {
                 verificationStatus: status,
                 verificationNotes: `Status changed to ${status} by admin`,
             });
-            setSuccessMsg(`Merchant ${status} successfully!`);
+            setSuccessMsg(t('mej_merchant_status', { status: t(VERIFY_STATUS_KEYS[status] || 'appst_st_pending') }));
             loadMerchants();
             if (dashboardStats) loadDashboard();
         } catch (err) {
-            setErrorMsg(err.response?.data?.message || 'Action failed.');
+            setErrorMsg(backendError(t, err, 'err_action_failed'));
         }
-    };
-
-    const updateRegForm = (field, value) => {
-        setRegForm((prev) => ({ ...prev, [field]: value }));
     };
 
     const validateImageFile = (file) => {
         if (!file) return false;
         if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-            setErrorMsg('Only JPG, PNG, or WEBP images are allowed.');
+            setErrorMsg(t('appform_img_type_error'));
             return false;
         }
         if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-            setErrorMsg(`Image must be ${MAX_IMAGE_SIZE_MB}MB or smaller.`);
+            setErrorMsg(t('appform_img_size', { size: MAX_IMAGE_SIZE_MB }));
             return false;
         }
         return true;
-    };
-
-    const selectLicenseFile = (file) => {
-        if (!file) {
-            setLicenseFile(null);
-            return;
-        }
-        if (!validateImageFile(file)) return;
-        setLicenseFile(file);
-    };
-
-    const selectNationalIdFile = (file) => {
-        if (!file) {
-            setNationalIdFile(null);
-            return;
-        }
-        if (!validateImageFile(file)) return;
-        setNationalIdFile(file);
     };
 
     const selectComplaintEvidence = (file) => {
@@ -306,23 +251,21 @@ const Mejilis = () => {
             {/* ═══ HERO SECTION ═════════════════════════════════════ */}
             <section className="mejilis-hero">
                 <div className="mejilis-hero-bg">
-                    <img src="/images/mejilis-hero.png" alt="Mejilis Council Chamber" />
+                    <img src="/images/mejilis-hero.png" alt={t('mej_alt_chamber')} fetchPriority="high" decoding="async" width="640" height="640" />
                     <div className="mejilis-hero-overlay" />
                     <div className="mejilis-hero-pattern" />
                 </div>
                 <div className="mejilis-hero-content">
                     <div className="mejilis-hero-badge">
                         <FiShield size={16} />
-                        Ethiopian Islamic Affairs Supreme Council
+                        {t('mej_hero_badge')}
                     </div>
                     <h1>
                         The <span className="text-gradient-gold">Mejilis</span> Council<br />
-                        Halal Verification System
+                        {t('mej_hero_title_2')}
                     </h1>
                     <p className="mejilis-hero-desc">
-                        Ensuring trust, transparency, and Halal compliance across all merchants.
-                        Register your business, verify certifications, or report concerns — all
-                        managed by the Mejilis Council.
+                        {t('mej_hero_desc')}
                     </p>
                     <div className="mejilis-hero-actions">
                         {isLoggedIn ? (
@@ -332,23 +275,23 @@ const Mejilis = () => {
                                     onClick={() => setActiveTab('register')}
                                     id="mejilis-register-btn"
                                 >
-                                    <FiFileText size={18} /> Register as Merchant
+                                    <FiFileText size={18} /> {t('footer_register_merchant')}
                                 </button>
                                 <button
                                     className="btn btn-white-outline"
                                     onClick={() => setActiveTab('complaints')}
                                     id="mejilis-complaint-btn"
                                 >
-                                    <FiAlertTriangle size={18} /> File a Complaint
+                                    <FiAlertTriangle size={18} /> {t('mej_complaint_btn')}
                                 </button>
                             </>
                         ) : (
                             <>
                                 <Link to="/register" className="btn btn-gold" id="mejilis-signup-btn">
-                                    <FiUser size={18} /> Create Account to Begin
+                                    <FiUser size={18} /> {t('mej_create_account')}
                                 </Link>
                                 <Link to="/login" className="btn btn-white-outline" id="mejilis-login-btn">
-                                    Sign In <FiArrowRight size={16} />
+                                    {t('auth_sign_in')} <FiArrowRight size={16} />
                                 </Link>
                             </>
                         )}
@@ -362,22 +305,22 @@ const Mejilis = () => {
                     <div className="mejilis-stat-card animate-fade-in-up">
                         <div className="mejilis-stat-icon green"><FiShield size={24} /></div>
                         <div className="mejilis-stat-value">{dashboardStats?.stats?.approvedMerchants || 150}+</div>
-                        <div className="mejilis-stat-label">Verified Merchants</div>
+                        <div className="mejilis-stat-label">{t('footer_verified_merchants')}</div>
                     </div>
                     <div className="mejilis-stat-card animate-fade-in-up">
                         <div className="mejilis-stat-icon gold"><FiAward size={24} /></div>
                         <div className="mejilis-stat-value">{dashboardStats?.stats?.approvedCertifications || 120}+</div>
-                        <div className="mejilis-stat-label">Certifications Issued</div>
+                        <div className="mejilis-stat-label">{t('mej_stat_certs')}</div>
                     </div>
                     <div className="mejilis-stat-card animate-fade-in-up">
                         <div className="mejilis-stat-icon blue"><FiUsers size={24} /></div>
                         <div className="mejilis-stat-value">{dashboardStats?.stats?.totalMerchants || 200}+</div>
-                        <div className="mejilis-stat-label">Total Merchants</div>
+                        <div className="mejilis-stat-label">{t('mej_stat_total')}</div>
                     </div>
                     <div className="mejilis-stat-card animate-fade-in-up">
                         <div className="mejilis-stat-icon red"><FiAlertTriangle size={24} /></div>
                         <div className="mejilis-stat-value">{dashboardStats?.stats?.pendingMerchants || 12}</div>
-                        <div className="mejilis-stat-label">Pending Review</div>
+                        <div className="mejilis-stat-label">{t('mej_stat_pending')}</div>
                     </div>
                 </div>
             </div>
@@ -390,14 +333,14 @@ const Mejilis = () => {
                         onClick={() => setActiveTab('register')}
                         id="tab-register"
                     >
-                        <FiFileText size={16} /> Merchant Registration
+                        <FiFileText size={16} /> {t('mej_tab_register')}
                     </button>
                     <button
                         className={`mejilis-tab ${activeTab === 'complaints' ? 'active' : ''}`}
                         onClick={() => setActiveTab('complaints')}
                         id="tab-complaints"
                     >
-                        <FiAlertTriangle size={16} /> Consumer Reports
+                        <FiAlertTriangle size={16} /> {t('mej_tab_complaints')}
                     </button>
                     {currentUser?.role === 'admin' && (
                         <>
@@ -406,7 +349,7 @@ const Mejilis = () => {
                                 onClick={() => setActiveTab('dashboard')}
                                 id="tab-dashboard"
                             >
-                                <FiTrendingUp size={16} /> Dashboard
+                                <FiTrendingUp size={16} /> {t('nav_dashboard')}
                                 <span className="mejilis-tab-badge warning">
                                     {dashboardStats?.stats?.pendingMerchants || '…'}
                                 </span>
@@ -416,7 +359,7 @@ const Mejilis = () => {
                                 onClick={() => setActiveTab('merchants')}
                                 id="tab-merchants"
                             >
-                                <FiUsers size={16} /> Manage Merchants
+                                <FiUsers size={16} /> {t('mej_tab_merchants')}
                             </button>
                         </>
                     )}
@@ -452,412 +395,107 @@ const Mejilis = () => {
                             <div className="mejilis-status-icon pending">
                                 <FiUser size={36} />
                             </div>
-                            <h3>Sign In Required</h3>
-                            <p>Please create an account or sign in to register as a merchant.</p>
+                            <h3>{t('mreg_signin')}</h3>
+                            <p>{t('mreg_signin_desc')}</p>
                             <Link to="/register" className="btn btn-primary btn-lg">
-                                Create Account <FiArrowRight size={16} />
+                                {t('mreg_create_account')} <FiArrowRight size={16} />
                             </Link>
                         </div>
                     ) : regLoading ? (
                         <div className="mejilis-loading">
                             <div className="spinner" />
-                            <p>Checking registration status...</p>
+                            <p>{t('mreg_checking')}</p>
                         </div>
-                    ) : regStatus?.isRegistered ? (
-                        <div className="mejilis-status-card">
-                            <div className={`mejilis-status-icon ${regStatus.merchant?.verificationStatus || 'pending'}`}>
-                                {regStatus.merchant?.verificationStatus === 'approved' ? (
-                                    <FiCheckCircle size={36} />
-                                ) : regStatus.merchant?.verificationStatus === 'rejected' ? (
-                                    <FiX size={36} />
-                                ) : (
-                                    <FiClock size={36} />
-                                )}
-                            </div>
-                            <h3>
-                                {regStatus.merchant?.verificationStatus === 'approved'
-                                    ? 'Your Business is Verified!'
-                                    : regStatus.merchant?.verificationStatus === 'rejected'
-                                        ? 'Registration Rejected'
-                                        : 'Registration Under Review'}
-                            </h3>
-                            <p>
-                                {regStatus.merchant?.verificationStatus === 'approved'
-                                    ? `Congratulations! "${regStatus.merchant?.businessName}" has been verified by the Mejilis Council.`
-                                    : regStatus.merchant?.verificationStatus === 'rejected'
-                                        ? 'Your registration has been reviewed and was not approved. Please contact us for details.'
-                                        : `Your business "${regStatus.merchant?.businessName}" is being reviewed by the Mejilis Council. This usually takes 2-5 business days.`}
-                            </p>
-                            <span className={`status-badge ${regStatus.merchant?.verificationStatus || 'pending'}`}>
-                                <FiClock size={12} />
-                                {(regStatus.merchant?.verificationStatus || 'pending').replace('_', ' ')}
-                            </span>
-                            {regStatus.merchant?.verificationNotes && (
-                                <p style={{ marginTop: 16, fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
-                                    <strong>Notes:</strong> {regStatus.merchant.verificationNotes}
-                                </p>
-                            )}
-
-                            {/* Halal Certificate Display */}
-                            {regStatus.merchant?.halalCertification && regStatus.merchant.verificationStatus === 'approved' && (
-                                <div style={{
-                                    marginTop: 24,
-                                    padding: '16px 20px',
-                                    borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, rgba(212, 160, 23, 0.1), rgba(13, 124, 61, 0.05))',
-                                    border: '1px solid rgba(212, 160, 23, 0.3)',
-                                    textAlign: 'left'
-                                }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                                        <div style={{
-                                            background: '#D4A017', color: 'white', padding: 8, borderRadius: 8, display: 'flex'
-                                        }}>
-                                            <FiAward size={24} />
-                                        </div>
-                                        <div>
-                                            <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#0D7C3D' }}>
-                                                Official Halal Certification
-                                            </h4>
-                                            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-                                                Issued by Mejilis Council
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                                        <div style={{ flex: 1, minWidth: '120px' }}>
-                                            <strong style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', display: 'block' }}>Certificate No.</strong>
-                                            <span style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '1.1rem' }}>
-                                                {regStatus.merchant.halalCertification.certificateNumber || 'PENDING ASSIGNMENT'}
-                                            </span>
-                                        </div>
-                                        <div style={{ flex: 1, minWidth: '120px' }}>
-                                            <strong style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', display: 'block' }}>Status</strong>
-                                            <span style={{ fontWeight: 600, color: 'var(--success)' }}>
-                                                {regStatus.merchant.halalCertification.status.toUpperCase()}
-                                            </span>
-                                        </div>
-                                        {regStatus.merchant.halalCertification.expiryDate && (
-                                            <div style={{ flex: 1, minWidth: '120px' }}>
-                                                <strong style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', display: 'block' }}>Valid Until</strong>
-                                                <span style={{ fontWeight: 600 }}>
-                                                    {new Date(regStatus.merchant.halalCertification.expiryDate).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ) : !isMerchantUser ? (
+                    ) : regError && !regStatus ? (
                         <div className="mejilis-status-card">
                             <div className="mejilis-status-icon warning">
                                 <FiAlertTriangle size={36} />
                             </div>
-                            <h3>Merchant Registration Restricted</h3>
+                            <h3>{t('mreg_load_error')}</h3>
+                            <p>{regError}</p>
+                            <button type="button" className="btn btn-primary btn-lg" onClick={checkRegistrationStatus}>
+                                {t('ord_retry')}
+                            </button>
+                        </div>
+                    ) : regStatus?.isRegistered && !editingApplication ? (
+                        <MerchantApplicationStatus
+                            merchant={regStatus.merchant}
+                            onUpdateRequest={() => setEditingApplication(true)}
+                        />
+                    ) : regStatus?.isRegistered && editingApplication ? (
+                        <MerchantApplicationForm
+                            mode="resubmit"
+                            initialValues={regStatus.merchant}
+                            onSubmitted={handleApplicationSubmitted}
+                            onCancel={() => setEditingApplication(false)}
+                        />
+                    ) : !isMerchantUser && regStatus ? (
+                        <div className="mejilis-status-card">
+                            <div className="mejilis-status-icon warning">
+                                <FiAlertTriangle size={36} />
+                            </div>
+                            <h3>{t('mreg_restricted')}</h3>
                             <p>
-                                Your account is currently registered as a <strong>{currentUser?.role || 'consumer'}</strong>.
-                                This merchant onboarding form is for merchant accounts only.
+                                {t('mej_restricted_role', { role: currentUser?.role || 'consumer' })}
                             </p>
                             <p>
-                                If you believe this is an error, please contact support or upgrade your account to merchant through the proper onboarding process.
+                                {t('mej_restricted_help')}
                             </p>
                             <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                                 <Link to="/" className="btn btn-primary btn-lg">
-                                    Return to Home
+                                    {t('mreg_home')}
                                 </Link>
                                 <Link to="/dashboard" className="btn btn-white-outline btn-lg">
-                                    Go to Dashboard
+                                    {t('mreg_dashboard')}
                                 </Link>
                             </div>
                         </div>
-                    ) : (
+                    ) : regStatus?.isRegistered === false ? (
                         <div className="mejilis-register-layout">
                             {/* Left - Info */}
                             <div className="mejilis-register-info">
-                                <h2>Become a Verified<br />Halal Merchant</h2>
+                                <h2>{t('mej_become')}</h2>
                                 <p>
-                                    Join Ethiopia's trusted Halal marketplace. Register your business with the
-                                    Mejilis Council for official verification and reach thousands of conscious consumers.
+                                    {t('mej_become_desc')}
                                 </p>
                                 <div className="mejilis-register-image">
-                                    <img src="/images/merchant-partnership.png" alt="Merchant Partnership" />
+                                    <img src="/images/merchant-partnership.png" alt={t('mej_alt_partnership')} loading="lazy" decoding="async" width="640" height="640" />
                                 </div>
                                 <div className="mejilis-register-steps">
                                     <div className="mejilis-step">
                                         <div className="mejilis-step-number">1</div>
                                         <div className="mejilis-step-content">
-                                            <h4>Submit Application</h4>
-                                            <p>Fill in your business details and submit for review.</p>
+                                            <h4>{t('mej_step_submit')}</h4>
+                                            <p>{t('mej_step_submit_desc')}</p>
                                         </div>
                                     </div>
                                     <div className="mejilis-step">
                                         <div className="mejilis-step-number">2</div>
                                         <div className="mejilis-step-content">
-                                            <h4>Mejilis Review</h4>
-                                            <p>The council reviews your application and Halal compliance.</p>
+                                            <h4>{t('mej_step_review')}</h4>
+                                            <p>{t('mej_step_review_desc')}</p>
                                         </div>
                                     </div>
                                     <div className="mejilis-step">
                                         <div className="mejilis-step-number">3</div>
                                         <div className="mejilis-step-content">
-                                            <h4>Get Verified</h4>
-                                            <p>Once approved, your store goes live with the Halal badge.</p>
+                                            <h4>{t('mej_step_verified')}</h4>
+                                            <p>{t('mej_step_verified_desc')}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Right - Registration Form */}
-                            <div className="mejilis-register-form-card">
-                                <h3>Merchant Application Form</h3>
-                                <p>Please fill out all required fields carefully to submit your business for official verification.</p>
-                                <form className="mejilis-form" onSubmit={handleRegister}>
-                                    
-                                    {/* ── SECTION 1: BUSINESS IDENTITY ── */}
-                                    <div className="mejilis-form-section">
-                                        <h4 className="mejilis-form-section-title"><FiStar /> Business Identity</h4>
-                                        <div className="mejilis-form-row">
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">
-                                                    Business Name <span className="required">*</span>
-                                                </label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="text"
-                                                    placeholder="e.g. Addis Halal Meats"
-                                                    value={regForm.businessName}
-                                                    onChange={(e) => updateRegForm('businessName', e.target.value)}
-                                                    required
-                                                    id="reg-business-name"
-                                                />
-                                            </div>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">Business Name (Amharic)</label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="text"
-                                                    placeholder="e.g. አዲስ ሐላል ስጋ"
-                                                    value={regForm.businessNameAmharic}
-                                                    onChange={(e) => updateRegForm('businessNameAmharic', e.target.value)}
-                                                    id="reg-business-name-am"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mejilis-form-group full-width" style={{ marginBottom: '20px' }}>
-                                            <label className="mejilis-form-label">
-                                                Business Type <span className="required">*</span>
-                                            </label>
-                                            <select
-                                                className="mejilis-form-select"
-                                                value={regForm.businessType}
-                                                onChange={(e) => updateRegForm('businessType', e.target.value)}
-                                                required
-                                                id="reg-business-type"
-                                            >
-                                                <option value="">Select business type...</option>
-                                                {BUSINESS_TYPES.map((type) => (
-                                                    <option key={type.value} value={type.value}>
-                                                        {type.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        <div className="mejilis-form-group full-width">
-                                            <label className="mejilis-form-label">
-                                                Description <span className="required">*</span>
-                                            </label>
-                                            <textarea
-                                                className="mejilis-form-textarea"
-                                                placeholder="Describe your business, products, and Halal practices in detail..."
-                                                value={regForm.description}
-                                                onChange={(e) => updateRegForm('description', e.target.value)}
-                                                required
-                                                rows={4}
-                                                id="reg-description"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* ── SECTION 2: CONTACT & LOCATION ── */}
-                                    <div className="mejilis-form-section">
-                                        <h4 className="mejilis-form-section-title"><FiTrendingUp /> Contact & Location</h4>
-                                        <div className="mejilis-form-row">
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">
-                                                    Business Phone <span className="required">*</span>
-                                                </label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="tel"
-                                                    placeholder="+251911223344"
-                                                    value={regForm.businessPhone}
-                                                    onChange={(e) => updateRegForm('businessPhone', e.target.value)}
-                                                    required
-                                                    id="reg-phone"
-                                                />
-                                            </div>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">Business Email</label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="email"
-                                                    placeholder="info@yourbusiness.com"
-                                                    value={regForm.businessEmail}
-                                                    onChange={(e) => updateRegForm('businessEmail', e.target.value)}
-                                                    id="reg-email"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mejilis-form-row">
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">Region</label>
-                                                <select
-                                                    className="mejilis-form-select"
-                                                    value={regForm.region}
-                                                    onChange={(e) => updateRegForm('region', e.target.value)}
-                                                    id="reg-region"
-                                                >
-                                                    <option value="">Select region...</option>
-                                                    {REGIONS.map((r) => (
-                                                        <option key={r} value={r}>{r}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">City</label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="text"
-                                                    placeholder="e.g. Addis Ababa"
-                                                    value={regForm.city}
-                                                    onChange={(e) => updateRegForm('city', e.target.value)}
-                                                    id="reg-city"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">Subcity / Kebele</label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="text"
-                                                    placeholder="e.g. Bole"
-                                                    value={regForm.subcity}
-                                                    onChange={(e) => updateRegForm('subcity', e.target.value)}
-                                                    id="reg-subcity"
-                                                />
-                                            </div>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">Street</label>
-                                                <input
-                                                    className="mejilis-form-input"
-                                                    type="text"
-                                                    placeholder="e.g. Churchill Ave"
-                                                    value={regForm.street}
-                                                    onChange={(e) => updateRegForm('street', e.target.value)}
-                                                    id="reg-street"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* ── SECTION 3: OFFICIAL DOCUMENTS ── */}
-                                    <div className="mejilis-form-section">
-                                        <h4 className="mejilis-form-section-title"><FiShield /> Official Documents</h4>
-                                        <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">
-                                                    Government License Image <span className="required">*</span>
-                                                </label>
-                                                <label
-                                                    className={`mejilis-upload-input ${licenseDragOver ? 'dragover' : ''}`}
-                                                    onDragOver={(e) => {
-                                                        e.preventDefault();
-                                                        setLicenseDragOver(true);
-                                                    }}
-                                                    onDragLeave={() => setLicenseDragOver(false)}
-                                                    onDrop={(e) => {
-                                                        e.preventDefault();
-                                                        setLicenseDragOver(false);
-                                                        selectLicenseFile(e.dataTransfer.files?.[0] || null);
-                                                    }}
-                                                >
-                                                    <FiFileText size={16} />
-                                                    <span>{licenseFile ? licenseFile.name : 'Click or drop license image'}</span>
-                                                    <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={(e) => selectLicenseFile(e.target.files?.[0] || null)}
-                                                        required
-                                                    />
-                                                </label>
-                                                {licenseFile && (
-                                                    <div className="mejilis-file-preview">
-                                                        <img src={URL.createObjectURL(licenseFile)} alt="Government license preview" />
-                                                        <button type="button" onClick={() => setLicenseFile(null)}>Remove</button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="mejilis-form-group">
-                                                <label className="mejilis-form-label">
-                                                    National ID Image <span className="required">*</span>
-                                                </label>
-                                                <label
-                                                    className={`mejilis-upload-input ${nationalIdDragOver ? 'dragover' : ''}`}
-                                                    onDragOver={(e) => {
-                                                        e.preventDefault();
-                                                        setNationalIdDragOver(true);
-                                                    }}
-                                                    onDragLeave={() => setNationalIdDragOver(false)}
-                                                    onDrop={(e) => {
-                                                        e.preventDefault();
-                                                        setNationalIdDragOver(false);
-                                                        selectNationalIdFile(e.dataTransfer.files?.[0] || null);
-                                                    }}
-                                                >
-                                                    <FiUser size={16} />
-                                                    <span>{nationalIdFile ? nationalIdFile.name : 'Click or drop national ID image'}</span>
-                                                    <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={(e) => selectNationalIdFile(e.target.files?.[0] || null)}
-                                                        required
-                                                    />
-                                                </label>
-                                                {nationalIdFile && (
-                                                    <div className="mejilis-file-preview">
-                                                        <img src={URL.createObjectURL(nationalIdFile)} alt="National ID preview" />
-                                                        <button type="button" onClick={() => setNationalIdFile(null)}>Remove</button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        className="mejilis-form-submit"
-                                        disabled={submitting}
-                                        id="reg-submit-btn"
-                                    >
-                                        {submitting ? (
-                                            <>
-                                                <div className="spinner" /> Submitting...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FiShield size={18} /> Submit for Mejilis Verification
-                                            </>
-                                        )}
-                                    </button>
-                                </form>
-                            </div>
+                            {/* Right - Registration Form (shared component,
+                                same as /merchant/register) */}
+                            <MerchantApplicationForm
+                                mode="create"
+                                onSubmitted={handleApplicationSubmitted}
+                            />
+                        </div>
+                    ) : (
+                        <div className="mejilis-loading">
+                            <div className="spinner" />
+                            <p>Checking registration status...</p>
                         </div>
                     )}
                 </div>
@@ -869,46 +507,45 @@ const Mejilis = () => {
                             <div className="mejilis-status-icon pending">
                                 <FiAlertTriangle size={36} />
                             </div>
-                            <h3>Sign In Required</h3>
-                            <p>Please sign in to file a complaint about a merchant.</p>
+                            <h3>{t('mreg_signin')}</h3>
+                            <p>{t('mej_signin_complaint')}</p>
                             <Link to="/login" className="btn btn-primary btn-lg">
-                                Sign In <FiArrowRight size={16} />
+                                {t('auth_sign_in')} <FiArrowRight size={16} />
                             </Link>
                         </div>
                     ) : (
                         <>
                             <div className="mejilis-complaint-form-card">
-                                <h3><FiAlertTriangle size={20} /> Report a Concern</h3>
+                                <h3><FiAlertTriangle size={20} /> {t('mej_report')}</h3>
                                 <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: '0.9375rem' }}>
-                                    If you've experienced a Halal compliance issue, quality concern, or any other problem with a merchant,
-                                    please file a report. The Mejilis Council will investigate.
+                                    {t('mej_report_desc')}
                                 </p>
 
                                 <form className="mejilis-form" onSubmit={handleComplaint}>
                                     {/* ── SECTION 1: REPORT DETAILS ── */}
                                     <div className="mejilis-form-section">
-                                        <h4 className="mejilis-form-section-title"><FiSearch /> Merchant & Category</h4>
+                                        <h4 className="mejilis-form-section-title"><FiSearch /> {t('mej_merchant_cat')}</h4>
                                         <div className="mejilis-form-row" style={{ marginBottom: 0 }}>
                                             <div className="mejilis-form-group">
                                                 <label className="mejilis-form-label">
-                                                    Merchant Email or Exact Store Name <span className="required">*</span>
+                                                    {t('mej_merchant_id')} <span className="required">*</span>
                                                 </label>
                                                 <input
                                                     className="mejilis-form-input"
                                                     type="text"
-                                                    placeholder="Enter merchant email or exact business name"
+                                                    placeholder={t('mej_merchant_id_ph')}
                                                     value={complaintForm.merchantIdentifier}
                                                     onChange={(e) => setComplaintForm({ ...complaintForm, merchantIdentifier: e.target.value })}
                                                     required
                                                     id="complaint-merchant-identifier"
                                                 />
                                                 <small style={{ display: 'block', marginTop: '8px', color: 'var(--text-tertiary)' }}>
-                                                    Use the merchant's business email or the exact store name as shown on the merchant profile.
+                                                    {t('mej_merchant_hint')}
                                                 </small>
                                             </div>
                                             <div className="mejilis-form-group">
                                                 <label className="mejilis-form-label">
-                                                    Complaint Category <span className="required">*</span>
+                                                    {t('mej_complaint_cat')} <span className="required">*</span>
                                                 </label>
                                                 <select
                                                     className="mejilis-form-select"
@@ -917,9 +554,9 @@ const Mejilis = () => {
                                                     required
                                                     id="complaint-category"
                                                 >
-                                                    <option value="">Select category...</option>
+                                                    <option value="">{t('mej_select_cat')}</option>
                                                     {COMPLAINT_CATEGORIES.map((cat) => (
-                                                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                                        <option key={cat.value} value={cat.value}>{t(cat.key)}</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -928,15 +565,15 @@ const Mejilis = () => {
 
                                     {/* ── SECTION 2: ISSUE DESCRIPTION ── */}
                                     <div className="mejilis-form-section">
-                                        <h4 className="mejilis-form-section-title"><FiFileText /> Incident Details</h4>
+                                        <h4 className="mejilis-form-section-title"><FiFileText /> {t('mej_incident')}</h4>
                                         <div className="mejilis-form-group full-width" style={{ marginBottom: '20px' }}>
                                             <label className="mejilis-form-label">
-                                                Subject <span className="required">*</span>
+                                                {t('mej_subject')} <span className="required">*</span>
                                             </label>
                                             <input
                                                 className="mejilis-form-input"
                                                 type="text"
-                                                placeholder="Briefly summarize the issue (e.g. Halal label found on non-compliant food)"
+                                                placeholder={t('mej_subject_ph')}
                                                 value={complaintForm.subject}
                                                 onChange={(e) => setComplaintForm({ ...complaintForm, subject: e.target.value })}
                                                 required
@@ -945,11 +582,11 @@ const Mejilis = () => {
                                         </div>
                                         <div className="mejilis-form-group full-width" style={{ marginBottom: '20px' }}>
                                             <label className="mejilis-form-label">
-                                                Description <span className="required">*</span>
+                                                {t('mej_description')} <span className="required">*</span>
                                             </label>
                                             <textarea
                                                 className="mejilis-form-textarea"
-                                                placeholder="Provide detailed chronological information about your experience..."
+                                                placeholder={t('mej_description_ph')}
                                                 value={complaintForm.description}
                                                 onChange={(e) => setComplaintForm({ ...complaintForm, description: e.target.value })}
                                                 required
@@ -958,7 +595,7 @@ const Mejilis = () => {
                                             />
                                         </div>
                                         <div className="mejilis-form-group full-width" style={{ marginBottom: 0 }}>
-                                            <label className="mejilis-form-label">Photographic Evidence (Optional)</label>
+                                            <label className="mejilis-form-label">{t('mej_evidence')}</label>
                                             <label
                                                 className={`mejilis-upload-input ${complaintDragOver ? 'dragover' : ''}`}
                                                 onDragOver={(e) => {
@@ -973,8 +610,8 @@ const Mejilis = () => {
                                                 }}
                                             >
                                                 <FiFileText size={16} />
-                                                <span>{complaintEvidenceFile ? complaintEvidenceFile.name : 'Click or drop complaint evidence image'}</span>
-                                                <small>JPG, PNG, WEBP - max {MAX_IMAGE_SIZE_MB}MB</small>
+                                                <span>{complaintEvidenceFile ? complaintEvidenceFile.name : t('mej_evidence_drop')}</span>
+                                                <small>{t('appform_file_types', { size: MAX_IMAGE_SIZE_MB })}</small>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -984,7 +621,7 @@ const Mejilis = () => {
                                             {complaintEvidenceFile && (
                                                 <div className="mejilis-file-preview">
                                                     <img src={URL.createObjectURL(complaintEvidenceFile)} alt="Complaint evidence preview" />
-                                                    <button type="button" onClick={() => setComplaintEvidenceFile(null)}>Remove</button>
+                                                    <button type="button" onClick={() => setComplaintEvidenceFile(null)}>{t('appform_remove')}</button>
                                                 </div>
                                             )}
                                         </div>
@@ -999,11 +636,11 @@ const Mejilis = () => {
                                     >
                                         {complaintSubmitting ? (
                                             <>
-                                                <div className="spinner" /> Submitting...
+                                                <div className="spinner" /> {t('appform_submitting')}
                                             </>
                                         ) : (
                                             <>
-                                                <FiAlertTriangle size={18} /> Submit Report
+                                                <FiAlertTriangle size={18} /> {t('mej_submit_report')}
                                             </>
                                         )}
                                     </button>
@@ -1012,7 +649,7 @@ const Mejilis = () => {
 
                             {/* Info card */}
                             <div className="mejilis-register-image" style={{ maxWidth: 600, margin: '0 auto' }}>
-                                <img src="/images/halal-certification.png" alt="Halal Certification" style={{ height: 240 }} />
+                                <img src="/images/halal-certification.png" alt={t('mej_alt_cert')} style={{ height: 240 }} loading="lazy" decoding="async" width="640" height="640" />
                             </div>
                         </>
                     )}
@@ -1025,35 +662,35 @@ const Mejilis = () => {
                             <div className="mejilis-status-icon pending">
                                 <FiShield size={36} />
                             </div>
-                            <h3>Admin Access Required</h3>
-                            <p>Only Mejilis Council administrators can access the dashboard.</p>
+                            <h3>{t('mej_admin_required')}</h3>
+                            <p>{t('mej_admin_dash')}</p>
                         </div>
                     ) : dashLoading ? (
                         <div className="mejilis-loading">
                             <div className="spinner" />
-                            <p>Loading dashboard...</p>
+                            <p>{t('mej_loading_dash')}</p>
                         </div>
                     ) : dashboardStats ? (
                         <>
                             <div className="mejilis-section-header">
-                                <h2>Mejilis Dashboard</h2>
+                                <h2>{t('mej_dashboard')}</h2>
                             </div>
 
                             {/* Pending Merchants Table */}
                             {dashboardStats.pendingMerchantsList?.length > 0 && (
                                 <>
                                     <h3 style={{ marginBottom: 16, fontSize: '1.125rem' }}>
-                                        Pending Merchant Applications ({dashboardStats.pendingMerchantsList.length})
+                                        {t('mej_pending_apps', { count: dashboardStats.pendingMerchantsList.length })}
                                     </h3>
                                     <div className="mejilis-table-container" style={{ marginBottom: 32 }}>
                                         <table className="mejilis-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Merchant</th>
-                                                    <th>Type</th>
-                                                    <th>Phone</th>
-                                                    <th>Status</th>
-                                                    <th>Actions</th>
+                                                    <th>{t('mej_th_merchant')}</th>
+                                                    <th>{t('mej_th_type')}</th>
+                                                    <th>{t('mej_th_phone')}</th>
+                                                    <th>{t('mej_th_status')}</th>
+                                                    <th>{t('mej_th_actions')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1070,11 +707,11 @@ const Mejilis = () => {
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td>{m.businessType?.replace('_', ' ')}</td>
+                                                        <td>{t(MERCHANT_TYPE_KEYS[m.businessType] || 'mtype_other')}</td>
                                                         <td>{m.businessPhone}</td>
                                                         <td>
                                                             <span className={`status-badge ${m.verificationStatus}`}>
-                                                                {m.verificationStatus}
+                                                                {t(VERIFY_STATUS_KEYS[m.verificationStatus] || 'appst_st_pending')}
                                                             </span>
                                                         </td>
                                                         <td>
@@ -1084,14 +721,14 @@ const Mejilis = () => {
                                                                     onClick={() => handleVerifyMerchant(m._id, 'approved')}
                                                                     id={`approve-${m._id}`}
                                                                 >
-                                                                    Approve
+                                                                    {t('mej_approve')}
                                                                 </button>
                                                                 <button
                                                                     className="mejilis-action-btn reject"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'rejected')}
                                                                     id={`reject-${m._id}`}
                                                                 >
-                                                                    Reject
+                                                                    {t('mej_reject')}
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -1105,17 +742,17 @@ const Mejilis = () => {
 
                             {/* Recent Merchants */}
                             <h3 style={{ marginBottom: 16, fontSize: '1.125rem' }}>
-                                Recent Registrations
+                                {t('mej_recent')}
                             </h3>
                             <div className="mejilis-table-container">
                                 <table className="mejilis-table">
                                     <thead>
                                         <tr>
-                                            <th>Merchant</th>
-                                            <th>Type</th>
-                                            <th>Phone</th>
-                                            <th>Status</th>
-                                            <th>Joined</th>
+                                            <th>{t('mej_th_merchant')}</th>
+                                            <th>{t('mej_th_type')}</th>
+                                            <th>{t('mej_th_phone')}</th>
+                                            <th>{t('mej_th_status')}</th>
+                                            <th>{t('mej_th_joined')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1132,15 +769,15 @@ const Mejilis = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>{m.businessType?.replace('_', ' ')}</td>
+                                                <td>{t(MERCHANT_TYPE_KEYS[m.businessType] || 'mtype_other')}</td>
                                                 <td>{m.businessPhone}</td>
                                                 <td>
                                                     <span className={`status-badge ${m.verificationStatus}`}>
-                                                        {m.verificationStatus?.replace('_', ' ')}
+                                                        {t(VERIFY_STATUS_KEYS[m.verificationStatus] || 'appst_st_pending')}
                                                     </span>
                                                 </td>
                                                 <td style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>
-                                                    {new Date(m.createdAt).toLocaleDateString()}
+                                                    {formatDate(m.createdAt)}
                                                 </td>
                                             </tr>
                                         ))}
@@ -1151,8 +788,8 @@ const Mejilis = () => {
                     ) : (
                         <div className="mejilis-empty">
                             <div className="mejilis-empty-icon"><FiFileText size={48} /></div>
-                            <h3>No data available</h3>
-                            <p>Dashboard data will appear when merchants register.</p>
+                            <h3>{t('mej_no_data')}</h3>
+                            <p>{t('mej_no_data_desc')}</p>
                         </div>
                     )}
                 </div>
@@ -1164,13 +801,13 @@ const Mejilis = () => {
                             <div className="mejilis-status-icon pending">
                                 <FiShield size={36} />
                             </div>
-                            <h3>Admin Access Required</h3>
-                            <p>Only Mejilis Council administrators can manage merchants.</p>
+                            <h3>{t('mej_admin_required')}</h3>
+                            <p>{t('mej_admin_merchants')}</p>
                         </div>
                     ) : (
                         <>
                             <div className="mejilis-section-header">
-                                <h2>All Merchants</h2>
+                                <h2>{t('mej_all')}</h2>
                                 <div className="mejilis-filters">
                                     {['', 'pending', 'approved', 'rejected', 'suspended'].map((f) => (
                                         <button
@@ -1179,7 +816,7 @@ const Mejilis = () => {
                                             onClick={() => setMerchantFilter(f)}
                                             id={`filter-${f || 'all'}`}
                                         >
-                                            {f === '' ? 'All' : f.replace('_', ' ')}
+                                            {f === '' ? t('ord_all') : t(VERIFY_STATUS_KEYS[f] || 'appst_st_pending')}
                                         </button>
                                     ))}
                                 </div>
@@ -1195,19 +832,19 @@ const Mejilis = () => {
                             {merchantsLoading ? (
                                 <div className="mejilis-loading">
                                     <div className="spinner" />
-                                    <p>Loading merchants...</p>
+                                    <p>{t('mej_loading_merchants')}</p>
                                 </div>
                             ) : merchants.length > 0 ? (
                                 <div className="mejilis-table-container">
                                     <table className="mejilis-table">
                                         <thead>
                                             <tr>
-                                                <th>Merchant</th>
-                                                <th>Type</th>
-                                                <th>Phone</th>
-                                                <th>Rating</th>
-                                                <th>Status</th>
-                                                <th>Actions</th>
+                                                <th>{t('mej_th_merchant')}</th>
+                                                <th>{t('mej_th_type')}</th>
+                                                <th>{t('mej_th_phone')}</th>
+                                                <th>{t('mej_th_rating')}</th>
+                                                <th>{t('mej_th_status')}</th>
+                                                <th>{t('mej_th_actions')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1224,7 +861,7 @@ const Mejilis = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td>{m.businessType?.replace('_', ' ')}</td>
+                                                    <td>{t(MERCHANT_TYPE_KEYS[m.businessType] || 'mtype_other')}</td>
                                                     <td>{m.businessPhone}</td>
                                                     <td>
                                                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1234,7 +871,7 @@ const Mejilis = () => {
                                                     </td>
                                                     <td>
                                                         <span className={`status-badge ${m.verificationStatus}`}>
-                                                            {m.verificationStatus?.replace('_', ' ')}
+                                                            {t(VERIFY_STATUS_KEYS[m.verificationStatus] || 'appst_st_pending')}
                                                         </span>
                                                     </td>
                                                     <td>
@@ -1244,7 +881,7 @@ const Mejilis = () => {
                                                                     className="mejilis-action-btn approve"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'approved')}
                                                                 >
-                                                                    Approve
+                                                                    {t('mej_approve')}
                                                                 </button>
                                                             )}
                                                             {m.verificationStatus !== 'rejected' && (
@@ -1252,7 +889,7 @@ const Mejilis = () => {
                                                                     className="mejilis-action-btn reject"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'rejected')}
                                                                 >
-                                                                    Reject
+                                                                    {t('mej_reject')}
                                                                 </button>
                                                             )}
                                                             {m.verificationStatus !== 'suspended' && m.verificationStatus === 'approved' && (
@@ -1260,7 +897,7 @@ const Mejilis = () => {
                                                                     className="mejilis-action-btn review"
                                                                     onClick={() => handleVerifyMerchant(m._id, 'suspended')}
                                                                 >
-                                                                    Suspend
+                                                                    {t('mej_suspend')}
                                                                 </button>
                                                             )}
                                                         </div>
@@ -1273,8 +910,8 @@ const Mejilis = () => {
                             ) : (
                                 <div className="mejilis-empty">
                                     <div className="mejilis-empty-icon"><FiSearch size={48} /></div>
-                                    <h3>No merchants found</h3>
-                                    <p>No merchants match the selected filter.</p>
+                                    <h3>{t('mej_no_merchants')}</h3>
+                                    <p>{t('mej_no_merchants_desc')}</p>
                                 </div>
                             )}
                         </>
@@ -1285,10 +922,9 @@ const Mejilis = () => {
             {/* ═══ FEATURES SECTION ═════════════════════════════════ */}
             <section className="mejilis-features">
                 <div className="mejilis-features-header">
-                    <h2>Why the Mejilis System Matters</h2>
+                    <h2>{t('mej_why')}</h2>
                     <p>
-                        Built on trust, transparency, and Islamic values. The Mejilis Council ensures
-                        every merchant meets the highest Halal standards.
+                        {t('mej_why_desc')}
                     </p>
                 </div>
                 <div className="mejilis-features-grid stagger-children">
@@ -1296,60 +932,54 @@ const Mejilis = () => {
                         <div className="mejilis-feature-icon">
                             <FiShield size={28} />
                         </div>
-                        <h3>Halal Verification</h3>
+                        <h3>{t('mej_f_verification')}</h3>
                         <p>
-                            Every merchant is thoroughly reviewed by the Mejilis council to ensure
-                            compliance with Islamic Halal standards.
+                            {t('mej_f_verification_desc')}
                         </p>
                     </div>
                     <div className="mejilis-feature-card animate-fade-in-up">
                         <div className="mejilis-feature-icon">
                             <FiAward size={28} />
                         </div>
-                        <h3>Official Certification</h3>
+                        <h3>{t('mej_f_official')}</h3>
                         <p>
-                            Approved merchants receive an official Halal certificate from the Ethiopian
-                            Islamic Affairs Supreme Council.
+                            {t('mej_f_official_desc')}
                         </p>
                     </div>
                     <div className="mejilis-feature-card animate-fade-in-up">
                         <div className="mejilis-feature-icon">
                             <FiUsers size={28} />
                         </div>
-                        <h3>Consumer Protection</h3>
+                        <h3>{t('mej_f_consumer')}</h3>
                         <p>
-                            Consumers can report concerns, and the council investigates to maintain
-                            marketplace integrity.
+                            {t('mej_f_consumer_desc')}
                         </p>
                     </div>
                     <div className="mejilis-feature-card animate-fade-in-up">
                         <div className="mejilis-feature-icon">
                             <FiCalendar size={28} />
                         </div>
-                        <h3>Regular Reviews</h3>
+                        <h3>{t('mej_f_reviews')}</h3>
                         <p>
-                            The council conducts periodic sessions to review merchant compliance and
-                            address consumer concerns.
+                            {t('mej_f_reviews_desc')}
                         </p>
                     </div>
                     <div className="mejilis-feature-card animate-fade-in-up">
                         <div className="mejilis-feature-icon">
                             <FiSearch size={28} />
                         </div>
-                        <h3>Inspection System</h3>
+                        <h3>{t('mej_f_inspection')}</h3>
                         <p>
-                            On-site inspections ensure merchants maintain halal standards in their
-                            operations at all times.
+                            {t('mej_f_inspection_desc')}
                         </p>
                     </div>
                     <div className="mejilis-feature-card animate-fade-in-up">
                         <div className="mejilis-feature-icon">
                             <FiTrendingUp size={28} />
                         </div>
-                        <h3>Growth Support</h3>
+                        <h3>{t('mej_f_growth')}</h3>
                         <p>
-                            Verified merchants gain exposure to thousands of conscious consumers
-                            across Ethiopia and beyond.
+                            {t('mej_f_growth_desc')}
                         </p>
                     </div>
                 </div>
@@ -1360,19 +990,18 @@ const Mejilis = () => {
                 <div className="mejilis-cta-content">
                     <div className="mejilis-cta-images">
                         <div className="mejilis-cta-img">
-                            <img src="/images/mejilis-hero.png" alt="Mejilis Council" />
+                            <img src="/images/mejilis-hero.png" alt={t('mej_alt_council')} loading="lazy" decoding="async" width="640" height="640" />
                         </div>
                         <div className="mejilis-cta-img">
-                            <img src="/images/halal-certification.png" alt="Halal Certification" />
+                            <img src="/images/halal-certification.png" alt={t('mej_alt_cert')} loading="lazy" decoding="async" width="640" height="640" />
                         </div>
                         <div className="mejilis-cta-img">
-                            <img src="/images/merchant-partnership.png" alt="Merchant Partnership" />
+                            <img src="/images/merchant-partnership.png" alt={t('mej_alt_partnership')} loading="lazy" decoding="async" width="640" height="640" />
                         </div>
                     </div>
-                    <h2>Ready to Join the Halal Marketplace?</h2>
+                    <h2>{t('mej_cta_title')}</h2>
                     <p>
-                        Whether you're a merchant looking to expand your reach or a consumer
-                        seeking verified Halal products — the Mejilis Council is here for you.
+                        {t('mej_cta_desc')}
                     </p>
                     {isLoggedIn ? (
                         <button
@@ -1380,11 +1009,11 @@ const Mejilis = () => {
                             onClick={() => { setActiveTab('register'); window.scrollTo({ top: 400, behavior: 'smooth' }); }}
                             id="cta-register-btn"
                         >
-                            Start Registration <FiArrowRight size={16} />
+                            {t('mej_cta_start')} <FiArrowRight size={16} />
                         </button>
                     ) : (
                         <Link to="/register" className="btn btn-primary btn-lg" id="cta-signup-btn">
-                            Create Your Account <FiArrowRight size={16} />
+                            {t('mej_cta_create')} <FiArrowRight size={16} />
                         </Link>
                     )}
                 </div>

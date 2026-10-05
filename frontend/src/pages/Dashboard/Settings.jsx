@@ -4,10 +4,38 @@ import { useDispatch } from 'react-redux';
 import { FiUser, FiMail, FiPhone, FiMapPin, FiGlobe, FiCheckCircle, FiSave } from 'react-icons/fi';
 import { getProfile } from '../../redux/slices/authSlice';
 import authService from '../../services/authService';
+import { getChangedFields, getRequestStatus, hasGenuinePendingRequest } from '../../utils/profileUpdates';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { backendError } from '../../utils/backendErrors';
 import { toast } from 'react-hot-toast';
 import './Settings.css';
 
+const FIELD_KEYS = {
+    firstName: 'pa_field_first',
+    lastName: 'pa_field_last',
+    email: 'pa_field_email',
+    phone: 'pa_field_phone',
+};
+
+const ROLE_KEYS = {
+    consumer: 'auth_consumer',
+    merchant: 'auth_merchant',
+    admin: 'pa_role_admin',
+    superadmin: 'pa_role_superadmin',
+};
+
+// Native names stay untranslated in every locale. Only the server
+// languages (en/am/om/so) can be saved to the profile — Arabic is
+// local-only (see LanguageContext SERVER_LANGUAGES).
+const LANG_NAMES = {
+    en: 'English',
+    am: 'አማርኛ',
+    om: 'Afaan Oromoo',
+    so: 'Af-Soomaali',
+};
+
 const Settings = () => {
+    const { t, formatDate } = useLanguage();
     const dispatch = useDispatch();
     const [profile, setProfile] = useState(null);
     const [formData, setFormData] = useState({
@@ -47,7 +75,7 @@ const Settings = () => {
             });
         } catch (error) {
             console.error(error);
-            toast.error('Unable to load profile. Please try again.');
+            toast.error(backendError(t, error, 'set_err_load'));
         } finally {
             setLoading(false);
         }
@@ -89,41 +117,47 @@ const Settings = () => {
             const updatedUser = response.user || response;
             setProfile(updatedUser);
             dispatch(getProfile());
-            toast.success('Profile update request submitted. Name, email or phone changes require admin approval.');
+            toast.success(response.pendingReview
+                ? t('set_pending_review_toast')
+                : (response.message || t('set_updated_toast')));
         } catch (error) {
             console.error(error);
-            toast.error(error.response?.data?.message || 'Failed to submit profile update.');
+            toast.error(backendError(t, error, 'set_err_submit'));
         } finally {
             setSaving(false);
         }
     };
 
     const pending = profile?.pendingProfileUpdate;
-    const pendingChangeFields = ['firstName', 'lastName', 'email', 'phone'];
-    const hasPending =
-        pending?.status === 'pending' &&
-        pendingChangeFields.some((field) => Boolean(pending[field]));
-    const roleLabel = profile?.role === 'superadmin' ? 'Super Admin' : profile?.role === 'admin' ? 'Admin' : profile?.role === 'merchant' ? 'Merchant' : 'Consumer';
+    // Genuine requests only: status + request date + ≥1 real changed field
+    // (mirrors the backend queue predicate).
+    const hasPending = hasGenuinePendingRequest(profile);
+    const requestStatus = getRequestStatus(profile);
+    const wasReviewed =
+        (requestStatus === 'approved' || requestStatus === 'rejected') &&
+        getChangedFields(profile).length > 0;
+    const changedFields = getChangedFields(profile);
+    const fieldLabel = (field) => (FIELD_KEYS[field] ? t(FIELD_KEYS[field]) : String(field || ''));
+    const roleLabel = ROLE_KEYS[profile?.role] ? t(ROLE_KEYS[profile.role]) : String(profile?.role || '');
 
     return (
         <div className="settings-page">
             <div className="settings-hero card">
                 <div>
-                    <span className="badge badge-halal">Account Settings</span>
-                    <h1>Manage your profile</h1>
+                    <span className="badge badge-halal">{t('set_badge')}</span>
+                    <h1>{t('set_title')}</h1>
                     <p>
-                        Keep your contact details up to date, manage address preferences, and submit changes for admin review.
-                        Name, email, and phone changes require approval before they go live.
+                        {t('set_desc')}
                     </p>
                 </div>
                 <div className="settings-hero-actions">
                     <div className="settings-hero-meta">
-                        <span className="settings-hero-meta-label">Signed in as</span>
+                        <span className="settings-hero-meta-label">{t('set_signed_in')}</span>
                         <strong>{profile?.email || '—'}</strong>
                         <div className="settings-role-badge">{roleLabel}</div>
                     </div>
                     <Link to={profile?.role === 'admin' || profile?.role === 'superadmin' ? '/admin' : '/dashboard'} className="btn btn-secondary btn-sm">
-                        Back to Dashboard
+                        {t('set_back')}
                     </Link>
                 </div>
             </div>
@@ -131,54 +165,79 @@ const Settings = () => {
             {hasPending && (
                 <div className="card settings-pending-card">
                     <div className="settings-card-header">
-                        <FiCheckCircle /> Pending Approval
+                        <FiCheckCircle /> {t('set_pending_title')}
                     </div>
                     <p className="settings-note">
-                        Your update request is waiting for approval. Once reviewed by admin, your name, email, or phone changes will be applied.
+                        {t('set_pending_desc')}
                     </p>
                     <div className="settings-pending-list">
-                        {pending.firstName && <div><strong>First name:</strong> {pending.firstName}</div>}
-                        {pending.lastName && <div><strong>Last name:</strong> {pending.lastName}</div>}
-                        {pending.email && <div><strong>Email:</strong> {pending.email}</div>}
-                        {pending.phone && <div><strong>Phone:</strong> {pending.phone}</div>}
-                        {pending.reviewNotes && <div><strong>Admin notes:</strong> {pending.reviewNotes}</div>}
+                        {changedFields.map(({ field, current, requested }) => (
+                            <div key={field}>
+                                <strong>{fieldLabel(field)}:</strong> {String(current) === '' ? '—' : String(current)}
+                                {' → '}
+                                {String(requested)}
+                            </div>
+                        ))}
+                        {pending.requestedAt && <div><strong>{t('set_requested')}</strong> {formatDate(pending.requestedAt, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>}
+                    </div>
+                </div>
+            )}
+
+            {wasReviewed && (
+                <div className="card settings-pending-card">
+                    <div className="settings-card-header">
+                        <FiCheckCircle /> {pending.status === 'approved' ? t('set_approved_title') : t('set_rejected_title')}
+                    </div>
+                    <p className="settings-note">
+                        {pending.status === 'approved'
+                            ? t('set_approved_desc')
+                            : t('set_rejected_desc')}
+                    </p>
+                    <div className="settings-pending-list">
+                        {changedFields.map(({ field, requested }) => (
+                            <div key={field}>
+                                <strong>{fieldLabel(field)} {t('set_requested_suffix')}</strong> {String(requested)}
+                            </div>
+                        ))}
+                        {pending.reviewedAt && <div><strong>{t('set_reviewed')}</strong> {formatDate(pending.reviewedAt, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>}
+                        {pending.reviewNotes && <div><strong>{t('set_admin_notes')}</strong> {pending.reviewNotes}</div>}
                     </div>
                 </div>
             )}
 
             <div className="settings-grid">
                 <div className="card settings-card">
-                    <div className="settings-card-header">Profile details</div>
+                    <div className="settings-card-header">{t('set_profile_details')}</div>
                     {loading ? (
-                        <div className="settings-loading">Loading profile…</div>
+                        <div className="settings-loading">{t('set_loading')}</div>
                     ) : (
                         <form className="settings-form" onSubmit={handleSubmit}>
                             <div className="settings-grid-cols">
                                 <div className="input-group">
-                                    <label className="input-label">First Name</label>
+                                    <label className="input-label">{t('pa_field_first')}</label>
                                     <input
                                         className="input"
                                         value={formData.firstName}
                                         onChange={(e) => handleInputChange('firstName', e.target.value)}
                                         type="text"
-                                        placeholder="First name"
+                                        placeholder={t('pa_field_first')}
                                     />
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">Last Name</label>
+                                    <label className="input-label">{t('pa_field_last')}</label>
                                     <input
                                         className="input"
                                         value={formData.lastName}
                                         onChange={(e) => handleInputChange('lastName', e.target.value)}
                                         type="text"
-                                        placeholder="Last name"
+                                        placeholder={t('pa_field_last')}
                                     />
                                 </div>
                             </div>
 
                             <div className="settings-grid-cols">
                                 <div className="input-group">
-                                    <label className="input-label">Email address</label>
+                                    <label className="input-label">{t('pa_field_email')}</label>
                                     <div className="input-with-icon">
                                         <FiMail className="input-icon" />
                                         <input
@@ -191,7 +250,7 @@ const Settings = () => {
                                     </div>
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">Phone number</label>
+                                    <label className="input-label">{t('pa_field_phone')}</label>
                                     <div className="input-with-icon">
                                         <FiPhone className="input-icon" />
                                         <input
@@ -206,23 +265,22 @@ const Settings = () => {
                             </div>
 
                             <div className="input-group">
-                                <label className="input-label">Preferred language</label>
+                                <label className="input-label">{t('set_lang_label')}</label>
                                 <select
                                     className="input"
                                     value={formData.preferredLanguage}
                                     onChange={(e) => handleInputChange('preferredLanguage', e.target.value)}
                                 >
-                                    <option value="en">English</option>
-                                    <option value="am">Amharic</option>
-                                    <option value="om">Oromiffa</option>
-                                    <option value="so">Somali</option>
+                                    {Object.entries(LANG_NAMES).map(([code, name]) => (
+                                        <option key={code} value={code}>{name}</option>
+                                    ))}
                                 </select>
                             </div>
 
-                            <div className="settings-card-subtitle">Address</div>
+                            <div className="settings-card-subtitle">{t('set_address')}</div>
                             <div className="settings-grid-cols">
                                 <div className="input-group">
-                                    <label className="input-label">Street</label>
+                                    <label className="input-label">{t('set_street')}</label>
                                     <div className="input-with-icon">
                                         <FiMapPin className="input-icon" />
                                         <input
@@ -230,58 +288,58 @@ const Settings = () => {
                                             value={formData.addressStreet}
                                             onChange={(e) => handleInputChange('addressStreet', e.target.value)}
                                             type="text"
-                                            placeholder="Street address"
+                                            placeholder={t('set_street_ph')}
                                         />
                                     </div>
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">Subcity</label>
+                                    <label className="input-label">{t('set_subcity')}</label>
                                     <input
                                         className="input"
                                         value={formData.addressSubcity}
                                         onChange={(e) => handleInputChange('addressSubcity', e.target.value)}
                                         type="text"
-                                        placeholder="Subcity"
+                                        placeholder={t('set_subcity_ph')}
                                     />
                                 </div>
                             </div>
 
                             <div className="settings-grid-cols">
                                 <div className="input-group">
-                                    <label className="input-label">City</label>
+                                    <label className="input-label">{t('set_city')}</label>
                                     <input
                                         className="input"
                                         value={formData.addressCity}
                                         onChange={(e) => handleInputChange('addressCity', e.target.value)}
                                         type="text"
-                                        placeholder="City"
+                                        placeholder={t('set_city_ph')}
                                     />
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">Region</label>
+                                    <label className="input-label">{t('set_region')}</label>
                                     <input
                                         className="input"
                                         value={formData.addressRegion}
                                         onChange={(e) => handleInputChange('addressRegion', e.target.value)}
                                         type="text"
-                                        placeholder="Region"
+                                        placeholder={t('set_region_ph')}
                                     />
                                 </div>
                             </div>
 
                             <div className="settings-grid-cols">
                                 <div className="input-group">
-                                    <label className="input-label">Postal code</label>
+                                    <label className="input-label">{t('set_postal')}</label>
                                     <input
                                         className="input"
                                         value={formData.addressPostalCode}
                                         onChange={(e) => handleInputChange('addressPostalCode', e.target.value)}
                                         type="text"
-                                        placeholder="Postal code"
+                                        placeholder={t('set_postal_ph')}
                                     />
                                 </div>
                                 <div className="input-group">
-                                    <label className="input-label">Country</label>
+                                    <label className="input-label">{t('set_country')}</label>
                                     <div className="input-with-icon">
                                         <FiGlobe className="input-icon" />
                                         <input
@@ -289,45 +347,45 @@ const Settings = () => {
                                             value={formData.addressCountry}
                                             onChange={(e) => handleInputChange('addressCountry', e.target.value)}
                                             type="text"
-                                            placeholder="Country"
+                                            placeholder={t('set_country_ph')}
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             <button type="submit" className="btn btn-primary settings-save-button" disabled={saving}>
-                                <FiSave /> {saving ? 'Saving...' : 'Save changes'}
+                                <FiSave /> {saving ? t('set_saving') : t('set_save')}
                             </button>
                         </form>
                     )}
                 </div>
 
                 <div className="card settings-card settings-summary-card">
-                    <div className="settings-card-header">Quick account summary</div>
+                    <div className="settings-card-header">{t('set_summary')}</div>
                     <div className="settings-summary-list">
                         <div>
-                            <strong>Name</strong>
+                            <strong>{t('set_sum_name')}</strong>
                             <p>{profile?.firstName} {profile?.lastName}</p>
                         </div>
                         <div>
-                            <strong>Email</strong>
+                            <strong>{t('set_sum_email')}</strong>
                             <p>{profile?.email}</p>
                         </div>
                         <div>
-                            <strong>Phone</strong>
-                            <p>{profile?.phone || 'Not provided'}</p>
+                            <strong>{t('set_sum_phone')}</strong>
+                            <p>{profile?.phone || t('cc_not_provided')}</p>
                         </div>
                         <div>
-                            <strong>Role</strong>
+                            <strong>{t('set_sum_role')}</strong>
                             <p>{roleLabel}</p>
                         </div>
                         <div>
-                            <strong>Language</strong>
-                            <p>{profile?.preferredLanguage || 'en'}</p>
+                            <strong>{t('set_sum_lang')}</strong>
+                            <p>{LANG_NAMES[profile?.preferredLanguage] || profile?.preferredLanguage || 'en'}</p>
                         </div>
                     </div>
                     <p className="settings-summary-note">
-                        Updates to email, phone, and name are staged for admin approval. Other changes apply immediately.
+                        {t('set_summary_note')}
                     </p>
                 </div>
             </div>

@@ -45,14 +45,9 @@ const merchantService = {
     return response.data;
   },
 
-  // Apply for halal certification
-  applyCertification: async (id, certData) => {
-    const response = await api.post(
-      `/merchants/${id}/certifications`,
-      certData,
-    );
-    return response.data;
-  },
+  // NOTE: standalone certification endpoints were removed in favor of
+  // the single unified application. Merchants attach halal evidence via
+  // PUT /api/mejilis/registration (see mejilisService.updateRegistration).
 };
 
 export default merchantService;
