@@ -99,4 +99,37 @@ describe('Navbar Component', () => {
     });
     expect(screen.queryByLabelText('Cart')).not.toBeInTheDocument();
   });
+
+  it('shows a My Application link to merchants in the user menu', () => {
+    renderNavbar({
+      isAuthenticated: true,
+      user: { firstName: 'M', role: 'merchant' },
+    });
+    fireEvent.click(screen.getByText('M'));
+    const links = screen.getAllByText('My Application');
+    // Desktop dropdown + mobile menu both link to the status page.
+    expect(links.length).toBeGreaterThanOrEqual(1);
+    links.forEach((link) => {
+      expect(link.closest('a')).toHaveAttribute('href', '/merchant/register');
+    });
+  });
+
+  it('does not show My Application to consumers', () => {
+    renderNavbar({
+      isAuthenticated: true,
+      user: { firstName: 'C', role: 'consumer' },
+    });
+    fireEvent.click(screen.getByText('C'));
+    expect(screen.queryByText('My Application')).not.toBeInTheDocument();
+  });
+
+  it('shows My Application in the mobile menu for merchants', () => {
+    renderNavbar({
+      isAuthenticated: true,
+      user: { firstName: 'M', role: 'merchant' },
+    });
+    // User dropdown is closed, so this resolves to the mobile menu link.
+    const link = screen.getByText('My Application');
+    expect(link.closest('a')).toHaveAttribute('href', '/merchant/register');
+  });
 });

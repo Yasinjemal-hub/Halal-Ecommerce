@@ -22,6 +22,22 @@ const api = axios.create({
     withCredentials: true,
 });
 
+// Single-flight token refresh: concurrent 401s share one refresh
+// request instead of each firing its own.
+let refreshPromise = null;
+
+const refreshAccessToken = () => {
+    if (!refreshPromise) {
+        const refreshUrl = getApiUrl() + '/auth/refresh-token';
+        refreshPromise = axios
+            .post(refreshUrl, {}, { withCredentials: true })
+            .finally(() => {
+                refreshPromise = null;
+            });
+    }
+    return refreshPromise;
+};
+
 // Request interceptor — no Authorization header required when using httpOnly cookies
 // The server will read accessToken from the httpOnly cookie. Keep withCredentials:true above.
 api.interceptors.request.use((config) => config, (error) => Promise.reject(error));
@@ -36,13 +52,12 @@ api.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
-                try {
-                    // Attempt token refresh - new access token will be set as httpOnly cookie by server
-                    const refreshUrl = getApiUrl() + '/auth/refresh-token';
-                    await axios.post(refreshUrl, {}, { withCredentials: true });
-                    // Retry original request (cookies sent automatically)
-                    return api(originalRequest);
-                } catch (refreshError) {
+            try {
+                // Shared single-flight refresh; retry original request after.
+                await refreshAccessToken();
+                // Retry original request (cookies sent automatically)
+                return api(originalRequest);
+            } catch (refreshError) {
                     // Refresh failed — force logout client-side
                     localStorage.removeItem('user');
                     if (window.location.pathname !== '/login') {

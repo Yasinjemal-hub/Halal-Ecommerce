@@ -70,9 +70,18 @@ const productSlice = createSlice({
     reducers: {
         setFilters: (state, action) => {
             state.filters = { ...state.filters, ...action.payload };
+            // Any filter change restarts browsing from the first page.
+            state.pagination.page = 1;
+        },
+        setPage: (state, action) => {
+            const page = Number(action.payload);
+            if (Number.isInteger(page) && page >= 1) {
+                state.pagination.page = page;
+            }
         },
         clearFilters: (state) => {
             state.filters = initialState.filters;
+            state.pagination.page = 1;
         },
         clearCurrentProduct: (state) => {
             state.currentProduct = null;
@@ -118,5 +127,5 @@ const productSlice = createSlice({
     },
 });
 
-export const { setFilters, clearFilters, clearCurrentProduct } = productSlice.actions;
+export const { setFilters, setPage, clearFilters, clearCurrentProduct } = productSlice.actions;
 export default productSlice.reducer;

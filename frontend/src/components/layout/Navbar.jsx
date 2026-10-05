@@ -14,6 +14,7 @@ import {
   FiHeart,
   FiSettings,
   FiUsers,
+  FiFileText,
 } from "react-icons/fi";
 import { selectCartCount, toggleCart } from "../../redux/slices/cartSlice";
 import { logout } from "../../redux/slices/authSlice";
@@ -41,9 +42,9 @@ const Navbar = () => {
   const isMerchantUser = user?.role === "merchant";
   const isAdminUser = user?.role === "admin" || user?.role === "superadmin";
   const searchPlaceholder = isAdminUser
-    ? t("Search merchant or consumer...")
+    ? t("nav_search_admin_placeholder")
     : isMerchantUser
-    ? t("My products...")
+    ? t("nav_search_merchant_placeholder")
     : t("nav_search_placeholder");
 
   useEffect(() => {
@@ -346,16 +347,25 @@ const Navbar = () => {
                         >
                           <FiGrid size={16} /> {t("nav_dashboard")}
                         </Link>
+                        {user?.role === "merchant" && (
+                          <Link
+                            to="/merchant/register"
+                            className="user-dropdown-item"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <FiFileText size={16} /> My Application
+                          </Link>
+                        )}
                       </>
                     )}
                     {!isAdminUser && (
-                      <Link
-                        to="/dashboard/settings"
-                        className="user-dropdown-item"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <FiSettings size={16} /> {t("Settings") || "Settings"}
-                      </Link>
+                    <Link
+                      to="/dashboard/settings"
+                      className="user-dropdown-item"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <FiSettings size={16} /> {t("nav_settings")}
+                    </Link>
                     )}
                     {user?.role !== "merchant" && !isAdminUser && (
                       <>
@@ -494,6 +504,15 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            {isAuthenticated && user?.role === "merchant" && (
+              <Link
+                to="/merchant/register"
+                className={`mobile-nav-link ${location.pathname === "/merchant/register" ? "mobile-nav-active" : ""}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                My Application
+              </Link>
+            )}
           </nav>
           <div className="mobile-menu-divider" />
           <p className="mobile-menu-subtitle">{t("nav_categories")}</p>
@@ -505,8 +524,7 @@ const Navbar = () => {
                 className="mobile-category-link"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <span>{cat.icon}</span>{" "}
-                {cat.label.split(" ").slice(1).join(" ")}
+                {cat.label}
               </Link>
             ))}
           </div>

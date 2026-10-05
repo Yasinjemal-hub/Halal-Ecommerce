@@ -20,9 +20,21 @@ const orderService = {
         return response.data;
     },
 
-    // Cancel an order
-    cancel: async (id) => {
-        const response = await api.put(`/orders/${id}/cancel`);
+    // Cancel an order (consumer owner: pending/confirmed -> cancelled)
+    cancel: async (id, cancelReason) => {
+        const response = await api.put(`/orders/${id}/cancel`, cancelReason ? { cancelReason } : {});
+        return response.data;
+    },
+
+    // Request a return (consumer owner: delivered -> return_requested)
+    requestReturn: async (id, returnReason) => {
+        const response = await api.put(`/orders/${id}/return`, returnReason ? { returnReason } : {});
+        return response.data;
+    },
+
+    // Process a refund (admin/superadmin only)
+    refund: async (id, payload = {}) => {
+        const response = await api.put(`/orders/${id}/refund`, payload);
         return response.data;
     },
 
@@ -33,9 +45,12 @@ const orderService = {
         return response.data;
     },
 
-    // Update order status (merchant/admin)
-    updateStatus: async (id, status) => {
-        const response = await api.put(`/orders/${id}/status`, { status });
+    // Update order status (merchant: own items only; admin/superadmin).
+    // Allowed merchant chain: pending -> confirmed -> processing -> shipped
+    //   -> out_for_delivery -> delivered. Extra fields (note, trackingNumber,
+    //   deliveryPartner, estimatedDelivery) are forwarded when provided.
+    updateStatus: async (id, status, extra = {}) => {
+        const response = await api.put(`/orders/${id}/status`, { status, ...extra });
         return response.data;
     },
 };

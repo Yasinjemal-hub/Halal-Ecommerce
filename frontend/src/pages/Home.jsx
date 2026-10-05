@@ -34,8 +34,8 @@ const useIntersectionObserver = (options = {}) => {
     return { observe, entries };
 };
 
-// Animated counter component
-const AnimatedCounter = ({ end, duration = 2000, suffix = '' }) => {
+// Animated counter component (locale-grouped digits)
+const AnimatedCounter = ({ end, duration = 2000, suffix = '', formatNumber }) => {
     const [count, setCount] = useState(0);
     const ref = useRef(null);
     const hasAnimated = useRef(false);
@@ -63,14 +63,15 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = '' }) => {
         return () => observer.disconnect();
     }, [end, duration]);
 
-    return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+    const fmt = typeof formatNumber === 'function' ? formatNumber : (n) => Number(n).toLocaleString();
+    return <span ref={ref}>{fmt(count)}{suffix}</span>;
 };
 
 const Home = () => {
     const dispatch = useDispatch();
     const { featuredItems } = useSelector((state) => state.products);
     const [activeTestimonial, setActiveTestimonial] = useState(0);
-    const { t } = useLanguage();
+    const { t, formatNumber, formatETB } = useLanguage();
     const { observe } = useIntersectionObserver();
 
     // Refs for scroll-triggered animations
@@ -109,9 +110,9 @@ const Home = () => {
     ];
 
     const testimonials = [
-        { name: 'Amina Mohammed', role: 'Consumer, Addis Ababa', text: 'Finally a platform where I can trust every product is genuinely halal certified. The verification process gives me complete peace of mind.', rating: 5, initial: 'A' },
-        { name: 'Hassan Ibrahim', role: 'Merchant, Dire Dawa', text: 'As a halal butcher, this platform helped me reach thousands of new customers. The Majlis verification badge builds instant trust.', rating: 5, initial: 'H' },
-        { name: 'Fatima Ahmed', role: 'Consumer, Harar', text: 'I love the Ethiopian spice collection! Ordering online and getting halal-certified products delivered to my door is amazing.', rating: 5, initial: 'F' },
+        { name: 'Amina Mohammed', roleKey: 'testi_1_role', textKey: 'testi_1_text', rating: 5, initial: 'A' },
+        { name: 'Hassan Ibrahim', roleKey: 'testi_2_role', textKey: 'testi_2_text', rating: 5, initial: 'H' },
+        { name: 'Fatima Ahmed', roleKey: 'testi_3_role', textKey: 'testi_3_text', rating: 5, initial: 'F' },
     ];
 
     useEffect(() => {
@@ -170,12 +171,12 @@ const Home = () => {
                                 {t('hero_cta_merchant')}
                             </Link>
                         </div>
-                        <div className="hero-stats animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                            {STATS.map((stat) => (
-                                <div key={stat.labelKey} className="hero-stat">
-                                    <span className="hero-stat-value">
-                                        <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                                    </span>
+                            <div className="hero-stats animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                                {STATS.map((stat) => (
+                                    <div key={stat.labelKey} className="hero-stat">
+                                        <span className="hero-stat-value">
+                                            <AnimatedCounter end={stat.value} suffix={stat.suffix} formatNumber={formatNumber} />
+                                        </span>
                                     <span className="hero-stat-label">{t(stat.labelKey)}</span>
                                 </div>
                             ))}
@@ -187,7 +188,7 @@ const Home = () => {
                             <div className="hero-card-emoji"><Drumstick size={24} /></div>
                             <div className="hero-card-info">
                                 <p className="hero-card-title">{t('cat_meat')}</p>
-                                <p className="hero-card-detail">From 650 ETB</p>
+                                <p className="hero-card-detail">{t('home_hero_price', { price: formatETB(650) })}</p>
                             </div>
                             <span className="badge badge-halal">{t('product_halal')}</span>
                         </div>
@@ -195,7 +196,7 @@ const Home = () => {
                             <div className="hero-card-emoji"><Flame size={24} /></div>
                             <div className="hero-card-info">
                                 <p className="hero-card-title">{t('cat_spices')}</p>
-                                <p className="hero-card-detail">Berbere, Mitmita & more</p>
+                                <p className="hero-card-detail">{t('home_hero_spices')}</p>
                             </div>
                             <span className="badge badge-verified">{t('verified')}</span>
                         </div>
@@ -203,9 +204,9 @@ const Home = () => {
                             <div className="hero-card-emoji"><Droplet size={24} /></div>
                             <div className="hero-card-info">
                                 <p className="hero-card-title">{t('cat_honey')}</p>
-                                <p className="hero-card-detail">100% Natural</p>
+                                <p className="hero-card-detail">{t('home_hero_natural')}</p>
                             </div>
-                            <span className="badge badge-new">New</span>
+                            <span className="badge badge-new">{t('home_badge_new')}</span>
                         </div>
                     </div>
                 </div>
@@ -292,10 +293,10 @@ const Home = () => {
                 <section className="section ethiopian-section" id="ethiopian-essentials">
                     <div className="container">
                         <div className="section-header reveal" ref={addRef}>
-                            <span className="section-subtitle">Ethiopian Essentials</span>
-                            <h2 className="heading-section section-title">Traditional Favorites With Real Photos</h2>
+                            <span className="section-subtitle">{t('home_ess_sub')}</span>
+                            <h2 className="heading-section section-title">{t('home_ess_title')}</h2>
                             <p className="section-description">
-                                Berbere, Mitmita, Shiro, Niter Kibbeh, Teff, and Buna coffee picked from verified merchants.
+                                {t('home_ess_desc')}
                             </p>
                         </div>
                         <div className="grid grid-products">
@@ -381,12 +382,12 @@ const Home = () => {
                                         <FiStar key={i} size={16} fill="var(--accent-500)" color="var(--accent-500)" />
                                     ))}
                                 </div>
-                                <p className="testimonial-text">"{tm.text}"</p>
+                                <p className="testimonial-text">"{t(tm.textKey)}"</p>
                                 <div className="testimonial-author">
                                     <div className="testimonial-avatar">{tm.initial}</div>
                                     <div>
                                         <p className="testimonial-name">{tm.name}</p>
-                                        <p className="testimonial-role">{tm.role}</p>
+                                        <p className="testimonial-role">{t(tm.roleKey)}</p>
                                     </div>
                                 </div>
                             </div>
@@ -398,7 +399,7 @@ const Home = () => {
                                 key={i}
                                 className={`testimonial-dot ${i === activeTestimonial ? 'dot-active' : ''}`}
                                 onClick={() => setActiveTestimonial(i)}
-                                aria-label={`Testimonial ${i + 1}`}
+                                aria-label={t('home_testimonial_aria', { n: i + 1 })}
                             />
                         ))}
                     </div>

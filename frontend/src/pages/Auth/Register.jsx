@@ -14,6 +14,8 @@ import {
   FiShield,
 } from "react-icons/fi";
 import { register, clearError } from "../../redux/slices/authSlice";
+import { useLanguage } from "../../i18n/LanguageContext";
+import { mapBackendMessage } from "../../utils/backendErrors";
 import toast from "react-hot-toast";
 import "./Auth.css";
 
@@ -30,6 +32,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { isLoading, error, isAuthenticated } = useSelector(
     (state) => state.auth,
   );
@@ -40,10 +43,10 @@ const Register = () => {
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      toast.error(mapBackendMessage(t, error) || t("err_registration_failed"));
       dispatch(clearError());
     }
-  }, [error, dispatch]);
+  }, [error, dispatch, t]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,14 +55,17 @@ const Register = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("auth_passwords_no_match"));
       return;
     }
     if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      toast.error(t("auth_password_min"));
       return;
     }
     const { confirmPassword, ...data } = formData;
+    if (!data.phone || !String(data.phone).trim()) {
+      delete data.phone;
+    }
     dispatch(register(data));
   };
 
@@ -77,23 +83,22 @@ const Register = () => {
                 Halal<span className="logo-accent">Market</span>
               </span>
             </Link>
-            <h2>Join Our Community</h2>
+            <h2>{t("auth_join")}</h2>
             <p
               className="text-ethiopic"
               style={{ fontSize: "1.5rem", marginBottom: "8px" }}
             >
-              ይመዝገቡ!
+              {t("auth_greeting_register")}
             </p>
             <p>
-              Create an account to shop halal-certified products, track orders,
-              and connect with verified merchants across Ethiopia.
+              {t("auth_community_desc")}
             </p>
             <div className="auth-left-features">
-              <div className="auth-feature">Free Consumer Account</div>
+              <div className="auth-feature">{t("auth_register_feature_1")}</div>
               <div className="auth-feature">
-                Merchant Registration Available
+                {t("auth_register_feature_2")}
               </div>
-              <div className="auth-feature">Secure & Private</div>
+              <div className="auth-feature">{t("auth_register_feature_3")}</div>
             </div>
           </div>
         </div>
@@ -102,8 +107,8 @@ const Register = () => {
       <div className="auth-right">
         <div className="auth-form-container">
           <div className="auth-form-header">
-            <h1 className="heading-section">Create Account</h1>
-            <p className="text-body">Fill in your details to get started</p>
+            <h1 className="heading-section">{t("auth_create_account")}</h1>
+            <p className="text-body">{t("auth_register_desc")}</p>
           </div>
 
           <form
@@ -121,7 +126,7 @@ const Register = () => {
                 <span>
                   <FiShoppingBag />
                 </span>{" "}
-                Consumer
+                {t("auth_consumer")}
               </button>
               <button
                 type="button"
@@ -131,14 +136,14 @@ const Register = () => {
                 <span>
                   <FiGrid />
                 </span>{" "}
-                Merchant
+                {t("auth_merchant")}
               </button>
             </div>
 
             <div className="form-row">
               <div className="input-group">
                 <label className="input-label" htmlFor="firstName">
-                  First Name
+                  {t("auth_first_name")}
                 </label>
                 <div className="input-with-icon">
                   <FiUser className="input-icon" />
@@ -149,14 +154,14 @@ const Register = () => {
                     value={formData.firstName}
                     onChange={handleChange}
                     className="input"
-                    placeholder="First name"
+                    placeholder={t("auth_first_name_placeholder")}
                     required
                   />
                 </div>
               </div>
               <div className="input-group">
                 <label className="input-label" htmlFor="lastName">
-                  Last Name
+                  {t("auth_last_name")}
                 </label>
                 <div className="input-with-icon">
                   <FiUser className="input-icon" />
@@ -167,7 +172,7 @@ const Register = () => {
                     value={formData.lastName}
                     onChange={handleChange}
                     className="input"
-                    placeholder="Last name"
+                    placeholder={t("auth_last_name_placeholder")}
                     required
                   />
                 </div>
@@ -176,7 +181,7 @@ const Register = () => {
 
             <div className="input-group">
               <label className="input-label" htmlFor="reg-email">
-                Email Address
+                {t("auth_email")}
               </label>
               <div className="input-with-icon">
                 <FiMail className="input-icon" />
@@ -187,7 +192,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="input"
-                  placeholder="your.email@example.com"
+                  placeholder={t("auth_email_placeholder")}
                   required
                 />
               </div>
@@ -195,7 +200,7 @@ const Register = () => {
 
             <div className="input-group">
               <label className="input-label" htmlFor="phone">
-                Phone Number
+                {t("auth_phone")}
               </label>
               <div className="input-with-icon">
                 <FiPhone className="input-icon" />
@@ -206,7 +211,7 @@ const Register = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   className="input"
-                  placeholder="+251 9XX XXX XXX"
+                  placeholder={t("auth_phone_placeholder")}
                 />
               </div>
             </div>
@@ -214,7 +219,7 @@ const Register = () => {
             <div className="form-row">
               <div className="input-group">
                 <label className="input-label" htmlFor="reg-password">
-                  Password
+                  {t("auth_password")}
                 </label>
                 <div className="input-with-icon">
                   <FiLock className="input-icon" />
@@ -225,13 +230,14 @@ const Register = () => {
                     value={formData.password}
                     onChange={handleChange}
                     className="input"
-                    placeholder="Min 8 characters"
+                    placeholder={t("auth_password_min_placeholder")}
                     required
                   />
                   <button
                     type="button"
                     className="input-toggle"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={t("a11y_toggle_password")}
                   >
                     {showPassword ? (
                       <FiEyeOff size={18} />
@@ -243,7 +249,7 @@ const Register = () => {
               </div>
               <div className="input-group">
                 <label className="input-label" htmlFor="confirmPassword">
-                  Confirm Password
+                  {t("auth_confirm_password")}
                 </label>
                 <div className="input-with-icon">
                   <FiLock className="input-icon" />
@@ -254,7 +260,7 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     className="input"
-                    placeholder="Confirm password"
+                    placeholder={t("auth_confirm_password_placeholder")}
                     required
                   />
                 </div>
@@ -271,14 +277,14 @@ const Register = () => {
                 <span className="spinner spinner-sm" />
               ) : (
                 <>
-                  Create Account <FiArrowRight />
+                  {t("auth_submit_register")} <FiArrowRight />
                 </>
               )}
             </button>
           </form>
 
           <p className="auth-switch">
-            Already have an account? <Link to="/login">Sign In</Link>
+            {t("auth_has_account")} <Link to="/login">{t("auth_sign_in_link")}</Link>
           </p>
         </div>
       </div>

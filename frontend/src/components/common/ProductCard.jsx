@@ -6,10 +6,13 @@ import { addToCart } from '../../redux/slices/cartSlice';
 import { addToWishlist, removeFromWishlist, selectWishlistItems } from '../../redux/slices/wishlistSlice';
 import toast from 'react-hot-toast';
 import { getProductFallbackImage } from '../../lib/utils';
+import { isMerchantHalalVerified } from '../../utils/certification';
+import { useLanguage } from '../../i18n/LanguageContext';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
     const dispatch = useDispatch();
+    const { t, formatETB, formatNumber } = useLanguage();
 
     const {
         _id,
@@ -36,17 +39,24 @@ const ProductCard = ({ product }) => {
     const imageUrl = images?.[0]?.url || image || getProductFallbackImage(name);
     const { user } = useSelector((state) => state.auth);
     const isMerchantUser = user?.role === 'merchant';
+    // Halal Verified badge: same approved status + certificate record.
+    // When merchant status is present, require approval; otherwise fall
+    // back to the product flag (legacy/test shapes without merchant status).
+    const hasMerchantStatus = merchant && merchant.verificationStatus !== undefined;
+    const showHalalVerified = hasMerchantStatus
+        ? merchant.verificationStatus === 'approved' && (isMerchantHalalVerified(merchant) || !!halalCertified)
+        : !!halalCertified;
 
     const handleAddToCart = (e) => {
         e.preventDefault();
         e.stopPropagation();
         if (isMerchantUser) {
-            toast.error('Merchants cannot add products to cart. Manage products in your dashboard.');
+            toast.error(t('err_merchant_cannot_cart'));
             return;
         }
         if (!isInStock) return;
         dispatch(addToCart({ product, quantity: 1 }));
-        toast.success(`${name} added to cart!`, {
+        toast.success(t('product_added', { name }), {
             style: {
                 borderRadius: '10px',
                 background: '#333',
@@ -62,12 +72,14 @@ const ProductCard = ({ product }) => {
                     <img src={imageUrl} alt={name} className="product-image" loading="lazy" />
                 </Link>
                 
-                {/* Floating Badges */}
+                {/* Floating Badges — Halal Verified only for approved + certified stores */}
                 <div className="product-badges">
-                    {discountPercent > 0 && <span className="badge-promo">Save {discountPercent}%</span>}
-                    <span className="badge-halal-premium">
-                        <FiCheckCircle size={12}/> Halal
-                    </span>
+                    {discountPercent > 0 && <span className="badge-promo">{t('product_save_percent', { percent: discountPercent })}</span>}
+                    {showHalalVerified && (
+                        <span className="badge-halal-premium">
+                            <FiCheckCircle size={12}/> {t('product_halal_verified')}
+                        </span>
+                    )}
                 </div>
                 
                 {/* Quick Action Overlay */}
@@ -75,13 +87,13 @@ const ProductCard = ({ product }) => {
                     {!isMerchantUser && (
                         <button
                             className={`action-btn wishlist-btn ${isWishlisted ? 'wishlisted' : ''}`}
-                            title={isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                            title={isWishlisted ? t('product_remove_wishlist') : t('product_add_wishlist')}
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 if (isWishlisted) {
                                     dispatch(removeFromWishlist(_id));
-                                    toast.success(`${name} removed from wishlist`, {
+                                    toast.success(t('wishlist_removed', { name }), {
                                         style: {
                                             borderRadius: '10px',
                                             background: '#333',
@@ -90,7 +102,7 @@ const ProductCard = ({ product }) => {
                                     });
                                 } else {
                                     dispatch(addToWishlist(product));
-                                    toast.success(`${name} added to wishlist`, {
+                                    toast.success(t('wishlist_added', { name }), {
                                         style: {
                                             borderRadius: '10px',
                                             background: '#333',
@@ -103,7 +115,7 @@ const ProductCard = ({ product }) => {
                             <FiHeart size={18} />
                         </button>
                     )}
-                    <Link to={`/product/${_id}`} className="action-btn" title="Quick View">
+                    <Link to={`/product/${_id}`} className="action-btn" title={t('product_quick_view')}>
                         <FiEye size={18}/>
                     </Link>
                 </div>
@@ -125,10 +137,10 @@ const ProductCard = ({ product }) => {
 
                 <div className="product-footer-premium">
                     <div className="product-pricing-premium">
-                        {discountPrice && <span className="price-old-premium">{price?.toLocaleString()} ETB</span>}
+                        {discountPrice && <span className="price-old-premium">{formatETB(price)}</span>}
                         <span className="price-current-premium">
-                            <span className="currency">ETB</span>
-                            {effectivePrice?.toLocaleString()}
+                            <span className="currency">{t('etb')}</span>
+                            {formatNumber(effectivePrice)}
                         </span>
                     </div>
 
@@ -136,7 +148,7 @@ const ProductCard = ({ product }) => {
                         className={`add-cart-btn-premium ${!isInStock ? 'out-of-stock' : ''}`}
                         onClick={handleAddToCart}
                         disabled={!isInStock || isMerchantUser}
-                        title={isMerchantUser ? 'Merchants cannot add to cart' : isInStock ? 'Add to Cart' : 'Out of Stock'}
+                        title={isMerchantUser ? t('product_merchant_cannot_add') : isInStock ? t('product_add_to_cart') : t('product_out_of_stock')}
                     >
                         <FiShoppingCart size={20} />
                     </button>

@@ -1,49 +1,92 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-// Layout
+// Layout (needed on first paint — kept eager)
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import CartDrawer from "./components/common/CartDrawer";
-
-// Pages
-import Home from "./pages/Home";
-import Shop from "./pages/Shop";
-import Merchants from "./pages/Merchants";
-import ProductDetails from "./pages/ProductDetails";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
-import About from "./pages/About";
-import MerchantDashboard from "./pages/Dashboard/MerchantDashboard";
-import AdminDashboard from "./pages/Dashboard/AdminDashboard";
-import AdminConsumers from "./pages/Dashboard/AdminConsumers";
-import AdminMerchants from "./pages/Dashboard/AdminMerchants";
-import AdminProfileApprovals from "./pages/Dashboard/AdminProfileApprovals";
-import ProductManager from "./pages/Dashboard/ProductManager";
-import Settings from "./pages/Dashboard/Settings";
-import Mejilis from "./pages/Mejilis";
-import MerchantShop from "./pages/MerchantShop";
-import Orders from "./pages/Orders";
-import OrderDetails from "./pages/OrderDetails";
-import Wishlist from "./pages/Wishlist";
-import MerchantRegister from "./pages/MerchantRegister";
+import Loader from "./components/common/Loader";
 import RequireAuth from "./components/common/RequireAuth";
+import { useLanguage } from "./i18n/LanguageContext";
+
+// Pages — loaded on demand so the initial bundle only contains the
+// layout + the first route. Each lazily-loaded page becomes its own chunk.
+const Home = lazy(() => import("./pages/Home"));
+const Shop = lazy(() => import("./pages/Shop"));
+const Merchants = lazy(() => import("./pages/Merchants"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Login = lazy(() => import("./pages/Auth/Login"));
+const Register = lazy(() => import("./pages/Auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/Auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/Auth/ResetPassword"));
+const About = lazy(() => import("./pages/About"));
+const MerchantDashboard = lazy(() => import("./pages/Dashboard/MerchantDashboard"));
+const AdminDashboard = lazy(() => import("./pages/Dashboard/AdminDashboard"));
+const AdminConsumers = lazy(() => import("./pages/Dashboard/AdminConsumers"));
+const AdminMerchants = lazy(() => import("./pages/Dashboard/AdminMerchants"));
+const AdminCertifications = lazy(() => import("./pages/Dashboard/AdminCertifications"));
+const AdminProfileApprovals = lazy(() => import("./pages/Dashboard/AdminProfileApprovals"));
+const ProductManager = lazy(() => import("./pages/Dashboard/ProductManager"));
+const Settings = lazy(() => import("./pages/Dashboard/Settings"));
+const Mejilis = lazy(() => import("./pages/Mejilis"));
+const VerifyCertificate = lazy(() => import("./pages/VerifyCertificate"));
+const MerchantShop = lazy(() => import("./pages/MerchantShop"));
+const Orders = lazy(() => import("./pages/Orders"));
+const OrderDetails = lazy(() => import("./pages/OrderDetails"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const MerchantRegister = lazy(() => import("./pages/MerchantRegister"));
 
 // Layout Component — wraps pages with Navbar + Footer
 const MainLayout = ({ children }) => (
   <>
     <Navbar />
-    <main style={{ minHeight: "60vh" }}>{children}</main>
+    <main style={{ minHeight: "60vh" }}>
+      <Suspense fallback={<Loader size="page" text="Loading page..." />}>
+        {children}
+      </Suspense>
+    </main>
     <Footer />
     <CartDrawer />
   </>
 );
 
 // Auth Layout — no Navbar/Footer
-const AuthLayout = ({ children }) => <>{children}</>;
+const AuthLayout = ({ children }) => (
+  <Suspense fallback={<Loader size="page" text="Loading page..." />}>
+    {children}
+  </Suspense>
+);
+
+// Localized 404 page (numeric code is universal; text is translated)
+const NotFound = () => {
+  const { t } = useLanguage();
+  return (
+    <div
+      style={{
+        textAlign: "center",
+        padding: "120px 20px",
+        minHeight: "60vh",
+      }}
+    >
+      <h1 style={{ fontSize: "4rem", marginBottom: "16px" }}>404</h1>
+      <h2 style={{ marginBottom: "8px" }}>{t('not_found_title')}</h2>
+      <p
+        style={{
+          color: "var(--text-tertiary)",
+          marginBottom: "24px",
+        }}
+      >
+        {t('not_found_desc')}
+      </p>
+      <a href="/" className="btn btn-primary">
+        {t('not_found_home')}
+      </a>
+    </div>
+  );
+};
 
 function App() {
   return (
@@ -84,6 +127,22 @@ function App() {
           element={
             <AuthLayout>
               <Register />
+            </AuthLayout>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <AuthLayout>
+              <ForgotPassword />
+            </AuthLayout>
+          }
+        />
+        <Route
+          path="/reset-password/:token"
+          element={
+            <AuthLayout>
+              <ResetPassword />
             </AuthLayout>
           }
         />
@@ -201,6 +260,14 @@ function App() {
             </MainLayout>
           }
         />
+        <Route
+          path="/verify-certificate/:certificateNumber"
+          element={
+            <MainLayout>
+              <VerifyCertificate />
+            </MainLayout>
+          }
+        />
 
         {/* Dashboard Routes */}
         <Route
@@ -274,6 +341,26 @@ function App() {
           }
         />
         <Route
+          path="/admin/merchants/:id"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["admin", "superadmin"]}>
+              <AdminMerchants />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
+          path="/admin/certifications"
+          element={
+            <MainLayout>
+              <RequireAuth allowedRoles={["admin", "superadmin"]}>
+              <AdminCertifications />
+              </RequireAuth>
+            </MainLayout>
+          }
+        />
+        <Route
           path="/admin/profile-approvals"
           element={
             <MainLayout>
@@ -289,27 +376,7 @@ function App() {
           path="*"
           element={
             <MainLayout>
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "120px 20px",
-                  minHeight: "60vh",
-                }}
-              >
-                <h1 style={{ fontSize: "4rem", marginBottom: "16px" }}>404</h1>
-                <h2 style={{ marginBottom: "8px" }}>Page Not Found</h2>
-                <p
-                  style={{
-                    color: "var(--text-tertiary)",
-                    marginBottom: "24px",
-                  }}
-                >
-                  The page you're looking for doesn't exist.
-                </p>
-                <a href="/" className="btn btn-primary">
-                  Go Home
-                </a>
-              </div>
+              <NotFound />
             </MainLayout>
           }
         />

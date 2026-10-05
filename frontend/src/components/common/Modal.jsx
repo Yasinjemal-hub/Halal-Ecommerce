@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
+import { useLanguage } from '../../i18n/LanguageContext';
 import './Modal.css';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'default' }) => {
+    const { t } = useLanguage();
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -33,7 +35,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'default' }) => {
                 {title && (
                     <div className="modal-header">
                         <h3 className="modal-title">{title}</h3>
-                        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+                        <button className="modal-close" onClick={onClose} aria-label={t('a11y_close_modal')}>
                             <FiX size={20} />
                         </button>
                     </div>

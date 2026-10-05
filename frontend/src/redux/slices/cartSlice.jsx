@@ -142,7 +142,8 @@ const cartSlice = createSlice({
             const { id, quantity } = action.payload;
             const item = state.items.find((item) => item._id === id);
             if (item) {
-                item.quantity = Math.max(1, quantity);
+                const max = Number.isFinite(item.stock) && item.stock > 0 ? item.stock : quantity;
+                item.quantity = Math.min(Math.max(1, quantity), Math.max(1, max));
             }
             saveCart(state.items);
         },

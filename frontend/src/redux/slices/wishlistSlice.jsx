@@ -63,6 +63,33 @@ const wishlistSlice = createSlice({
             state.items = [];
             clearWishlistStorage();
         },
+        reloadWishlist: (state) => {
+            state.items = loadWishlist();
+        },
+    },
+    extraReducers: (builder) => {
+        // Wishlist is scoped per signed-in user (localStorage key includes
+        // the user id at read time). Reload after auth changes so one
+        // account never sees another account's saved items.
+        builder
+            .addCase('auth/login/fulfilled', (state) => {
+                state.items = loadWishlist();
+            })
+            .addCase('auth/register/fulfilled', (state) => {
+                state.items = loadWishlist();
+            })
+            .addCase('auth/logout/fulfilled', (state) => {
+                state.items = [];
+            })
+            .addCase('auth/getProfile/fulfilled', (state) => {
+                // Profile refresh can change identity; keep the current
+                // user's list in sync without wiping unsaved guest items
+                // when no user is signed in.
+                const items = loadWishlist();
+                if (getUserId() !== 'guest') {
+                    state.items = items;
+                }
+            });
     },
 });
 
@@ -73,6 +100,7 @@ export const {
     removeFromWishlist,
     toggleWishlistItem,
     clearWishlist,
+    reloadWishlist,
 } = wishlistSlice.actions;
 
 export default wishlistSlice.reducer;

@@ -8,6 +8,9 @@ import { addToWishlist, removeFromWishlist, selectWishlistItems } from '../redux
 import Loader from '../components/common/Loader';
 import toast from 'react-hot-toast';
 import { getProductFallbackImage, getPlaceholderImage } from '../lib/utils';
+import { isMerchantHalalVerified } from '../utils/certification';
+import { useLanguage } from '../i18n/LanguageContext';
+import { backendError } from '../utils/backendErrors';
 import './ProductDetails.css';
 import reviewService from '../services/reviewService';
 import orderService from '../services/orderService';
@@ -15,6 +18,7 @@ import orderService from '../services/orderService';
 const ProductDetails = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
+    const { t, tp, formatETB, formatNumber, formatDate } = useLanguage();
     const { currentProduct: product, isLoading } = useSelector((state) => state.products);
     const { user } = useSelector((state) => state.auth);
     const [selectedImage, setSelectedImage] = useState(0);
@@ -90,10 +94,10 @@ const ProductDetails = () => {
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
-        if (!user) return toast.error('Please sign in to submit a review');
-        if (user.role === 'merchant') return toast.error('Merchants cannot submit product reviews');
-        if (!reviewRating) return toast.error('Please select a rating');
-        if (!selectedOrderRef) return toast.error('Select the delivered order to verify purchase');
+        if (!user) return toast.error(t('pd_signin_review'));
+        if (user.role === 'merchant') return toast.error(t('pd_merchant_no_reviews'));
+        if (!reviewRating) return toast.error(t('pd_select_rating'));
+        if (!selectedOrderRef) return toast.error(t('pd_select_order'));
 
         setSubmittingReview(true);
         try {
@@ -105,7 +109,7 @@ const ProductDetails = () => {
                 comment: reviewComment,
                 orderRef: selectedOrderRef,
             });
-            toast.success('Review submitted');
+            toast.success(t('pd_review_submitted'));
             // reset
             setReviewRating('');
             setReviewTitle('');
@@ -117,7 +121,7 @@ const ProductDetails = () => {
             setReviewsTotal(res.total || 0);
         } catch (err) {
             console.error(err);
-            toast.error(err.response?.data?.message || 'Failed to submit review');
+            toast.error(backendError(t, err, 'err_review_failed'));
         } finally {
             setSubmittingReview(false);
         }
@@ -157,37 +161,43 @@ const ProductDetails = () => {
 
     const wishlistItems = useSelector(selectWishlistItems);
     const isWishlisted = wishlistItems.some((item) => item._id === displayProduct._id);
+    // Same badge rule as the store: approved + certified. Falls back to the
+    // product flag when merchant status is absent (legacy shapes).
+    const merchantStatus = displayProduct.merchant?.verificationStatus;
+    const showHalalVerified = merchantStatus !== undefined
+        ? merchantStatus === 'approved' && (isMerchantHalalVerified(displayProduct.merchant) || !!displayProduct.halalCertified)
+        : !!displayProduct.halalCertified;
 
     const handleAddToCart = () => {
         if (user?.role === 'merchant') {
-            toast.error('Merchants cannot place orders. Manage your products in the dashboard.');
+            toast.error(t('err_merchant_forbidden_order'));
             return;
         }
         dispatch(addToCart({ product: displayProduct, quantity }));
         dispatch(openCart());
-        toast.success(`${displayProduct.name} added to cart!`);
+        toast.success(t('product_added', { name: displayProduct.name }));
     };
 
     const handleToggleWishlist = () => {
         if (isWishlisted) {
             dispatch(removeFromWishlist(displayProduct._id));
-            toast.success(`${displayProduct.name} removed from wishlist`);
+            toast.success(t('wishlist_removed', { name: displayProduct.name }));
         } else {
             dispatch(addToWishlist(displayProduct));
-            toast.success(`${displayProduct.name} added to wishlist`);
+            toast.success(t('wishlist_added', { name: displayProduct.name }));
         }
     };
 
-    if (isLoading) return <Loader size="page" text="Loading product..." />;
+    if (isLoading) return <Loader size="page" text={t('pd_loading_product')} />;
 
     return (
         <div className="product-details-page">
             {/* Breadcrumb */}
             <div className="breadcrumb">
                 <div className="container breadcrumb-inner">
-                    <Link to="/">Home</Link>
+                    <Link to="/">{t('nav_home')}</Link>
                     <FiChevronRight size={14} />
-                    <Link to="/shop">Shop</Link>
+                    <Link to="/shop">{t('nav_shop')}</Link>
                     <FiChevronRight size={14} />
                     <Link to={`/shop?category=${displayProduct.category}`}>{displayProduct.category?.replace('_', ' ')}</Link>
                     <FiChevronRight size={14} />
@@ -203,12 +213,14 @@ const ProductDetails = () => {
                             <img
                                 src={displayProduct.images?.[selectedImage]?.url || displayProduct.image || getProductFallbackImage(displayProduct.name, 600, 600)}
                                 alt={displayProduct.images?.[selectedImage]?.alt || displayProduct.name}
+                                fetchPriority="high"
+                                decoding="async"
                             />
-                            {displayProduct.halalCertified && (
-                                <span className="badge badge-halal product-detail-badge">Halal Certified</span>
+                            {showHalalVerified && (
+                                <span className="badge badge-halal product-detail-badge">{t('product_halal_verified')}</span>
                             )}
                             {discountPercent > 0 && (
-                                <span className="badge badge-sale product-detail-sale">-{discountPercent}% OFF</span>
+                                <span className="badge badge-sale product-detail-sale">-{discountPercent}%</span>
                             )}
                         </div>
                         {displayProduct.images?.length > 1 && (
@@ -219,7 +231,7 @@ const ProductDetails = () => {
                                         className={`thumbnail ${index === selectedImage ? 'thumbnail-active' : ''}`}
                                         onClick={() => setSelectedImage(index)}
                                     >
-                                        <img src={img.url} alt={img.alt || `View ${index + 1}`} />
+                                        <img src={img.url} alt={img.alt || `View ${index + 1}`} loading="lazy" decoding="async" />
                                     </button>
                                 ))}
                             </div>
@@ -237,7 +249,7 @@ const ProductDetails = () => {
                         {/* Merchant */}
                         {displayProduct.merchant && (
                             <Link to={`/merchant/${displayProduct.merchant._id || 'dm1'}`} className="product-merchant-badge" style={{ textDecoration: 'none' }}>
-                                {displayProduct.merchant.verificationStatus === 'approved' && <FiShield className="verified-icon" />}
+                                {showHalalVerified && <FiShield className="verified-icon" />}
                                 <span>{displayProduct.merchant.businessName}</span>
                                 <FiChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                             </Link>
@@ -257,14 +269,14 @@ const ProductDetails = () => {
                                 ))}
                             </div>
                             <span className="rating-value">{displayProduct.ratingsAverage?.toFixed(1)}</span>
-                            <span className="rating-count">({displayProduct.ratingsCount} reviews)</span>
+                            <span className="rating-count">({tp('pd_reviews', displayProduct.ratingsCount || 0)})</span>
                         </div>
 
                         {/* Price */}
                         <div className="product-info-price price price-lg">
-                            <span className="price-current">{effectivePrice?.toLocaleString()} ETB</span>
+                            <span className="price-current">{formatETB(effectivePrice)}</span>
                             {displayProduct.discountPrice && (
-                                <span className="price-original">{displayProduct.price?.toLocaleString()} ETB</span>
+                                <span className="price-original">{formatETB(displayProduct.price)}</span>
                             )}
                         </div>
 
@@ -272,18 +284,18 @@ const ProductDetails = () => {
                         <div className="product-quick-details">
                             {displayProduct.weight?.value && (
                                 <div className="quick-detail">
-                                    <span className="quick-detail-label">Weight</span>
-                                    <span>{displayProduct.weight.value} {displayProduct.weight.unit}</span>
+                                    <span className="quick-detail-label">{t('pd_weight')}</span>
+                                    <span>{formatNumber(displayProduct.weight.value)} {displayProduct.weight.unit}</span>
                                 </div>
                             )}
                             <div className="quick-detail">
-                                <span className="quick-detail-label">Origin</span>
-                                <span>{displayProduct.originCountry || 'Ethiopia'}</span>
+                                <span className="quick-detail-label">{t('pd_origin')}</span>
+                                <span>{displayProduct.originCountry || t('pd_ethiopia')}</span>
                             </div>
                             <div className="quick-detail">
-                                <span className="quick-detail-label">Stock</span>
+                                <span className="quick-detail-label">{t('pd_stock')}</span>
                                 <span className={displayProduct.isInStock ? 'in-stock' : 'out-stock'}>
-                                    {displayProduct.isInStock ? `In Stock (${displayProduct.stock})` : 'Out of Stock'}
+                                    {displayProduct.isInStock ? t('pd_in_stock', { stock: displayProduct.stock }) : t('product_out_of_stock')}
                                 </span>
                             </div>
                         </div>
@@ -307,7 +319,7 @@ const ProductDetails = () => {
                                 id="add-to-cart-btn"
                             >
                                 <FiShoppingCart size={20} />
-                                Add to Cart — {(effectivePrice * quantity)?.toLocaleString()} ETB
+                                {t('pd_add_to_cart_total', { total: formatETB(effectivePrice * quantity) })}
                             </button>
                         </div>
 
@@ -318,16 +330,39 @@ const ProductDetails = () => {
                                     onClick={handleToggleWishlist}
                                     type="button"
                                 >
-                                    <FiHeart size={18} /> {isWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                    <FiHeart size={18} /> {isWishlisted ? t('product_remove_wishlist') : t('product_add_wishlist')}
                                 </button>
                             )}
-                            <button className="btn btn-ghost" type="button"><FiShare2 size={18} /> Share</button>
+                            <button
+                                className="btn btn-ghost"
+                                type="button"
+                                onClick={async () => {
+                                    const url = window.location.href;
+                                    try {
+                                        if (navigator.share) {
+                                            await navigator.share({ title: displayProduct.name, url });
+                                        } else {
+                                            await navigator.clipboard.writeText(url);
+                                            toast.success(t('pd_link_copied'));
+                                        }
+                                    } catch {
+                                        try {
+                                            await navigator.clipboard.writeText(url);
+                                            toast.success(t('pd_link_copied'));
+                                        } catch {
+                                            toast.error(t('pd_share_failed'));
+                                        }
+                                    }
+                                }}
+                            >
+                                <FiShare2 size={18} /> {t('pd_share')}
+                            </button>
                         </div>
 
                         {/* Trust Indicators */}
                         <div className="product-trust">
-                            <div className="trust-mini"><FiShield /> Halal Certified by Majlis</div>
-                            <div className="trust-mini"><FiTruck /> Delivery across Ethiopia</div>
+                            {showHalalVerified && <div className="trust-mini"><FiShield /> {t('pd_trust_halal')}</div>}
+                            <div className="trust-mini"><FiTruck /> {t('pd_trust_delivery')}</div>
                         </div>
                     </div>
                 </div>
@@ -335,13 +370,17 @@ const ProductDetails = () => {
                 {/* Tabs */}
                 <div className="product-tabs">
                     <div className="tabs-nav">
-                        {['description', 'reviews', 'shipping'].map((tab) => (
+                        {[
+                            { id: 'description', label: t('pd_tab_description') },
+                            { id: 'reviews', label: t('pd_tab_reviews') },
+                            { id: 'shipping', label: t('pd_tab_shipping') },
+                        ].map((tab) => (
                             <button
-                                key={tab}
-                                className={`tab-btn ${activeTab === tab ? 'tab-active' : ''}`}
-                                onClick={() => setActiveTab(tab)}
+                                key={tab.id}
+                                className={`tab-btn ${activeTab === tab.id ? 'tab-active' : ''}`}
+                                onClick={() => setActiveTab(tab.id)}
                             >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                {tab.label}
                             </button>
                         ))}
                     </div>
@@ -351,7 +390,7 @@ const ProductDetails = () => {
                                 <p>{displayProduct.description}</p>
                                 {displayProduct.ingredients?.length > 0 && (
                                     <div style={{ marginTop: 'var(--space-6)' }}>
-                                        <h4>Ingredients</h4>
+                                        <h4>{t('pd_ingredients')}</h4>
                                         <ul>{displayProduct.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}</ul>
                                     </div>
                                 )}
@@ -363,21 +402,21 @@ const ProductDetails = () => {
                                 {user && user.role !== 'merchant' ? (
                                     <div className="review-form-section mb-4">
                                         {ordersLoading ? (
-                                            <p>Checking your delivered orders...</p>
+                                            <p>{t('pd_checking_orders')}</p>
                                         ) : userOrders.length === 0 ? (
-                                            <p className="text-body">You can leave a review after the product is delivered. See your <Link to="/orders">orders</Link>.</p>
+                                            <p className="text-body">{t('pd_review_after_delivery')} <Link to="/orders">{t('pd_orders_word')}</Link>.</p>
                                         ) : (
                                             <form onSubmit={handleSubmitReview} className="review-form">
-                                                <label className="label">Order (verified purchase)</label>
+                                                <label className="label">{t('pd_verified_order')}</label>
                                                 <select value={selectedOrderRef} onChange={(e) => setSelectedOrderRef(e.target.value)} className="input">
                                                     {userOrders.map((o) => (
-                                                        <option key={o._id} value={o._id}>{o.orderNumber || o._id.slice(-8).toUpperCase()} — {new Date(o.deliveredAt || o.createdAt).toLocaleDateString()}</option>
+                                                        <option key={o._id} value={o._id}>{o.orderNumber || o._id.slice(-8).toUpperCase()} — {formatDate(o.deliveredAt || o.createdAt)}</option>
                                                     ))}
                                                 </select>
 
-                                                <label className="label">Rating</label>
+                                                <label className="label">{t('pd_rating_label')}</label>
                                                 <select value={reviewRating} onChange={(e) => setReviewRating(e.target.value)} className="input" required>
-                                                    <option value="">Select rating</option>
+                                                    <option value="">{t('pd_select_rating_opt')}</option>
                                                     <option value="1">1</option>
                                                     <option value="2">2</option>
                                                     <option value="3">3</option>
@@ -385,26 +424,26 @@ const ProductDetails = () => {
                                                     <option value="5">5</option>
                                                 </select>
 
-                                                <label className="label">Title (optional)</label>
+                                                <label className="label">{t('pd_title_opt')}</label>
                                                 <input className="input" value={reviewTitle} onChange={(e) => setReviewTitle(e.target.value)} />
 
-                                                <label className="label">Comment</label>
+                                                <label className="label">{t('pd_comment')}</label>
                                                 <textarea className="input" rows={3} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} />
 
                                                 <div className="mt-2">
-                                                    <button className="btn btn-primary" type="submit" disabled={submittingReview}>{submittingReview ? 'Submitting...' : 'Submit Review'}</button>
+                                                    <button className="btn btn-primary" type="submit" disabled={submittingReview}>{submittingReview ? t('pd_submitting') : t('pd_submit_review')}</button>
                                                 </div>
                                             </form>
                                         )}
                                     </div>
                                 ) : (
-                                    <p className="text-body">Sign in as a customer to leave reviews.</p>
+                                    <p className="text-body">{t('pd_signin_customer')}</p>
                                 )}
 
                                 {reviewsLoading ? (
-                                    <p>Loading reviews...</p>
+                                    <p>{t('pd_loading_reviews')}</p>
                                 ) : reviews.length === 0 ? (
-                                    <p className="text-body">No reviews yet.</p>
+                                    <p className="text-body">{t('pd_no_reviews')}</p>
                                 ) : (
                                     <div className="reviews-list">
                                         {/* Rating breakdown */}
@@ -412,8 +451,8 @@ const ProductDetails = () => {
                                             <div className="rating-summary" style={{display:'flex',alignItems:'center',gap:12}}>
                                                 <div style={{fontSize:24,fontWeight:700}}>{(avgRatingRemote ?? displayProduct.ratingsAverage)?.toFixed(1)}</div>
                                                 <div>
-                                                    <div style={{fontSize:14}}>Average rating</div>
-                                                    <div style={{fontSize:12,color:'var(--text-tertiary)'}}>{reviewsTotal || displayProduct.ratingsCount} reviews</div>
+                                                    <div style={{fontSize:14}}>{t('pd_avg_rating')}</div>
+                                                    <div style={{fontSize:12,color:'var(--text-tertiary)'}}>{tp('pd_reviews', reviewsTotal || displayProduct.ratingsCount || 0)}</div>
                                                 </div>
                                             </div>
                                             <div className="rating-bars" style={{marginTop:12}}>
@@ -437,8 +476,8 @@ const ProductDetails = () => {
                                             <div key={r._id} className="review-item">
                                                 <div className="review-header">
                                                     <div className="review-author">
-                                                        <strong>{r.user ? `${r.user.firstName || ''} ${r.user.lastName || ''}`.trim() : 'Anonymous'}</strong>
-                                                        {r.isVerifiedPurchase && <span className="badge badge-verified" style={{marginLeft:8}}>Verified Purchase</span>}
+                                                        <strong>{r.user ? `${r.user.firstName || ''} ${r.user.lastName || ''}`.trim() : t('pd_anonymous')}</strong>
+                                                        {r.isVerifiedPurchase && <span className="badge badge-verified" style={{marginLeft:8}}>{t('pd_verified_purchase')}</span>}
                                                     </div>
                                                     <div className="review-meta">
                                                         <div className="review-rating">
@@ -446,7 +485,7 @@ const ProductDetails = () => {
                                                                 <FiStar key={s} size={14} color={s <= Math.round(r.rating) ? 'var(--accent-500)' : 'var(--gray-300)'} />
                                                             ))}
                                                         </div>
-                                                        <div className="review-date">{new Date(r.createdAt).toLocaleDateString()}</div>
+                                                        <div className="review-date">{formatDate(r.createdAt)}</div>
                                                     </div>
                                                 </div>
                                                 <div className="review-body">
@@ -458,7 +497,7 @@ const ProductDetails = () => {
 
                                         {reviewsTotal > reviews.length && (
                                             <div className="reviews-load-more">
-                                                <button className="btn btn-outline" onClick={() => setReviewsPage((p) => p + 1)}>Load more</button>
+                                                <button className="btn btn-outline" onClick={() => setReviewsPage((p) => p + 1)}>{t('pd_load_more')}</button>
                                             </div>
                                         )}
                                     </div>
@@ -467,9 +506,9 @@ const ProductDetails = () => {
                         )}
                         {activeTab === 'shipping' && (
                             <div className="tab-shipping">
-                                <h4>Shipping Information</h4>
-                                <p>We deliver across all 13 regions of Ethiopia. Standard delivery takes 2-5 business days within Addis Ababa and 5-10 days for other regions.</p>
-                                <h4 style={{ marginTop: 'var(--space-5)' }}>Payment Methods</h4>
+                                <h4>{t('pd_shipping_info')}</h4>
+                                <p>{t('pd_shipping_desc')}</p>
+                                <h4 style={{ marginTop: 'var(--space-5)' }}>{t('checkout_payment_method')}</h4>
                                 <div className="shipping-payments">
                                     <span className="payment-badge">TeleBirr</span>
                                     <span className="payment-badge">CBE Birr</span>

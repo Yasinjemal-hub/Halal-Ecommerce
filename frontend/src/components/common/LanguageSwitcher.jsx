@@ -3,7 +3,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { FiGlobe, FiChevronDown } from 'react-icons/fi';
 
 const LanguageSwitcher = () => {
-    const { language, setLanguage, languages } = useLanguage();
+    const { language, setLanguageAndPersist, languages, t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef(null);
 
@@ -20,7 +20,7 @@ const LanguageSwitcher = () => {
     }, []);
 
     const handleSelect = (code) => {
-        setLanguage(code);
+        setLanguageAndPersist(code);
         setIsOpen(false);
     };
 
@@ -29,7 +29,8 @@ const LanguageSwitcher = () => {
             <button
                 className="lang-switcher-btn"
                 onClick={() => setIsOpen(!isOpen)}
-                aria-label="Switch language"
+                aria-label={t('a11y_switch_language')}
+                aria-expanded={isOpen}
                 id="lang-switcher-toggle"
             >
                 <FiGlobe size={14} />
@@ -50,7 +51,7 @@ const LanguageSwitcher = () => {
                         >
                             <span className="lang-option-flag">{lang.flag}</span>
                             <span className="lang-option-name">{lang.nativeName}</span>
-                            {language === lang.code && <span className="lang-option-check">active</span>}
+                            {language === lang.code && <span className="lang-option-check">{t('a11y_active_language')}</span>}
                         </button>
                     ))}
                 </div>

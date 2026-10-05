@@ -72,10 +72,10 @@ const About = () => {
                         <div className="about-team-visual">
                             <div className="about-team-pattern pattern-overlay" />
                             <div className="about-team-stats">
-                                <div className="about-team-stat"><FiGlobe className="about-team-stat-emoji" /><span className="about-team-stat-val">13</span><span>Regions</span></div>
-                                <div className="about-team-stat"><FiShield className="about-team-stat-emoji" /><span className="about-team-stat-val">500+</span><span>Merchants</span></div>
-                                <div className="about-team-stat"><FiGlobe className="about-team-stat-emoji" /><span className="about-team-stat-val">4</span><span>Languages</span></div>
-                                <div className="about-team-stat"><FiStar className="about-team-stat-emoji" /><span className="about-team-stat-val">50K+</span><span>Customers</span></div>
+                                <div className="about-team-stat"><FiGlobe className="about-team-stat-emoji" /><span className="about-team-stat-val">13</span><span>{t('why_regions')}</span></div>
+                                <div className="about-team-stat"><FiShield className="about-team-stat-emoji" /><span className="about-team-stat-val">500+</span><span>{t('hero_stat_merchants')}</span></div>
+                                <div className="about-team-stat"><FiGlobe className="about-team-stat-emoji" /><span className="about-team-stat-val">5</span><span>{t('about_languages')}</span></div>
+                                <div className="about-team-stat"><FiStar className="about-team-stat-emoji" /><span className="about-team-stat-val">50K+</span><span>{t('hero_stat_customers')}</span></div>
                             </div>
                         </div>
                         <div className="about-team-text">

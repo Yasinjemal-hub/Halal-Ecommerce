@@ -2,40 +2,43 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiFilter, FiX, FiGrid, FiList, FiSearch, FiChevronDown } from 'react-icons/fi';
-import { fetchProducts, setFilters, clearFilters } from '../redux/slices/productSlice';
+import { fetchProducts, setFilters, setPage, clearFilters } from '../redux/slices/productSlice';
 import ProductCard from '../components/common/ProductCard';
 import Pagination from '../components/common/Pagination';
 import Loader from '../components/common/Loader';
 import merchantService from '../services/merchantService';
+import { useLanguage } from '../i18n/LanguageContext';
+import { mapBackendMessage } from '../utils/backendErrors';
 import './Shop.css';
 
 const CATEGORIES = [
-    { value: '', label: 'All Categories' },
-    { value: 'meat', label: 'Meat & Poultry' },
-    { value: 'poultry', label: 'Poultry' },
-    { value: 'dairy', label: 'Dairy' },
-    { value: 'spices', label: 'Spices' },
-    { value: 'bakery', label: 'Bakery' },
-    { value: 'honey', label: 'Honey' },
-    { value: 'grains', label: 'Grains' },
-    { value: 'clothing', label: 'Clothing' },
-    { value: 'cosmetics', label: 'Cosmetics' },
-    { value: 'perfume', label: 'Perfume' },
-    { value: 'books', label: 'Books' },
-    { value: 'home_decor', label: 'Home Décor' },
-    { value: 'beverages', label: 'Beverages' },
+    { value: '', key: 'shop_all_categories' },
+    { value: 'meat', key: 'cat_meat' },
+    { value: 'poultry', key: 'cat_poultry' },
+    { value: 'dairy', key: 'cat_dairy' },
+    { value: 'spices', key: 'cat_spices' },
+    { value: 'bakery', key: 'cat_bakery' },
+    { value: 'honey', key: 'cat_honey' },
+    { value: 'grains', key: 'cat_grains' },
+    { value: 'clothing', key: 'cat_clothing' },
+    { value: 'cosmetics', key: 'cat_cosmetics' },
+    { value: 'perfume', key: 'cat_perfume' },
+    { value: 'books', key: 'cat_books' },
+    { value: 'home_decor', key: 'cat_home_decor' },
+    { value: 'beverages', key: 'cat_beverages' },
 ];
 
 const SORT_OPTIONS = [
-    { value: '-createdAt', label: 'Newest First' },
-    { value: 'price', label: 'Price: Low to High' },
-    { value: '-price', label: 'Price: High to Low' },
-    { value: '-ratingsAverage', label: 'Top Rated' },
-    { value: 'name', label: 'Name: A-Z' },
+    { value: '-createdAt', key: 'shop_sort_newest' },
+    { value: 'price', key: 'shop_sort_price_asc' },
+    { value: '-price', key: 'shop_sort_price_desc' },
+    { value: '-ratingsAverage', key: 'shop_sort_rating' },
+    { value: 'name', key: 'shop_sort_name' },
 ];
 
 const Shop = () => {
     const dispatch = useDispatch();
+    const { t } = useLanguage();
     const [searchParams, setSearchParams] = useSearchParams();
     const { items, pagination, filters, isLoading, error } = useSelector((state) => state.products);
     const { user } = useSelector((state) => state.auth);
@@ -46,6 +49,7 @@ const Shop = () => {
     const [merchantLoading, setMerchantLoading] = useState(false);
     const [merchantError, setMerchantError] = useState(null);
     const [merchantPage, setMerchantPage] = useState(1);
+    const [merchantReload, setMerchantReload] = useState(0);
     const [isMerchantProfileLoading, setIsMerchantProfileLoading] = useState(false);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
@@ -117,7 +121,7 @@ const Shop = () => {
         };
 
         loadMerchantProducts();
-    }, [isMerchantUser, merchantId, filters, merchantPage]);
+    }, [isMerchantUser, merchantId, filters, merchantPage, merchantReload]);
 
     // Fetch products when filters change
     useEffect(() => {
@@ -172,7 +176,7 @@ const Shop = () => {
         if (isMerchantUser) {
             setMerchantPage(page);
         } else {
-            dispatch(setFilters({})); // triggers re-fetch
+            dispatch(setPage(page));
         }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -191,12 +195,12 @@ const Shop = () => {
                     <div className="shop-header-content">
                         <div>
                             <h1 className="heading-section">
-                                {isMerchantUser ? 'My Product Listings' : 'Shop Halal Products'}
+                                {isMerchantUser ? t('shop_my_listings') : t('shop_title')}
                             </h1>
                             <p className="text-body">
                                 {isMerchantUser
-                                    ? 'Review and manage the products you have listed on Halal Market.'
-                                    : `Browse ${pagination.total || displayProducts.length}+ verified halal products`}
+                                    ? t('shop_my_listings_desc')
+                                    : t('shop_browse_count', { count: pagination.total || displayProducts.length })}
                             </p>
                         </div>
                     </div>
@@ -207,7 +211,7 @@ const Shop = () => {
                 {/* Sidebar Filters (Desktop) */}
                 <aside className={`shop-filters ${isFilterOpen ? 'filters-open' : ''}`} id="shop-filters">
                     <div className="filters-header">
-                        <h3>Filters</h3>
+                        <h3>{t('shop_filters')}</h3>
                         <button className="filters-close" onClick={() => setIsFilterOpen(false)}>
                             <FiX size={20} />
                         </button>
@@ -215,12 +219,12 @@ const Shop = () => {
 
                     {/* Search */}
                     <div className="filter-group">
-                        <label className="filter-label">Search</label>
+                        <label className="filter-label">{t('shop_search_label')}</label>
                         <form onSubmit={handleSearch} className="filter-search">
                             <FiSearch size={16} />
                             <input
                                 type="text"
-                                placeholder="Search products..."
+                                placeholder={t('shop_search_placeholder')}
                                 value={localSearch}
                                 onChange={(e) => setLocalSearch(e.target.value)}
                                 className="input"
@@ -230,7 +234,7 @@ const Shop = () => {
 
                     {/* Category Filter */}
                     <div className="filter-group">
-                        <label className="filter-label">Category</label>
+                        <label className="filter-label">{t('shop_category')}</label>
                         <div className="filter-options">
                             {CATEGORIES.map((cat) => (
                                 <button
@@ -238,7 +242,7 @@ const Shop = () => {
                                     className={`filter-option ${filters.category === cat.value ? 'filter-option-active' : ''}`}
                                     onClick={() => handleFilterChange('category', cat.value)}
                                 >
-                                    {cat.label}
+                                    {t(cat.key)}
                                 </button>
                             ))}
                         </div>
@@ -246,11 +250,11 @@ const Shop = () => {
 
                     {/* Price Range */}
                     <div className="filter-group">
-                        <label className="filter-label">Price Range (ETB)</label>
+                        <label className="filter-label">{t('shop_price_range')}</label>
                         <div className="filter-price-range">
                             <input
                                 type="number"
-                                placeholder="Min"
+                                placeholder={t('shop_min')}
                                 value={filters.minPrice}
                                 onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                                 className="input"
@@ -258,7 +262,7 @@ const Shop = () => {
                             <span>—</span>
                             <input
                                 type="number"
-                                placeholder="Max"
+                                placeholder={t('shop_max')}
                                 value={filters.maxPrice}
                                 onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                                 className="input"
@@ -275,13 +279,13 @@ const Shop = () => {
                                 onChange={(e) => handleFilterChange('halalCertified', e.target.checked)}
                             />
                             <span className="filter-checkbox-custom" />
-                            <span>Halal Certified Only</span>
+                            <span>{t('shop_halal_only')}</span>
                         </label>
                     </div>
 
                     {hasActiveFilters && (
                         <button className="btn btn-ghost filter-clear" onClick={handleClearFilters}>
-                            <FiX size={16} /> Clear All Filters
+                            <FiX size={16} /> {t('shop_clear_filters')}
                         </button>
                     )}
                 </aside>
@@ -291,7 +295,7 @@ const Shop = () => {
                     {/* Toolbar */}
                     <div className="shop-toolbar">
                         <button className="btn btn-outline btn-sm filter-toggle" onClick={() => setIsFilterOpen(true)} id="filter-toggle-btn">
-                            <FiFilter size={16} /> Filters
+                            <FiFilter size={16} /> {t('shop_filters')}
                         </button>
 
                         <div className="shop-toolbar-right">
@@ -303,7 +307,7 @@ const Shop = () => {
                                     id="sort-select"
                                 >
                                     {SORT_OPTIONS.map((opt) => (
-                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        <option key={opt.value} value={opt.value}>{t(opt.key)}</option>
                                     ))}
                                 </select>
                                 <FiChevronDown className="sort-icon" />
@@ -313,14 +317,14 @@ const Shop = () => {
                                 <button
                                     className={`view-mode-btn ${viewMode === 'grid' ? 'view-active' : ''}`}
                                     onClick={() => setViewMode('grid')}
-                                    aria-label="Grid view"
+                                    aria-label={t('a11y_grid_view')}
                                 >
                                     <FiGrid size={18} />
                                 </button>
                                 <button
                                     className={`view-mode-btn ${viewMode === 'list' ? 'view-active' : ''}`}
                                     onClick={() => setViewMode('list')}
-                                    aria-label="List view"
+                                    aria-label={t('a11y_list_view')}
                                 >
                                     <FiList size={18} />
                                 </button>
@@ -333,19 +337,19 @@ const Shop = () => {
                         <div className="active-filters">
                             {filters.category && (
                                 <span className="filter-chip">
-                                    {CATEGORIES.find(c => c.value === filters.category)?.label || filters.category}
+                                    {t(CATEGORIES.find(c => c.value === filters.category)?.key || 'shop_all_categories')}
                                     <button onClick={() => handleFilterChange('category', '')}><FiX size={14} /></button>
                                 </span>
                             )}
                             {filters.search && (
                                 <span className="filter-chip">
-                                    Search: "{filters.search}"
+                                    {t('shop_chip_search', { query: filters.search })}
                                     <button onClick={() => handleFilterChange('search', '')}><FiX size={14} /></button>
                                 </span>
                             )}
                             {filters.halalCertified && (
                                 <span className="filter-chip">
-                                    Halal Certified
+                                    {t('shop_chip_halal')}
                                     <button onClick={() => handleFilterChange('halalCertified', false)}><FiX size={14} /></button>
                                 </span>
                             )}
@@ -354,17 +358,17 @@ const Shop = () => {
 
                     {/* Products */}
                     {isLoadingProducts ? (
-                        <Loader text="Loading halal products..." />
+                        <Loader text={t('shop_loading')} />
                     ) : errorMessage ? (
                         <div className="shop-error">
-                            <p>{errorMessage}</p>
+                            <p>{mapBackendMessage(t, errorMessage) || t('err_load_products')}</p>
                             <button className="btn btn-primary" onClick={() => {
                                 if (isMerchantUser) {
-                                    setMerchantPage(merchantPage);
+                                    setMerchantReload((n) => n + 1);
                                 } else {
                                     dispatch(fetchProducts({}));
                                 }
-                            }}>Try Again</button>
+                            }}>{t('shop_try_again')}</button>
                         </div>
                     ) : (
                         <>
@@ -377,9 +381,9 @@ const Shop = () => {
                             {displayProducts.length === 0 && (
                                 <div className="shop-empty">
                                     <div className="shop-empty-icon"><FiSearch size={48} /></div>
-                                    <h3>No products found</h3>
-                                    <p>Try adjusting your filters or search terms</p>
-                                    <button className="btn btn-primary" onClick={handleClearFilters}>Clear Filters</button>
+                                    <h3>{t('shop_no_products')}</h3>
+                                    <p>{t('shop_no_products_desc')}</p>
+                                    <button className="btn btn-primary" onClick={handleClearFilters}>{t('shop_clear_filters')}</button>
                                 </div>
                             )}
 

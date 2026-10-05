@@ -6,20 +6,23 @@ import orderService from '../services/orderService';
 import cartService from '../services/cartService';
 import toast from 'react-hot-toast';
 import { getThumbnailFallbackImage } from '../lib/utils';
+import { useLanguage } from '../i18n/LanguageContext';
+import { backendError } from '../utils/backendErrors';
 import './Checkout.css';
 
 const PAYMENT_METHODS = [
-    { id: 'telebirr', name: 'TeleBirr', icon: 'Mobile', description: 'Pay via TeleBirr mobile money' },
-    { id: 'cbe_birr', name: 'CBE Birr', icon: 'Bank', description: 'Commercial Bank of Ethiopia' },
-    { id: 'amole', name: 'Amole', icon: 'Wallet', description: 'Dashen Bank digital wallet' },
-    { id: 'bank_transfer', name: 'Bank Transfer', icon: 'Transfer', description: 'Direct bank transfer' },
-    { id: 'cash_on_delivery', name: 'Cash on Delivery', icon: 'Cash', description: 'Pay when you receive' },
+    { id: 'telebirr', nameKey: 'checkout_telebirr', icon: 'Mobile', descKey: 'pay_telebirr_desc' },
+    { id: 'cbe_birr', nameKey: 'checkout_cbe', icon: 'Bank', descKey: 'pay_cbe_desc' },
+    { id: 'amole', nameKey: 'checkout_amole', icon: 'Wallet', descKey: 'pay_amole_desc' },
+    { id: 'bank_transfer', nameKey: 'checkout_bank', icon: 'Transfer', descKey: 'pay_bank_desc' },
+    { id: 'cash_on_delivery', nameKey: 'checkout_cod', icon: 'Cash', descKey: 'pay_cod_desc' },
 ];
 
 const REGIONS = ['Addis Ababa', 'Afar', 'Amhara', 'Benishangul-Gumuz', 'Dire Dawa', 'Gambella', 'Harari', 'Oromia', 'Sidama', 'Somali', 'South West Ethiopia', 'Southern Nations', 'Tigray'];
 
 const Checkout = () => {
     const dispatch = useDispatch();
+    const { t, formatETB } = useLanguage();
     const items = useSelector(selectCartItems);
     const total = useSelector(selectCartTotal);
     const deliveryFee = total > 5000 ? 0 : 150;
@@ -28,6 +31,7 @@ const Checkout = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [step, setStep] = useState(1);
+    const [placedOrder, setPlacedOrder] = useState(null);
     const [shippingData, setShippingData] = useState({
         fullName: '', phone: '', street: '', subcity: '', woreda: '', city: 'Addis Ababa', region: 'Addis Ababa', instructions: '',
     });
@@ -40,7 +44,7 @@ const Checkout = () => {
     const handleShippingSubmit = (e) => {
         e.preventDefault();
         if (!shippingData.fullName || !shippingData.phone) {
-            toast.error('Please fill required fields');
+            toast.error(t('co_fill_required'));
             return;
         }
         setStep(2);
@@ -48,7 +52,7 @@ const Checkout = () => {
 
     const handlePlaceOrder = async () => {
         if (!selectedPayment) {
-            toast.error('Please select a payment method');
+            toast.error(t('co_select_payment'));
             return;
         }
         setIsSubmitting(true);
@@ -64,7 +68,7 @@ const Checkout = () => {
             // Validate that cart is not empty
             // Backend will validate product IDs and availability
             if (items.length === 0) {
-                toast.error('Your cart is empty. Please add items before placing an order.');
+                toast.error(t('err_cart_empty'));
                 setIsSubmitting(false);
                 return;
             }
@@ -89,26 +93,46 @@ const Checkout = () => {
                 paymentMethod: selectedPayment,
                 deliveryFee: deliveryFee,
             };
-            await orderService.create(orderData);
+            const res = await orderService.create(orderData);
+            const saved = res.order || res;
+            setPlacedOrder(saved);
             dispatch(clearCart());
-            toast.success('Order placed successfully!', { duration: 4000 });
+            try {
+                await cartService.clearCart();
+            } catch {
+                // Local cart is already cleared; server cart was emptied by ordering.
+            }
+            toast.success(t('co_success'), { duration: 4000 });
             setStep(3);
         } catch (error) {
-            const msg = error.response?.data?.message || 'Failed to place order. Please try again.';
-            toast.error(msg);
+            toast.error(backendError(t, error, 'err_order_failed'));
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    if (items.length === 0 && step !== 3) {
+        return (
+            <div className="checkout-page">
+                <div className="container" style={{ textAlign: 'center', padding: '4rem 0' }}>
+                    <h1 className="heading-section">{t('checkout_title')}</h1>
+                    <p className="text-body" style={{ margin: '1rem 0 2rem' }}>
+                        {t('co_empty')}
+                    </p>
+                    <a href="/shop" className="btn btn-primary btn-lg">{t('cart_browse')}</a>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="checkout-page">
             <div className="container">
-                <h1 className="heading-section" style={{ marginBottom: 'var(--space-8)' }}>Checkout</h1>
+                <h1 className="heading-section" style={{ marginBottom: 'var(--space-8)' }}>{t('checkout_title')}</h1>
 
                 {/* Progress Steps */}
                 <div className="checkout-steps">
-                    {['Shipping', 'Payment', 'Confirmation'].map((label, i) => (
+                    {[t('co_step_shipping'), t('co_step_payment'), t('co_step_confirmation')].map((label, i) => (
                         <div key={i} className={`checkout-step ${step > i ? 'step-completed' : ''} ${step === i + 1 ? 'step-active' : ''}`}>
                             <div className="step-circle">{step > i + 1 ? <FiCheck /> : i + 1}</div>
                             <span className="step-label">{label}</span>
@@ -121,49 +145,49 @@ const Checkout = () => {
                         {/* Step 1: Shipping */}
                         {step === 1 && (
                             <div className="checkout-section animate-fade-in-up">
-                                <h2><FiMapPin /> Shipping Address</h2>
+                                <h2><FiMapPin /> {t('checkout_delivery_info')}</h2>
                                 <form onSubmit={handleShippingSubmit} className="checkout-form" id="shipping-form">
                                     <div className="form-row">
                                         <div className="input-group">
-                                            <label className="input-label">Full Name *</label>
-                                            <input name="fullName" value={shippingData.fullName} onChange={handleShippingChange} className="input" placeholder="Full name" required />
+                                            <label className="input-label">{t('checkout_full_name')} *</label>
+                                            <input name="fullName" value={shippingData.fullName} onChange={handleShippingChange} className="input" placeholder={t('co_full_name_ph')} required />
                                         </div>
                                         <div className="input-group">
-                                            <label className="input-label">Phone *</label>
-                                            <input name="phone" value={shippingData.phone} onChange={handleShippingChange} className="input" placeholder="+251 9XX XXX XXX" required />
+                                            <label className="input-label">{t('checkout_phone')} *</label>
+                                            <input name="phone" value={shippingData.phone} onChange={handleShippingChange} className="input" placeholder={t('auth_phone_placeholder')} required />
                                         </div>
                                     </div>
                                     <div className="input-group">
-                                        <label className="input-label">Street Address</label>
-                                        <input name="street" value={shippingData.street} onChange={handleShippingChange} className="input" placeholder="Street address" />
+                                        <label className="input-label">{t('checkout_address')}</label>
+                                        <input name="street" value={shippingData.street} onChange={handleShippingChange} className="input" placeholder={t('co_street_ph')} />
                                     </div>
                                     <div className="form-row">
                                         <div className="input-group">
-                                            <label className="input-label">Sub City</label>
-                                            <input name="subcity" value={shippingData.subcity} onChange={handleShippingChange} className="input" placeholder="Sub city" />
+                                            <label className="input-label">{t('checkout_subcity')}</label>
+                                            <input name="subcity" value={shippingData.subcity} onChange={handleShippingChange} className="input" placeholder={t('co_subcity_ph')} />
                                         </div>
                                         <div className="input-group">
-                                            <label className="input-label">Woreda</label>
-                                            <input name="woreda" value={shippingData.woreda} onChange={handleShippingChange} className="input" placeholder="Woreda" />
+                                            <label className="input-label">{t('co_woreda')}</label>
+                                            <input name="woreda" value={shippingData.woreda} onChange={handleShippingChange} className="input" placeholder={t('co_woreda')} />
                                         </div>
                                     </div>
                                     <div className="form-row">
                                         <div className="input-group">
-                                            <label className="input-label">City</label>
+                                            <label className="input-label">{t('checkout_city')}</label>
                                             <input name="city" value={shippingData.city} onChange={handleShippingChange} className="input" />
                                         </div>
                                         <div className="input-group">
-                                            <label className="input-label">Region</label>
+                                            <label className="input-label">{t('checkout_region')}</label>
                                             <select name="region" value={shippingData.region} onChange={handleShippingChange} className="input">
                                                 {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                                             </select>
                                         </div>
                                     </div>
                                     <div className="input-group">
-                                        <label className="input-label">Delivery Instructions (optional)</label>
-                                        <textarea name="instructions" value={shippingData.instructions} onChange={handleShippingChange} className="input" rows={3} placeholder="Any special instructions..." />
+                                        <label className="input-label">{t('checkout_notes')}</label>
+                                        <textarea name="instructions" value={shippingData.instructions} onChange={handleShippingChange} className="input" rows={3} placeholder={t('co_instructions_ph')} />
                                     </div>
-                                    <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>Continue to Payment</button>
+                                    <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%' }}>{t('co_continue_payment')}</button>
                                 </form>
                             </div>
                         )}
@@ -171,7 +195,7 @@ const Checkout = () => {
                         {/* Step 2: Payment */}
                         {step === 2 && (
                             <div className="checkout-section animate-fade-in-up">
-                                <h2><FiCreditCard /> Payment Method</h2>
+                                <h2><FiCreditCard /> {t('checkout_payment_method')}</h2>
                                 <div className="payment-methods">
                                     {PAYMENT_METHODS.map((pm) => (
                                         <button
@@ -181,17 +205,17 @@ const Checkout = () => {
                                         >
                                             <span className="payment-method-icon">{pm.icon}</span>
                                             <div>
-                                                <p className="payment-method-name">{pm.name}</p>
-                                                <p className="payment-method-desc">{pm.description}</p>
+                                                <p className="payment-method-name">{t(pm.nameKey)}</p>
+                                                <p className="payment-method-desc">{t(pm.descKey)}</p>
                                             </div>
                                             {selectedPayment === pm.id && <FiCheck className="payment-check" />}
                                         </button>
                                     ))}
                                 </div>
                                 <div className="checkout-nav">
-                                    <button className="btn btn-ghost" onClick={() => setStep(1)}>Back to Shipping</button>
+                                    <button className="btn btn-ghost" onClick={() => setStep(1)}>{t('co_back_shipping')}</button>
                                     <button className="btn btn-primary btn-lg" onClick={handlePlaceOrder} disabled={isSubmitting}>
-                                        {isSubmitting ? <span className="spinner spinner-sm" /> : `Place Order — ${grandTotal.toLocaleString()} ETB`}
+                                        {isSubmitting ? <span className="spinner spinner-sm" /> : t('co_place_order_total', { total: formatETB(grandTotal) })}
                                     </button>
                                 </div>
                             </div>
@@ -201,12 +225,21 @@ const Checkout = () => {
                         {step === 3 && (
                             <div className="checkout-section checkout-confirmation animate-scale-in">
                                 <div className="confirmation-icon"><FiCheck size={48} /></div>
-                                <h2>Order Placed Successfully!</h2>
-                                <p>Thank you for shopping with Halal Market Ethiopia! Your order has been received and is being processed.</p>
-                                <p className="text-ethiopic" style={{ fontSize: '1.25rem', color: 'var(--primary-500)' }}>አመሰግናለሁ!</p>
+                                <h2>{t('co_success')}</h2>
+                                <p>{t('co_thanks')}</p>
+                                {placedOrder && placedOrder.totalPrice !== undefined && (
+                                    <p className="text-body">
+                                        {t('co_placed', {
+                                            number: placedOrder.orderNumber || String(placedOrder._id || '').slice(-8).toUpperCase(),
+                                            total: formatETB(Number(placedOrder.totalPrice)),
+                                        })}
+                                    </p>
+                                )}
+                                <p className="text-ethiopic" style={{ fontSize: '1.25rem', color: 'var(--primary-500)' }}>{t('co_gratitude')}</p>
                                 <div className="confirmation-actions">
-                                    <a href="/shop" className="btn btn-primary btn-lg">Continue Shopping</a>
-                                    <a href="/orders" className="btn btn-outline btn-lg">View Orders</a>
+                                    <a href="/shop" className="btn btn-primary btn-lg">{t('cart_continue')}</a>
+                                    <a href={placedOrder?._id ? `/orders/${placedOrder._id}` : '/orders'} className="btn btn-outline btn-lg">{t('co_view_order')}</a>
+                                    <a href="/orders" className="btn btn-ghost btn-lg">{t('co_history')}</a>
                                 </div>
                             </div>
                         )}
@@ -215,25 +248,25 @@ const Checkout = () => {
                     {/* Order Summary Sidebar */}
                     <div className="checkout-summary">
                         <div className="cart-summary-card">
-                            <h3>Order Summary</h3>
+                            <h3>{t('checkout_order_summary')}</h3>
                             <div className="checkout-items-list">
                             {items.map((item) => (
                                 <div key={item._id} className="checkout-item">
-                                    <img src={item.images?.[0]?.url || getThumbnailFallbackImage(item.name?.charAt(0) || 'H')} alt={item.name} />
+                                    <img src={item.images?.[0]?.url || getThumbnailFallbackImage(item.name?.charAt(0) || 'H')} alt={item.name} loading="lazy" decoding="async" />
                                     <div>
                                             <p className="checkout-item-name">{item.name}</p>
-                                            <p className="checkout-item-qty">Qty: {item.quantity}</p>
+                                            <p className="checkout-item-qty">{t('co_qty', { qty: item.quantity })}</p>
                                         </div>
-                                        <span>{((item.discountPrice || item.price) * item.quantity).toLocaleString()} ETB</span>
+                                        <span>{formatETB((item.discountPrice || item.price) * item.quantity)}</span>
                                     </div>
                                 ))}
                             </div>
                             <div className="summary-divider" />
-                            <div className="summary-row"><span>Subtotal</span><span>{total.toLocaleString()} ETB</span></div>
-                            <div className="summary-row"><span>Delivery</span><span>{deliveryFee === 0 ? 'FREE' : `${deliveryFee} ETB`}</span></div>
-                            <div className="summary-row"><span>VAT (15%)</span><span>{tax.toLocaleString()} ETB</span></div>
+                            <div className="summary-row"><span>{t('cart_subtotal')}</span><span>{formatETB(total)}</span></div>
+                            <div className="summary-row"><span>{t('cart_delivery')}</span><span>{deliveryFee === 0 ? t('cart_free') : formatETB(deliveryFee)}</span></div>
+                            <div className="summary-row"><span>{t('cart_vat')}</span><span>{formatETB(tax)}</span></div>
                             <div className="summary-divider" />
-                            <div className="summary-row summary-total"><span>Total</span><span>{grandTotal.toLocaleString()} ETB</span></div>
+                            <div className="summary-row summary-total"><span>{t('cart_total')}</span><span>{formatETB(grandTotal)}</span></div>
                         </div>
                     </div>
                 </div>

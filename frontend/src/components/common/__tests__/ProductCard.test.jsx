@@ -7,6 +7,7 @@ import cartReducer from '../../../redux/slices/cartSlice';
 import wishlistReducer from '../../../redux/slices/wishlistSlice';
 import authReducer from '../../../redux/slices/authSlice';
 import ProductCard from '../ProductCard';
+import { LanguageProvider } from '../../../i18n/LanguageContext';
 
 const mockProduct = {
   _id: '123',
@@ -38,9 +39,11 @@ const renderProductCard = (product = mockProduct, authState = { isAuthenticated:
 
   return render(
     <Provider store={store}>
-      <BrowserRouter>
-        <ProductCard product={product} />
-      </BrowserRouter>
+      <LanguageProvider>
+        <BrowserRouter>
+          <ProductCard product={product} />
+        </BrowserRouter>
+      </LanguageProvider>
     </Provider>
   );
 };
@@ -102,5 +105,33 @@ describe('ProductCard Component', () => {
     });
     const addBtn = screen.getByTitle('Merchants cannot add to cart');
     expect(addBtn).toBeDisabled();
+  });
+
+  it('shows the Halal Verified badge for approved + certified stores', () => {
+    renderProductCard({
+      ...mockProduct,
+      merchant: {
+        businessName: 'Certified Store',
+        verificationStatus: 'approved',
+        halalCertification: { status: 'approved', certificateNumber: 'HC-2026-X1', expiryDate: '2027-01-01T00:00:00.000Z' },
+      },
+    });
+    expect(screen.getByText('Halal Verified')).toBeInTheDocument();
+  });
+
+  it('hides the Halal Verified badge for pending, rejected, or suspended stores', () => {
+    for (const verificationStatus of ['pending', 'rejected', 'suspended']) {
+      const { unmount } = render(
+        <Provider store={configureStore({ reducer: { cart: cartReducer, wishlist: wishlistReducer, auth: authReducer }, preloadedState: { auth: { isAuthenticated: false, user: null }, cart: { items: [], isCartOpen: false }, wishlist: { items: [] } } })}>
+          <LanguageProvider>
+            <BrowserRouter>
+              <ProductCard product={{ ...mockProduct, merchant: { businessName: 'S', verificationStatus, halalCertification: { status: 'approved', certificateNumber: 'HC-2026-X1', expiryDate: '2027-01-01T00:00:00.000Z' } } }} />
+            </BrowserRouter>
+          </LanguageProvider>
+        </Provider>
+      );
+      expect(screen.queryByText('Halal Verified')).not.toBeInTheDocument();
+      unmount();
+    }
   });
 });

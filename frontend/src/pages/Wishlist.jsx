@@ -14,20 +14,22 @@ import {
 import { addToCart, openCart } from "../redux/slices/cartSlice";
 import toast from "react-hot-toast";
 import { getProductFallbackImage } from "../lib/utils";
+import { useLanguage } from "../i18n/LanguageContext";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
+  const { t, formatETB } = useLanguage();
   const wishlistItems = useSelector(selectWishlistItems);
 
   const handleRemove = (id) => {
     dispatch(removeFromWishlist(id));
-    toast.success("Removed from wishlist");
+    toast.success(t("wishlist_removed_toast"));
   };
 
   const handleAddToCart = (product) => {
     dispatch(addToCart({ product, quantity: 1 }));
     dispatch(openCart());
-    toast.success(`${product.name} added to cart!`);
+    toast.success(t("product_added", { name: product.name }));
   };
 
   return (
@@ -36,7 +38,7 @@ const Wishlist = () => {
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           {/* <FiHeart size={56} style={{ color: '#0D7C3D', marginBottom: '1rem' }} /> */}
           <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-            My Wishlist
+            {t("wishlist_title")}
           </h1>
           <p
             style={{
@@ -46,8 +48,7 @@ const Wishlist = () => {
               maxWidth: "720px",
             }}
           >
-            The products you add to your wishlist are saved here so you can
-            revisit them later.
+            {t("wishlist_desc")}
           </p>
         </div>
 
@@ -56,8 +57,7 @@ const Wishlist = () => {
             style={{ textAlign: "center", maxWidth: "720px", margin: "0 auto" }}
           >
             <p style={{ color: "var(--text-secondary)", marginBottom: "2rem" }}>
-              Your wishlist is empty. Add products from the shop or product
-              pages to save them here.
+              {t("wishlist_empty")}
             </p>
             <div
               style={{
@@ -68,10 +68,10 @@ const Wishlist = () => {
               }}
             >
               <Link to="/shop" className="btn btn-primary">
-                Continue Shopping <FiArrowRight size={16} />
+                {t("wishlist_continue")} <FiArrowRight size={16} />
               </Link>
               <Link to="/cart" className="btn btn-outline">
-                View Cart
+                {t("wishlist_view_cart")}
               </Link>
             </div>
           </div>
@@ -138,7 +138,7 @@ const Wishlist = () => {
                       {product.merchant?.businessName || "Halal Market"}
                     </p>
                     <p style={{ margin: "0.75rem 0 0", fontWeight: 700 }}>
-                      ETB {effectivePrice?.toLocaleString()}
+                      {formatETB(effectivePrice)}
                       {product.discountPrice && (
                         <span
                           style={{
@@ -148,7 +148,7 @@ const Wishlist = () => {
                             fontWeight: 400,
                           }}
                         >
-                          ETB {product.price?.toLocaleString()}
+                          {formatETB(product.price)}
                         </span>
                       )}
                     </p>
@@ -171,7 +171,7 @@ const Wishlist = () => {
                         size={16}
                         style={{ marginRight: "0.5rem" }}
                       />{" "}
-                      Add to Cart
+                      {t("wishlist_add_cart")}
                     </button>
                     <button
                       className="btn btn-ghost"
@@ -179,7 +179,7 @@ const Wishlist = () => {
                       type="button"
                     >
                       <FiTrash2 size={16} style={{ marginRight: "0.5rem" }} />{" "}
-                      Remove
+                      {t("wishlist_remove")}
                     </button>
                   </div>
                 </div>

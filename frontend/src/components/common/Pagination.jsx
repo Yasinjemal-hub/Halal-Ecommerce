@@ -1,8 +1,10 @@
 import React from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useLanguage } from '../../i18n/LanguageContext';
 import './Pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+    const { t } = useLanguage();
     if (totalPages <= 1) return null;
 
     const getPageNumbers = () => {
@@ -32,7 +34,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 className="pagination-btn pagination-nav"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                aria-label="Previous page"
+                aria-label={t('a11y_prev_page')}
             >
                 <FiChevronLeft size={18} />
             </button>
@@ -55,7 +57,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 className="pagination-btn pagination-nav"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                aria-label="Next page"
+                aria-label={t('a11y_next_page')}
             >
                 <FiChevronRight size={18} />
             </button>
